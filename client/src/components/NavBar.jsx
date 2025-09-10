@@ -13,14 +13,13 @@ import {
   SidebarGroupContent,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "./ModeToggle";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "./ui/dropdown-menu";
-import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 export default function NavBar(props) {
   return (
@@ -37,39 +36,63 @@ export default function NavBar(props) {
 function AppSidebar() {
   return (
     <Sidebar>
-      <SidebarHeader className="my-3 mx-3">
+      <SidebarHeader className="my-2 mx-3">
         <div>
           <ModeToggle />
           <span className="ml-3">REQUI APP</span>
         </div>
-
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
-                  Shrek - Superuser
-                  <ChevronDown className="ml-auto" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent side="bottom">
-                <DropdownMenuItem>Edit my profile</DropdownMenuItem>
-                <DropdownMenuItem>Sign out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="my-3 mx-3">
+      <SidebarContent className="my-2 mx-3">
+        <Collapsible className="group/collapsible">
+          <SidebarGroup>
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger>
+                Shrek - Superuser
+                <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/">Edit my profile</Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/">Sign out</Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
+
         <SidebarGroup>
-          <SidebarGroupLabel>My Links</SidebarGroupLabel>
+          <SidebarGroupLabel>Important Links</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/">Dashboard</Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/">Pending Approvals</Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/">Approval History</Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/">Advanced Search for PRs/POs</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -78,29 +101,29 @@ function AppSidebar() {
 
         {/* REQUISITION NAV */}
         <SidebarGroup>
-          <SidebarGroupLabel>Requisition</SidebarGroupLabel>
+          <SidebarGroupLabel>Requisitions</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Create New PR</Link>
+                  <Link to="/pr/create">Create New PR</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Pending PR</Link>
+                  <Link to="/">My PRs</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Completed PR</Link>
+                  <Link to="/">PRs Awaiting MMD Action</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* PURCHASE ORDERS NAV */}
+        {/* PURCHASE ORDERS NAV - only for MMD & Finance */}
         <SidebarGroup>
           <SidebarGroupLabel>Purchase Orders</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -112,12 +135,12 @@ function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Completed POs</Link>
+                  <Link to="/">PRs Pending Payment</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Search POs</Link>
+                  <Link to="/">Completed POs</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -136,12 +159,7 @@ function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Update Supplier Info</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">Search Suppliers</Link>
+                  <Link to="/">Manage Suppliers</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

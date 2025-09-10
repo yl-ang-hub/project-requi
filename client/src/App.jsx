@@ -3,17 +3,19 @@ import NavBar from "./components/NavBar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
-import AuthCtx from "./components/context/authContext";
+import AuthContext from "./components/context/authContext";
+import Registration from "./pages/Registration";
+import PRCreate from "./pages/PRCreate";
 
 function App() {
-  const authCtx = use(AuthCtx);
+  const authCtx = use(AuthContext);
   const [accessToken, setAccessToken] = useState("");
   const [username, setUsername] = useState("");
   const [userId, setUserId] = useState("");
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <AuthCtx.Provider
+      <AuthContext.Provider
         value={{
           accessToken,
           setAccessToken,
@@ -26,14 +28,17 @@ function App() {
           <div className="max-w-sm">
             <NavBar></NavBar>
           </div>
-          <div className="w-full flex bg-red-100">
+          <div className="w-full flex">
             <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/admin/users/add" element={<Registration />} />
+              {/* <Route path="/admin/users" /> */}
+              <Route path="/pr/create" element={<PRCreate />} />
             </Routes>
           </div>
         </div>
-      </AuthCtx.Provider>
+      </AuthContext.Provider>
     </ThemeProvider>
   );
 }
