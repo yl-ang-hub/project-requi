@@ -60,6 +60,13 @@ function AppSidebar() {
                       <Link to="/">Edit my profile</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/">Change my password</Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Link to="/">Sign out</Link>
@@ -178,7 +185,7 @@ function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Edit Existing User</Link>
+                  <Link to="/admin/users/search">Search/Edit User</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

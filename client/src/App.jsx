@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import AuthContext from "./components/context/authContext";
 import PRCreate from "./pages/PRCreate";
 import UserCreate from "./pages/UserCreate";
+import UserSearch from "./pages/UserSearch";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -35,6 +36,7 @@ function App() {
               {/* <Route path="/admin/users" /> */}
               <Route path="/pr/create" element={<PRCreate />} />
               <Route path="/admin/users/add" element={<UserCreate />} />
+              <Route path="/admin/users/search" element={<UserSearch />} />
             </Routes>
           </div>
         </div>

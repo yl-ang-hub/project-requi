@@ -15,9 +15,11 @@ import { Input } from "@/components/ui/input";
 import FormComboBox from "@/components/FormComboBox";
 import useFetch from "@/hooks/useFetch";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const UserCreate = () => {
   const fetchData = useFetch();
+  const navigate = useNavigate();
 
   const getRegistrationOptions = useQuery({
     queryKey: ["regOpts"],
@@ -43,6 +45,7 @@ const UserCreate = () => {
     },
     onSuccess: (data) => {
       console.log(JSON.stringify(data));
+      navigate("/admin/users/search");
     },
   });
 
