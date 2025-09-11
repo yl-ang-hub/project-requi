@@ -33,9 +33,7 @@ const FormComboBox = (props) => {
             role="combobox"
             aria-expanded={open}
             className="w-full justify-between">
-            {value
-              ? props.data.find((item) => item.value === value)?.label
-              : "Select"}
+            {value ? props.data?.find((item) => item === value) : "Select"}
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -45,10 +43,10 @@ const FormComboBox = (props) => {
             <CommandList>
               <CommandEmpty>Not found.</CommandEmpty>
               <CommandGroup>
-                {props.data.map((item) => (
+                {props.data?.map((item) => (
                   <CommandItem
-                    key={item.value}
-                    value={item.value}
+                    key={item}
+                    value={item}
                     onSelect={(currentValue) => {
                       setValue((prevState) =>
                         currentValue === value ? "" : currentValue
@@ -59,11 +57,11 @@ const FormComboBox = (props) => {
                       );
                       setOpen(false);
                     }}>
-                    {item.label}
+                    {item}
                     <Check
                       className={cn(
                         "ml-auto",
-                        value === item.value ? "opacity-100" : "opacity-0"
+                        value === item ? "opacity-100" : "opacity-0"
                       )}
                     />
                   </CommandItem>

@@ -13,14 +13,45 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import FormComboBox from "@/components/FormComboBox";
+import useFetch from "@/hooks/useFetch";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const UserCreate = () => {
+  const fetchData = useFetch();
+
+  const getRegistrationOptions = useQuery({
+    queryKey: ["regOpts"],
+    queryFn: async () => {
+      console.log("running query");
+      const data = await fetchData("/auth/users");
+      console.log(data);
+      return data;
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (data) => {
+      const body = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role,
+        costCentre: data.costCentre,
+        designation: data.designation,
+      };
+      return await fetchData("/auth/users", "PUT", body);
+    },
+    onSuccess: (data) => {
+      console.log(JSON.stringify(data));
+    },
+  });
+
   const formSchema = z.object({
     name: z.string().nonempty({ message: "required field" }),
     email: z.email().nonempty({ message: "required field" }),
     password: z.string().min(10, { message: "Min of 10 characters" }),
     role: z.string().nonempty({ message: "required field" }),
-    department: z.string().nonempty({ message: "required field" }),
+    costCentre: z.string().nonempty({ message: "required field" }),
     designation: z.string().nonempty({ message: "required field" }),
   });
 
@@ -29,14 +60,16 @@ const UserCreate = () => {
     defaultValues: {
       name: "",
       email: "",
+      password: "",
       role: "",
-      department: "",
+      costCentre: "",
       designation: "",
     },
   });
 
   const onSubmit = (data) => {
     console.log(data);
+    mutation.mutate(data);
   };
 
   return (
@@ -97,16 +130,7 @@ const UserCreate = () => {
                   <FormComboBox
                     field={field}
                     setFormValue={form.setValue}
-                    data={[
-                      {
-                        value: "next.js",
-                        label: "Next.js",
-                      },
-                      {
-                        value: "sveltekit",
-                        label: "SvelteKit",
-                      },
-                    ]}
+                    data={getRegistrationOptions?.data?.roles}
                   />
                 </FormControl>
                 <FormMessage />
@@ -116,24 +140,15 @@ const UserCreate = () => {
 
           <FormField
             control={form.control}
-            name="department"
+            name="costCentre"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Department</FormLabel>
+                <FormLabel>Cost Centre</FormLabel>
                 <FormControl>
                   <FormComboBox
                     field={field}
                     setFormValue={form.setValue}
-                    data={[
-                      {
-                        value: "next.js",
-                        label: "Next.js",
-                      },
-                      {
-                        value: "sveltekit",
-                        label: "SvelteKit",
-                      },
-                    ]}
+                    data={getRegistrationOptions?.data?.["cost_centres"]}
                   />
                 </FormControl>
                 <FormMessage />
