@@ -44,24 +44,23 @@ const PRCreate = () => {
     },
   ];
 
-  // Example
   const itemSchema = z.object({
-    itemName: z.string(),
+    itemName: z.string().nonempty({ message: "required field" }),
     itemDescription: z.string(),
-    quantity: z.coerce.number(),
+    quantity: z.coerce.number().positive({ message: "required field" }),
     unitOfMeasure: z.string(),
-    unitCost: z.coerce.number(),
+    unitCost: z.coerce.number().positive({ message: "required field" }),
   });
   const formSchema = z.object({
-    title: z.string(),
+    title: z.string().nonempty({ message: "required field" }),
     description: z.string(),
-    prContactName: z.string(),
-    prContactNumber: z.coerce.number(),
-    prContactEmail: z.string(),
+    prContactName: z.string().nonempty({ message: "required field" }),
+    prContactNumber: z.coerce.number().positive({ message: "required field" }),
+    prContactEmail: z.email(),
     costCentre: z.string(),
     accountCode: z.string(),
     glCode: z.string(),
-    totalAmount: z.coerce.number(),
+    totalAmount: z.coerce.number().positive({ message: "required field" }),
     currency: z.string(), // consider to omit
     amountInSGD: z.coerce.number(), // consider to omit
     comments: z.string(),
