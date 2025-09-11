@@ -4,8 +4,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import AuthContext from "./components/context/authContext";
-import Registration from "./pages/Registration";
 import PRCreate from "./pages/PRCreate";
+import UserCreate from "./pages/UserCreate";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -32,9 +32,9 @@ function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/admin/users/add" element={<Registration />} />
               {/* <Route path="/admin/users" /> */}
               <Route path="/pr/create" element={<PRCreate />} />
+              <Route path="/admin/users/add" element={<UserCreate />} />
             </Routes>
           </div>
         </div>
