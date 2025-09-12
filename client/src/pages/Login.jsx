@@ -52,7 +52,7 @@ const Login = () => {
     retry: false,
   });
 
-  const refreshAccessTokenMutation = useMutation({
+  const refreshAccessToken = useMutation({
     mutationFn: async () => {
       return await fetchData(`/auth/refresh`);
     },
@@ -74,7 +74,7 @@ const Login = () => {
   useEffect(() => {
     // Auto login for users with refresh token in localStorage
     const refresh = localStorage.getItem("refresh");
-    if (refresh && refresh !== "undefined") refreshAccessTokenMutation.mutate();
+    if (refresh && refresh !== "undefined") refreshAccessToken.mutate();
   }, []);
 
   return (

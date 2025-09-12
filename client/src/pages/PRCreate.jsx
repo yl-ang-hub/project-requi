@@ -1,5 +1,5 @@
 // import PRContext from "@/components/context/prContext";
-import React, { use, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,34 +15,23 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import FormComboBox from "@/components/FormComboBox";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import useFetch from "@/hooks/useFetch";
+import AuthCtx from "@/components/context/authContext";
+import PRLineItem from "./PRLineItem";
 
 const PRCreate = () => {
   // const prCtx = use(PRContext);
+  const authCtx = use(AuthCtx);
+  const fetchData = useFetch();
   const [clearForm, setClearForm] = useState(false);
-  const [totalAmount, setTotalAmount] = useState(0);
 
-  const comboxboxFields = [
-    {
-      value: "next.js",
-      label: "Next.js",
+  const prOptions = useQuery({
+    queryKey: ["prOptions"],
+    queryFn: async () => {
+      return await fetchData("/requisitions/getOptions", "GET");
     },
-    {
-      value: "sveltekit",
-      label: "SvelteKit",
-    },
-    {
-      value: "nuxt.js",
-      label: "Nuxt.js",
-    },
-    {
-      value: "remix",
-      label: "Remix",
-    },
-    {
-      value: "astro",
-      label: "Astro",
-    },
-  ];
+  });
 
   const itemSchema = z.object({
     itemName: z.string().nonempty({ message: "required field" }),
@@ -56,16 +45,16 @@ const PRCreate = () => {
     description: z.string(),
     prContactName: z.string().nonempty({ message: "required field" }),
     prContactNumber: z.coerce.number().positive({ message: "required field" }),
-    prContactEmail: z.email(),
-    costCentre: z.string(),
-    accountCode: z.string(),
-    glCode: z.string(),
-    totalAmount: z.coerce.number().positive({ message: "required field" }),
-    currency: z.string(), // consider to omit
+    prContactEmail: z.email().nonempty({ message: "required field" }),
+    costCentre: z.string().nonempty({ message: "required field" }),
+    accountCode: z.string().nonempty({ message: "required field" }),
+    glCode: z.string().nonempty({ message: "required field" }),
+    // totalAmount: z.coerce.number().positive({ message: "required field" }),
+    currency: z.string().nonempty({ message: "required field" }), // consider to omit
     amountInSGD: z.coerce.number(), // consider to omit
     comments: z.string(),
     goodsRequiredBy: z.coerce.date(),
-    items: z.array(itemSchema),
+    items: z.array(itemSchema).min(1),
   });
 
   // form is an object of all the form fields
@@ -80,7 +69,7 @@ const PRCreate = () => {
       costCentre: "888666", // default to requester cost centre
       accountCode: "",
       glCode: "",
-      totalAmount: 1203,
+      // totalAmount: 1203,
       currency: "", // consider to omit
       amountInSGD: 1203, // consider to omit
       comments: "Dash and whell",
@@ -97,6 +86,12 @@ const PRCreate = () => {
     control: form.control,
   });
 
+  const items = form.watch("items");
+
+  const totalAmount = items.reduce((acc, curr) => {
+    return (acc += curr.quantity * curr.unitCost);
+  }, 0);
+
   const handleAddLineItems = () => {
     itemsFormArray.append({
       itemName: "",
@@ -105,13 +100,39 @@ const PRCreate = () => {
       unitOfMeasure: "pcs",
       unitCost: 0,
     });
-    const allFields = form.getValues("root");
-    console.log(allFields);
   };
+
+  const mutation = useMutation({
+    mutationFn: async (data) => {
+      console.log(JSON.stringify(data.items));
+      const total = data.items.reduce((acc, curr) => {
+        return (acc += curr.quantity * curr.unitCost);
+      }, 0);
+      console.log(`total amount is ${total}`);
+      const body = {
+        userId: authCtx.userId,
+        title: data.title,
+        description: data.description,
+        prContactName: data.prContactName,
+        prContactNumber: data.prContactNumber,
+        prContactEmail: data.prContactEmail,
+        costCentre: data.costCentre,
+        accountCode: data.accountCode,
+        glCode: data.glCode,
+        totalAmount: total,
+        currency: data.currency,
+        comments: data.comments,
+        goodsRequiredBy: data.goodsRequiredBy,
+        items: data.items,
+      };
+      return await fetchData("/requisitions/create", "PUT", body);
+    },
+  });
 
   const onSubmit = (data) => {
     console.log("running onSubmit");
     console.log(data);
+    mutation.mutate(data);
   };
 
   const onReset = () => {
@@ -122,8 +143,36 @@ const PRCreate = () => {
     }, 1000);
   };
 
+  const refreshAccessToken = useMutation({
+    mutationFn: async () => {
+      return await fetchData(`/auth/refresh`);
+    },
+    onSuccess: (data) => {
+      try {
+        authCtx.setAccessToken(data.access);
+        const decoded = jwtDecode(data.access);
+        if (decoded) {
+          authCtx.setUserId(decoded.id);
+          authCtx.setRole(decoded.role);
+        }
+        navigate("/dashboard");
+      } catch (e) {
+        console.error(e.message);
+      }
+    },
+  });
+
+  useEffect(() => {
+    // Auto login for users with refresh token in localStorage
+    const refresh = localStorage.getItem("refresh");
+    if (refresh && refresh !== "undefined") refreshAccessToken.mutate();
+  }, []);
+
   return (
     <div className="w-full max-w-4xl m-auto">
+      My id is {authCtx.userId}, my role is {authCtx.role}
+      and my access token is {authCtx.accessToken}. My refresh token is{" "}
+      {localStorage.getItem("refresh")}
       <div>Create New PR</div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -212,7 +261,12 @@ const PRCreate = () => {
                   <FormItem>
                     <FormLabel>Cost Centre</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <FormComboBox
+                        field={field}
+                        setFormValue={form.setValue}
+                        clearForm={clearForm}
+                        data={prOptions?.data?.["cost_centres"]}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -223,13 +277,13 @@ const PRCreate = () => {
                 name="accountCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Account Code {JSON.stringify(field)}</FormLabel>
+                    <FormLabel>Account Code</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
                         setFormValue={form.setValue}
                         clearForm={clearForm}
-                        data={comboxboxFields}
+                        data={prOptions?.data?.["account_codes"]}
                       />
                     </FormControl>
                     <FormMessage />
@@ -247,7 +301,7 @@ const PRCreate = () => {
                         field={field}
                         setFormValue={form.setValue}
                         clearForm={clearForm}
-                        data={comboxboxFields}
+                        data={prOptions?.data?.["gl_codes"]}
                       />
                     </FormControl>
                     <FormMessage />
@@ -265,7 +319,7 @@ const PRCreate = () => {
                         field={field}
                         setFormValue={form.setValue}
                         clearForm={clearForm}
-                        data={comboxboxFields}
+                        data={prOptions?.data?.["currencies"]}
                       />
                     </FormControl>
                     <FormMessage />
@@ -320,85 +374,13 @@ const PRCreate = () => {
               {/* Fields for each line item */}
               {itemsFormArray.fields.map((item, idx) => {
                 return (
-                  <div className="my-1 grid grid-cols-6 gap-1" key={item.id}>
-                    <FormField
-                      control={form.control}
-                      name={`items.${idx}.itemName`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder="item name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name={`items.${idx}.itemDescription`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder="description" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name={`items.${idx}.quantity`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name={`items.${idx}.unitOfMeasure`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name={`items.${idx}.unitCost`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              // TODO: Display total amount for PR
-                              // onChange={(event) => {
-                              //   field.value = event.target.value;
-                              //   totalAmount = parseFloat(event.target.value);
-                              // }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <Button
-                      type="button"
-                      onClick={() => itemsFormArray.remove(idx)}>
-                      Delete
-                    </Button>
-                  </div>
+                  <PRLineItem
+                    form={form}
+                    itemsFormArray={itemsFormArray}
+                    item={item}
+                    idx={idx}
+                    handleAddLineItems={handleAddLineItems}
+                  />
                 );
               })}
             </div>
