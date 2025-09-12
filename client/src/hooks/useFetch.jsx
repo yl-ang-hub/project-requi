@@ -1,29 +1,34 @@
 const useFetch = () => {
   try {
-    const fetchData = async (endpoint, method, body, token) => {
+    const fetchData = async (
+      endpoint,
+      method = "GET",
+      body = null,
+      token = null
+    ) => {
       const uri = import.meta.env.VITE_SERVER + endpoint;
 
-      const res = await fetch(uri, {
+      const options = {
         method,
         headers: {
           "Content-Type": "application/json",
-          authorization: "Bearer " + token,
         },
-        body: JSON.stringify(body),
-      });
+      };
+
+      if (token) {
+        options.headers["authorization"] = "Bearer " + token;
+      }
+
+      if (body && method !== "GET") {
+        options.body = JSON.stringify(body);
+      }
+
+      const res = await fetch(uri, options);
 
       const data = await res.json();
 
       if (!res.ok) {
-        if (data?.errors) {
-          const errorMsgArray = data.msg.map((error) => error.msg);
-          const errorMsgs = errorMsgArray.join(", ");
-          throw data.errors[0].msg;
-        } else if (data.status === "error") {
-          throw data.msg;
-        } else {
-          throw "an unknown error has occurred, please try again later";
-        }
+        throw "an unknown error has occurred, please try again later";
       }
 
       return data;

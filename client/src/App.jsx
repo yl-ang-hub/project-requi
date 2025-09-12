@@ -7,12 +7,13 @@ import AuthContext from "./components/context/authContext";
 import PRCreate from "./pages/PRCreate";
 import UserCreate from "./pages/UserCreate";
 import UserSearch from "./pages/UserSearch";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   const authCtx = use(AuthContext);
   const [accessToken, setAccessToken] = useState("");
-  const [username, setUsername] = useState("");
   const [userId, setUserId] = useState("");
+  const [role, setRole] = useState("");
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -20,8 +21,8 @@ function App() {
         value={{
           accessToken,
           setAccessToken,
-          username,
-          setUsername,
+          role,
+          setRole,
           userId,
           setUserId,
         }}>
@@ -34,6 +35,7 @@ function App() {
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
               {/* <Route path="/admin/users" /> */}
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/pr/create" element={<PRCreate />} />
               <Route path="/admin/users/add" element={<UserCreate />} />
               <Route path="/admin/users/search" element={<UserSearch />} />

@@ -1,7 +1,7 @@
 import bcrypt
 from flask import request, jsonify, Blueprint
 from db.db_pool import get_cursor, release_connection
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 
 auth = Blueprint("auth", __name__)
 
@@ -14,12 +14,12 @@ def get_registration_options():
 
         cursor.execute('SELECT role FROM roles ORDER BY role;')
         roles = cursor.fetchall()
-        cursor.execute('SELECT cost_centre FROM cost_centres ORDER BY cost_centre;')
+        cursor.execute('SELECT cost_centre, department_name FROM cost_centres ORDER BY cost_centre;')
         cost_centres = cursor.fetchall()
 
         results = {
             "roles": [r["role"] for r in roles],
-            "cost_centres": [c["cost_centre"] for c in cost_centres]
+            "cost_centres": [f'{c["cost_centre"]} - {c["department_name"]}' for c in cost_centres]
         }
         return jsonify(results), 200
 
@@ -46,8 +46,10 @@ def add_user():
 
         hashed_pw = bcrypt.hashpw(inputs['password'].encode('utf-8'), bcrypt.gensalt())
 
-        cursor.execute('INSERT INTO users (name, email, role, cost_centre, designation) VALUES (%s, %s, %s, %s, %s) RETURNING id',
-                       (inputs['name'], inputs['email'], inputs['role'], inputs['costCentre'], inputs['designation']))
+        cost_centre = inputs['costCentre'].split(" - ")[0]
+        print(cost_centre)
+        cursor.execute('INSERT INTO users (name, email, contact_number, login_id, role, cost_centre, designation) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id',
+                       (inputs['name'], inputs['email'], inputs['contactNumber'], inputs['loginId'], inputs['role'], cost_centre, inputs['designation']))
         new_user = cursor.fetchone()
         print(f'new_user is {new_user["id"]}')
         cursor.execute('INSERT INTO auth (user_id, hash) VALUES (%s, %s)', (new_user['id'], hashed_pw.decode('utf-8')))
@@ -67,30 +69,52 @@ def add_user():
 @auth.route("/login", methods=["POST"])
 def login():
     conn = None
+    print("start")
     try:
         conn, cursor = get_cursor()
         inputs = request.get_json()
 
-        cursor.execute('SELECT * FROM auth WHERE user_id=%s', (inputs['userId'],))
-        auth_record = cursor.fetchone()
-        if not auth_record:
-            return jsonify(status="error", msg="email or password incorrect"), 401
-
-        access = bcrypt.checkpw(inputs['password'].encode('utf-8'), auth_record['hash'].encode('utf-8'))
-        if not access:
-            return jsonify(status="error", msg="email or password incorrect"), 401
-
-        cursor.execute('SELECT * FROM users WHERE id=%s', (inputs['userId'],))
+        cursor.execute('SELECT * FROM users JOIN auth ON users.id = auth.user_id WHERE users.login_id=%s', (inputs['loginId'],))
         user = cursor.fetchone()
-        claims = {"id": user['id'], "name": user['name'], "role": user['role']}
-        access_token = create_access_token(user['id'], additional_claims=claims)
-        refresh_token = create_refresh_token(user['id'], additional_claims=claims)
+        print(user)
+        if not user:
+            return jsonify(status="error", msg="id or password incorrect"), 401
+
+        access = bcrypt.checkpw(inputs['password'].encode('utf-8'), user['hash'].encode('utf-8'))
+        print(access)
+        if not access:
+            return jsonify(status="error", msg="id or password incorrect"), 401
+
+        claims = {"id": user['id'], "login_id": user['login_id'], "name": user['name'], "role": user['role']}
+        access_token = create_access_token(str(user['id']), additional_claims=claims)
+        refresh_token = create_refresh_token(str(user['id']), additional_claims=claims)
 
         return jsonify({"access": access_token, "refresh": refresh_token}), 200
 
     except Exception as e:
         print(f'Encountered error: {e}')
         return jsonify(status="error", msg="Unable to log in"), 401
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@auth.route("/refresh")
+@jwt_required(refresh=True)
+def refresh():
+    conn = None
+    try:
+        # token must be passed in headers as "refresh"
+        identity = get_jwt_identity()
+        claims = get_jwt()
+
+        access_token = create_access_token(identity, additional_claims=claims)
+
+        return jsonify(access=access_token), 200
+
+    except Exception as e:
+        print(f'unknown error: {e}')
+        return jsonify(status="error", msg="unable to refresh access"), 400
 
     finally:
         if conn: release_connection(conn)

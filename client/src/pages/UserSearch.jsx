@@ -42,7 +42,7 @@ const UserSearch = () => {
         {mutation.isSuccess &&
           mutation?.data?.map((user) => {
             return (
-              <Card className="my-1">
+              <Card className="my-1" key={user.id}>
                 <CardHeader>
                   <CardTitle>
                     {user.name} ({user.designation})

@@ -36,6 +36,8 @@ const UserCreate = () => {
       const body = {
         name: data.name,
         email: data.email,
+        contactNumber: data.contactNumber,
+        loginId: data.loginId,
         password: data.password,
         role: data.role,
         costCentre: data.costCentre,
@@ -52,6 +54,10 @@ const UserCreate = () => {
   const formSchema = z.object({
     name: z.string().nonempty({ message: "required field" }),
     email: z.email().nonempty({ message: "required field" }),
+    contactNumber: z.coerce
+      .number()
+      .min(80000000, { message: "required field" }),
+    loginId: z.string().nonempty({ message: "required field" }),
     password: z.string().min(10, { message: "Min of 10 characters" }),
     role: z.string().nonempty({ message: "required field" }),
     costCentre: z.string().nonempty({ message: "required field" }),
@@ -63,6 +69,8 @@ const UserCreate = () => {
     defaultValues: {
       name: "",
       email: "",
+      contactNumber: "",
+      loginId: "",
       password: "",
       role: "",
       costCentre: "",
@@ -103,6 +111,34 @@ const UserCreate = () => {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="contactNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Contact Number</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="loginId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Login ID</FormLabel>
+                <FormControl>
+                  <Input {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
