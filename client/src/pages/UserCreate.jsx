@@ -40,6 +40,7 @@ const UserCreate = () => {
         loginId: data.loginId,
         password: data.password,
         role: data.role,
+        divisionName: data.divisionName,
         costCentre: data.costCentre,
         designation: data.designation,
       };
@@ -60,6 +61,7 @@ const UserCreate = () => {
     loginId: z.string().nonempty({ message: "required field" }),
     password: z.string().min(10, { message: "Min of 10 characters" }),
     role: z.string().nonempty({ message: "required field" }),
+    divisionName: z.string().nonempty({ message: "required field" }),
     costCentre: z.string().nonempty({ message: "required field" }),
     designation: z.string().nonempty({ message: "required field" }),
   });
@@ -73,6 +75,7 @@ const UserCreate = () => {
       loginId: "",
       password: "",
       role: "",
+      divisionName: "",
       costCentre: "",
       designation: "",
     },
@@ -170,6 +173,24 @@ const UserCreate = () => {
                     field={field}
                     setFormValue={form.setValue}
                     data={getRegistrationOptions?.data?.roles}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="divisionName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Division Name</FormLabel>
+                <FormControl>
+                  <FormComboBox
+                    field={field}
+                    setFormValue={form.setValue}
+                    data={getRegistrationOptions?.data?.["division_names"]}
                   />
                 </FormControl>
                 <FormMessage />

@@ -16,10 +16,13 @@ def get_registration_options():
         roles = cursor.fetchall()
         cursor.execute('SELECT cost_centre, department_name FROM cost_centres ORDER BY cost_centre;')
         cost_centres = cursor.fetchall()
+        cursor.execute('SELECT DISTINCT division_name FROM cost_centres ORDER BY division_name;')
+        division_names = cursor.fetchall()
 
         results = {
             "roles": [r["role"] for r in roles],
-            "cost_centres": [f'{c["cost_centre"]} - {c["department_name"]}' for c in cost_centres]
+            "cost_centres": [f'{c["cost_centre"]} - {c["department_name"]}' for c in cost_centres],
+            "division_names": [f'{d["division_name"]}' for d in division_names]
         }
         return jsonify(results), 200
 
@@ -48,8 +51,8 @@ def add_user():
 
         cost_centre = inputs['costCentre'].split(" - ")[0]
         print(cost_centre)
-        cursor.execute('INSERT INTO users (name, email, contact_number, login_id, role, cost_centre, designation) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id',
-                       (inputs['name'], inputs['email'], inputs['contactNumber'], inputs['loginId'], inputs['role'], cost_centre, inputs['designation']))
+        cursor.execute('INSERT INTO users (name, email, contact_number, login_id, role, cost_centre, designation, division_name) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id',
+                       (inputs['name'], inputs['email'], inputs['contactNumber'], inputs['loginId'], inputs['role'], cost_centre, inputs['designation'], inputs['divisionName']))
         new_user = cursor.fetchone()
         print(f'new_user is {new_user["id"]}')
         cursor.execute('INSERT INTO auth (user_id, hash) VALUES (%s, %s)', (new_user['id'], hashed_pw.decode('utf-8')))
