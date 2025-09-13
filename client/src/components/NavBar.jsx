@@ -69,7 +69,7 @@ function AppSidebar() {
 
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link to="/">Sign out</Link>
+                      <Link to="/logout">Sign out</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

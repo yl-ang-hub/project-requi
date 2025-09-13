@@ -8,6 +8,7 @@ import PRCreate from "./pages/PRCreate";
 import UserCreate from "./pages/UserCreate";
 import UserSearch from "./pages/UserSearch";
 import Dashboard from "./pages/Dashboard";
+import Logout from "./components/Logout";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -39,6 +40,7 @@ function App() {
               <Route path="/pr/create" element={<PRCreate />} />
               <Route path="/admin/users/add" element={<UserCreate />} />
               <Route path="/admin/users/search" element={<UserSearch />} />
+              <Route path="/logout" element={<Logout />} />
             </Routes>
           </div>
         </div>
