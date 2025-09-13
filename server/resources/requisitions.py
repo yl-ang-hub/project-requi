@@ -39,6 +39,93 @@ def get_requisition_options():
     finally:
         if conn: release_connection(conn)
 
+
+@requisitions.route("/getApprovalFlow", methods=["POST"])
+def get_approval_flow():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        inputs = request.get_json()
+        cost_centre = inputs["costCentre"].split(" - ")[0]
+
+        # Get all users
+        cursor.execute('SELECT id, name FROM users')
+        users = cursor.fetchall()
+
+        # Get Finance in charge
+        cursor.execute('SELECT * FROM cost_centres WHERE cost_centre=%s', (cost_centre,))
+        cc_data = cursor.fetchone()
+        print(cc_data)
+        if not cc_data:
+            return jsonify(status="error", msg=f"No cost_centre found for {cost_centre}"), 400
+
+        # CREATE APPROVAL FLOW FOR THIS REQUISITION
+        approval_flow = [{
+            "approval_matrix_id": None,
+            "requisition_approval_sequence": 1,
+            "approver_role": "Finance Officer",
+            "approver_id": cc_data['finance_officer'],
+            "approver": list(filter(lambda user: user['id'] == cc_data['finance_officer'], users))[0]['name']
+        }]
+
+        # Retrieve the correct approval matrix rows from approval_matrix
+        if "MMD" in cost_centre:
+            cursor.execute(
+                """
+                SELECT * FROM approval_matrix 
+                WHERE min_cost <= %s AND (
+                    for_cost_centre = %s OR for_cost_centre LIKE %s
+                ) 
+                ORDER BY min_cost;
+                """, (inputs['totalAmount'], cost_centre, 'ALL + MMD')
+            )
+            results = cursor.fetchall()
+        else:
+            cursor.execute(
+                'SELECT * FROM approval_matrix WHERE for_cost_centre LIKE %s AND min_cost <= %s ORDER BY min_cost;',
+                ('ALL%', inputs['totalAmount'])
+            )
+            results = cursor.fetchall()
+
+        # Retrieve the approver_id and add to approval flow
+        for i in range(len(results)):
+            if 'Head' in results[i]['role']:
+                cursor.execute('SELECT id FROM users WHERE cost_centre=%s AND role=%s',
+                               (cost_centre, results[i]['role']))
+            elif 'Director' in results[i]['role']:
+                cursor.execute('SELECT id FROM users WHERE division_name=%s AND role=%s',
+                               (cc_data['division_name'], results[i]['role']))
+            else:
+                cursor.execute('SELECT id FROM users WHERE role=%s', (results[i]['role'],))
+            approver_details = cursor.fetchone()
+            approval_flow.append({
+                "approval_matrix_id": results[i]['id'],
+                "requisition_approval_sequence": i + 2,
+                "approver_role": results[i]['role'],
+                "approver_id": approver_details['id'],
+                "approver": list(filter(lambda user: user['id'] == approver_details['id'], users))[0]['name']
+            })
+
+        # Add MMD officer, MMD Manager and MMD Head (application for all requisitions)
+        for role in ['MMD', 'MMD Head', 'MMD Director']:
+            approval_flow.append({
+                "approval_matrix_id": None,
+                "requisition_approval_sequence": len(approval_flow) + 1,
+                "approver_role": role,
+                "approver_id": None
+            })
+
+        print(approval_flow)
+
+        return jsonify(approval_flow), 200
+
+    except Exception as e:
+        print(f'unknown error: {e}')
+        return jsonify(status="error", msg="Unable to retrieve approval flow"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
 @requisitions.route("/create", methods=["PUT"])
 def add_new_requisition():
     conn = None
@@ -58,7 +145,6 @@ def add_new_requisition():
         print(user)
 
         # Get Finance in charge
-
         cursor.execute('SELECT * FROM cost_centres WHERE cost_centre=%s', (cost_centre,))
         cc_data = cursor.fetchone()
         print(cc_data)
@@ -102,8 +188,8 @@ def add_new_requisition():
                 cc_data['finance_officer']
             )
         )
-        requisition_id = cursor.fetchone()
-        print(requisition_id['id'])
+        requisition = cursor.fetchone()
+        print(requisition['id'])
 
         # TODO: Create the line items
         for item in inputs['items']:
@@ -117,11 +203,77 @@ def add_new_requisition():
                     %s, %s
                 ) RETURNING id;
                 """, (
-                    requisition_id['id'], item['itemName'], item['itemDescription'], item['quantity'], item['unitOfMeasure'],
+                    requisition['id'], item['itemName'], item['itemDescription'], item['quantity'], item['unitOfMeasure'],
                     item['unitCost'], inputs['currency']
                 ))
 
         # TODO: Create new approval flow for this requisition
+        # CREATE APPROVAL FLOW FOR THIS REQUISITION
+        approval_flow = [{
+            "requisition_id": requisition['id'],
+            "approval_matrix_id": None,
+            "requisition_approval_sequence": 1,
+            "approver_role": "Finance Officer",
+            "approver_id": cc_data['finance_officer']
+        }]
+
+        # Retrieve the correct approval matrix rows from approval_matrix
+        if "MMD" in cost_centre:
+            cursor.execute(
+                """
+                SELECT * FROM approval_matrix 
+                WHERE min_cost <= %s AND (
+                    for_cost_centre = %s OR for_cost_centre LIKE %s
+                ) 
+                ORDER BY min_cost;
+                """, (inputs['totalAmount'], cost_centre, 'ALL + MMD')
+            )
+            results = cursor.fetchall()
+        else:
+            cursor.execute(
+                'SELECT * FROM approval_matrix WHERE for_cost_centre LIKE %s AND min_cost <= %s ORDER BY min_cost;',
+                ('ALL%', inputs['totalAmount'])
+            )
+            results = cursor.fetchall()
+
+        # Retrieve the approver_id and add to approval flow
+        for i in range(len(results)):
+            if 'Head' in results[i]['role']:
+                cursor.execute('SELECT id FROM users WHERE cost_centre=%s AND role=%s', (cost_centre, results[i]['role']))
+            elif 'Director' in results[i]['role']:
+                cursor.execute('SELECT id FROM users WHERE division_name=%s AND role=%s', (cc_data['division_name'], results[i]['role']))
+            else:
+                cursor.execute('SELECT id FROM users WHERE role=%s', (results[i]['role'],))
+            approver_details = cursor.fetchone()
+            approval_flow.append({
+                "requisition_id": requisition['id'],
+                "approval_matrix_id": results[i]['id'],
+                "requisition_approval_sequence": i + 2,
+                "approver_role": results[i]['role'],
+                "approver_id": approver_details['id']
+            })
+
+        # Add MMD officer, MMD Manager and MMD Head (application for all requisitions)
+        for role in ['MMD', 'MMD Head', 'MMD Director']:
+            approval_flow.append({
+                "requisition_id": requisition['id'],
+                "approval_matrix_id": None,
+                "requisition_approval_sequence": len(approval_flow) + 1,
+                "approver_role": role,
+                "approver_id": None
+            })
+
+        # Create the approval flow in database
+        for row in approval_flow:
+            cursor.execute(
+                """
+                INSERT INTO requisition_approval_flow (
+                    requisition_id, approval_matrix_id, requisition_approval_sequence, approver_role, approver_id
+                ) VALUES (%s, %s, %s, %s, %s)""", (
+                    row['requisition_id'], row['approval_matrix_id'], row['requisition_approval_sequence'],
+                    row['approver_role'], row['approver_id']
+                )
+            )
 
         conn.commit()
         return jsonify(status="ok", msg="PR successfully created"), 200

@@ -20,6 +20,7 @@ import useFetch from "@/hooks/useFetch";
 import AuthCtx from "@/components/context/authContext";
 import PRLineItem from "./PRLineItem";
 import { jwtDecode } from "jwt-decode";
+import ApprovalFlow from "@/components/ApprovalFlow";
 
 const PRCreate = () => {
   // const prCtx = use(PRContext);
@@ -67,7 +68,7 @@ const PRCreate = () => {
       prContactName: "Shrek", // default to requester
       prContactNumber: "81234567", // default to requester
       prContactEmail: "shrek@example.com", // default to requester
-      costCentre: "888666", // default to requester cost centre
+      costCentre: "", // default to requester cost centre
       accountCode: "",
       glCode: "",
       // totalAmount: 1203,
@@ -144,6 +145,18 @@ const PRCreate = () => {
     }, 1000);
   };
 
+  const costCentre = form.watch("costCentre");
+
+  const approvalFlow = useMutation({
+    mutationFn: async () => {
+      console.log(costCentre);
+      return await fetchData("/requisitions/getApprovalFlow", "POST", {
+        costCentre: costCentre,
+        totalAmount: totalAmount,
+      });
+    },
+  });
+
   const refreshAccessToken = useMutation({
     mutationFn: async () => {
       return await fetchData(
@@ -176,6 +189,11 @@ const PRCreate = () => {
     const refresh = localStorage.getItem("refresh");
     if (refresh && authCtx.accessToken == "") refreshAccessToken.mutate();
   }, []);
+
+  useEffect(() => {
+    if (costCentre !== "" && costCentre && totalAmount !== 0)
+      approvalFlow.mutate();
+  }, [totalAmount, costCentre]);
 
   return (
     <div className="w-full max-w-4xl m-auto">
@@ -389,12 +407,17 @@ const PRCreate = () => {
                     item={item}
                     idx={idx}
                     handleAddLineItems={handleAddLineItems}
+                    key={idx}
                   />
                 );
               })}
             </div>
 
-            <div className="bg-blue-200">Approval Flow</div>
+            <div className="bg-blue-200">
+              Approval Flow
+              <br />
+              <ApprovalFlow data={approvalFlow?.data} />
+            </div>
 
             <Button type="reset" onClick={() => onReset()}>
               Reset
