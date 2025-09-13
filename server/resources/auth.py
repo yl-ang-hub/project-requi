@@ -102,11 +102,19 @@ def login():
 @auth.route("/refresh")
 @jwt_required(refresh=True)
 def refresh():
+    print("running refresh")
     conn = None
     try:
         # token must be passed in headers as "refresh"
         identity = get_jwt_identity()
-        claims = get_jwt()
+        refresh_claims = get_jwt()
+        claims = {
+            "id": refresh_claims['id'],
+            "login_id": refresh_claims['login_id'],
+            "name": refresh_claims['name'],
+            "role": refresh_claims['role']
+        }
+        print(identity, claims)
 
         access_token = create_access_token(identity, additional_claims=claims)
 

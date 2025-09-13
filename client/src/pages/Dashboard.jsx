@@ -1,7 +1,8 @@
 import AuthCtx from "@/components/context/authContext";
 import useFetch from "@/hooks/useFetch";
 import { useMutation } from "@tanstack/react-query";
-import React, { use } from "react";
+import { jwtDecode } from "jwt-decode";
+import React, { use, useEffect } from "react";
 
 const Dashboard = () => {
   const fetchData = useFetch();
@@ -9,7 +10,12 @@ const Dashboard = () => {
 
   const refreshAccessToken = useMutation({
     mutationFn: async () => {
-      return await fetchData(`/auth/refresh`);
+      return await fetchData(
+        `/auth/refresh`,
+        "GET",
+        undefined,
+        localStorage.getItem("refresh")
+      );
     },
     onSuccess: (data) => {
       try {
@@ -19,7 +25,6 @@ const Dashboard = () => {
           authCtx.setUserId(decoded.id);
           authCtx.setRole(decoded.role);
         }
-        navigate("/dashboard");
       } catch (e) {
         console.error(e.message);
       }
@@ -29,7 +34,7 @@ const Dashboard = () => {
   useEffect(() => {
     // Auto login for users with refresh token in localStorage
     const refresh = localStorage.getItem("refresh");
-    if (refresh && refresh !== "undefined") refreshAccessToken.mutate();
+    if (refresh && authCtx.accessToken == "") refreshAccessToken.mutate();
   }, []);
 
   return (

@@ -54,7 +54,12 @@ const Login = () => {
 
   const refreshAccessToken = useMutation({
     mutationFn: async () => {
-      return await fetchData(`/auth/refresh`);
+      return await fetchData(
+        `/auth/refresh`,
+        "GET",
+        undefined,
+        localStorage.getItem("refresh")
+      );
     },
     onSuccess: (data) => {
       try {
@@ -74,16 +79,26 @@ const Login = () => {
   useEffect(() => {
     // Auto login for users with refresh token in localStorage
     const refresh = localStorage.getItem("refresh");
-    if (refresh && refresh !== "undefined") refreshAccessToken.mutate();
+    if (refresh && authCtx.accessToken == "") refreshAccessToken.mutate();
   }, []);
 
   return (
-    <>
-      <Card className="w-full max-w-sm m-auto">
+    <div className="w-full max-w-4xl">
+      <div>{localStorage.getItem("refresh")}</div>
+      <Card className="w-full max-w-md m-auto">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            {refreshAccessToken.isLoading}
+            {refreshAccessToken.isPending}
+            {refreshAccessToken.isError}
+            {refreshAccessToken.isSuccess}
+            Enter your email below to login to your account.
+            <p>
+              My id is {authCtx.userId}, my role is {authCtx.role}
+              and my access token is {authCtx.accessToken}. My refresh token is
+              {localStorage.getItem("refresh")}
+            </p>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -120,7 +135,7 @@ const Login = () => {
           </Button>
         </CardFooter>
       </Card>
-    </>
+    </div>
   );
 };
 

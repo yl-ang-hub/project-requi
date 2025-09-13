@@ -19,6 +19,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import useFetch from "@/hooks/useFetch";
 import AuthCtx from "@/components/context/authContext";
 import PRLineItem from "./PRLineItem";
+import { jwtDecode } from "jwt-decode";
 
 const PRCreate = () => {
   // const prCtx = use(PRContext);
@@ -145,17 +146,25 @@ const PRCreate = () => {
 
   const refreshAccessToken = useMutation({
     mutationFn: async () => {
-      return await fetchData(`/auth/refresh`);
+      return await fetchData(
+        `/auth/refresh`,
+        "GET",
+        undefined,
+        localStorage.getItem("refresh")
+      );
     },
     onSuccess: (data) => {
       try {
+        console.log(localStorage.getItem("refresh"));
+        console.log(JSON.stringify(data.access));
+        console.log(data.access);
+
         authCtx.setAccessToken(data.access);
         const decoded = jwtDecode(data.access);
         if (decoded) {
           authCtx.setUserId(decoded.id);
           authCtx.setRole(decoded.role);
         }
-        navigate("/dashboard");
       } catch (e) {
         console.error(e.message);
       }
@@ -165,7 +174,7 @@ const PRCreate = () => {
   useEffect(() => {
     // Auto login for users with refresh token in localStorage
     const refresh = localStorage.getItem("refresh");
-    if (refresh && refresh !== "undefined") refreshAccessToken.mutate();
+    if (refresh && authCtx.accessToken == "") refreshAccessToken.mutate();
   }, []);
 
   return (
