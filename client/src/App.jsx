@@ -18,6 +18,7 @@ function App() {
   const [accessToken, setAccessToken] = useState("");
   const [userId, setUserId] = useState("");
   const [role, setRole] = useState("");
+  const [name, setName] = useState("");
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -29,6 +30,8 @@ function App() {
           setRole,
           userId,
           setUserId,
+          name,
+          setName,
         }}>
         <div className="flex">
           <div className="max-w-sm">

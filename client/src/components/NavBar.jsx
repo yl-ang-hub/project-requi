@@ -20,11 +20,16 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { use } from "react";
+import AuthCtx from "./context/authContext";
 
 export default function NavBar(props) {
+  const authCtx = use(AuthCtx);
+  const isAuthenticated = authCtx.accessToken.length > 0;
+
   return (
     <SidebarProvider className="bg-green-300">
-      <AppSidebar />
+      {isAuthenticated ? <AppSidebar /> : <GuestSidebar />}
       <main className="bg-blue-300">
         <SidebarTrigger />
       </main>
@@ -34,6 +39,8 @@ export default function NavBar(props) {
 }
 
 function AppSidebar() {
+  const authCtx = use(AuthCtx);
+
   return (
     <Sidebar>
       <SidebarHeader className="my-2 mx-3">
@@ -48,7 +55,7 @@ function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel asChild>
               <CollapsibleTrigger>
-                Shrek - Superuser
+                {`${authCtx.name} (${authCtx.role})`}
                 <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
               </CollapsibleTrigger>
             </SidebarGroupLabel>
@@ -87,16 +94,22 @@ function AppSidebar() {
                   <Link to="/">Dashboard</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/approvals/pending">Pending Approvals</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">Approval History</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {authCtx.role !== "Staff" ? (
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/approvals/pending">Pending Approvals</Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <Link to="/">Approval History</Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
+              ) : (
+                ""
+              )}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Link to="/">Advanced Search for PRs/POs</Link>
@@ -121,92 +134,138 @@ function AppSidebar() {
                   <Link to="/">My PRs</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">PRs Awaiting MMD Action</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {authCtx.role.includes("MMD") ||
+              authCtx.role === "System Admin" ? (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/">PRs Awaiting MMD Action</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ) : (
+                ""
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 
         {/* PURCHASE ORDERS NAV - only for MMD & Finance */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Purchase Orders</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">Pending POs</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">PRs Pending Payment</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">Completed POs</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {authCtx.role.includes("Finance") ||
+        authCtx.role.includes("MMD") ||
+        authCtx.role === "System Admin" ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>Purchase Orders</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/">Pending POs</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/">PRs Pending Payment</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/">Completed POs</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : (
+          ""
+        )}
 
         {/* SUPPLIERS NAV */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Suppliers</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">Add New Supplier</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">Manage Suppliers</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {authCtx.role.includes("MMD") || authCtx.role === "System Admin" ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>Suppliers</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/">Add New Supplier</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/">Manage Suppliers</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : (
+          ""
+        )}
 
         {/* ADMIN NAV */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Administration</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/users/add">Add New User</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/admin/users/search">Search/Edit User</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">Add New Role</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/">Edit Existing Role</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {authCtx.role === "IT Officer" || authCtx.role === "System Admin" ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/admin/users/add">Add New User</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/admin/users/search">Search/Edit User</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/">Add New Role</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link to="/">Edit Existing Role</Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : (
+          ""
+        )}
       </SidebarContent>
 
       <SidebarFooter className="my-3 mx-3">
         Sidebar Footer
         <br />
       </SidebarFooter>
+    </Sidebar>
+  );
+}
+
+function GuestSidebar() {
+  return (
+    <Sidebar>
+      <SidebarHeader className="my-2 mx-3">
+        <div>
+          <ModeToggle />
+          <span className="ml-3">REQUI APP</span>
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent className="my-2 mx-3">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/login">Login</Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
     </Sidebar>
   );
 }

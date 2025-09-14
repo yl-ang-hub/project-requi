@@ -203,6 +203,7 @@ const PRCreate = () => {
         if (decoded) {
           authCtx.setUserId(decoded.id);
           authCtx.setRole(decoded.role);
+          authCtx.setName(decoded.name);
         }
       } catch (e) {
         console.error(e.message);

@@ -37,6 +37,7 @@ const Login = () => {
       if (decoded) {
         authCtx.setUserId(decoded.id);
         authCtx.setRole(decoded.role);
+        authCtx.setName(decoded.name);
       }
       navigate("/dashboard");
     } catch (e) {
@@ -68,6 +69,7 @@ const Login = () => {
         if (decoded) {
           authCtx.setUserId(decoded.id);
           authCtx.setRole(decoded.role);
+          authCtx.setName(decoded.name);
         }
         navigate("/dashboard");
       } catch (e) {

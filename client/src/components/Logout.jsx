@@ -12,7 +12,7 @@ const Logout = () => {
     authCtx.setAccessToken("");
     authCtx.setUserId("");
     authCtx.setRole("");
-    navigate("/");
+    navigate("/login");
     // to empty all states and contexts for next user
     window.location.reload(true);
   }, []);
