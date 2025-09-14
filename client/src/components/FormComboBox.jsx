@@ -18,10 +18,12 @@ import {
 
 const FormComboBox = (props) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(props.field.value);
+
+  const readOnly = props.readOnly || false;
 
   useEffect(() => {
-    props.clearForm ? setValue("") : "";
+    props?.clearForm ? setValue("") : "";
   });
 
   return (
@@ -29,11 +31,14 @@ const FormComboBox = (props) => {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
+            disabled={readOnly}
             variant="outline"
             role="combobox"
             aria-expanded={open}
             className="w-full justify-between">
-            {value ? props.data?.find((item) => item === value) : "Select"}
+            {value !== ""
+              ? props.data?.find((item) => item.includes(value))
+              : "Select"}
             <ChevronsUpDown className="opacity-50" />
           </Button>
         </PopoverTrigger>

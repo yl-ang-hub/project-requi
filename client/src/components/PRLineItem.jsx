@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   FormControl,
@@ -11,22 +11,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const PRLineItem = (props) => {
-  const [itemDisabled, setItemDisabled] = useState(false);
-
   const form = props.form;
+  const readOnly = props.readOnly || false;
 
   return (
     <div className="my-1 grid grid-cols-6 gap-1" key={props.item.id}>
       <FormField
         control={form.control}
-        name={`items.${props.idx}.itemName`}
+        name={`items.${props.idx}.name`}
         render={({ field }) => (
           <FormItem>
             <FormControl>
               <Input
                 placeholder="item name"
-                disabled={itemDisabled}
+                disabled={props.disabled}
                 {...field}
+                readOnly={readOnly}
+                className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-700"
               />
             </FormControl>
             <FormMessage />
@@ -36,14 +37,16 @@ const PRLineItem = (props) => {
 
       <FormField
         control={form.control}
-        name={`items.${props.idx}.itemDescription`}
+        name={`items.${props.idx}.description`}
         render={({ field }) => (
           <FormItem>
             <FormControl>
               <Input
                 placeholder="description"
-                disabled={itemDisabled}
+                disabled={props.disabled}
                 {...field}
+                readOnly={readOnly}
+                className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-700"
               />
             </FormControl>
             <FormMessage />
@@ -57,7 +60,12 @@ const PRLineItem = (props) => {
         render={({ field }) => (
           <FormItem>
             <FormControl>
-              <Input disabled={itemDisabled} {...field} />
+              <Input
+                disabled={props.disabled}
+                {...field}
+                readOnly={readOnly}
+                className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-700"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -66,31 +74,33 @@ const PRLineItem = (props) => {
 
       <FormField
         control={form.control}
-        name={`items.${props.idx}.unitOfMeasure`}
-        render={({ field }) => (
-          <FormItem>
-            <FormControl>
-              <Input disabled={itemDisabled} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name={`items.${props.idx}.unitCost`}
+        name={`items.${props.idx}.unit_of_measure`}
         render={({ field }) => (
           <FormItem>
             <FormControl>
               <Input
-                disabled={itemDisabled}
+                disabled={props.disabled}
                 {...field}
-                // TODO: Display total amount for PR
-                // onChange={(event) => {
-                //   field.value = event.target.value;
-                //   totalAmount = parseFloat(event.target.value);
-                // }}
+                readOnly={readOnly}
+                className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-700"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name={`items.${props.idx}.unit_cost`}
+        render={({ field }) => (
+          <FormItem>
+            <FormControl>
+              <Input
+                disabled={props.disabled}
+                {...field}
+                readOnly={readOnly}
+                className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-700"
               />
             </FormControl>
             <FormMessage />

@@ -11,7 +11,9 @@ import Dashboard from "./pages/Dashboard";
 import Logout from "./components/Logout";
 import ProtectedRouter from "./components/ProtectedRouter";
 import ApprovalsPending from "./pages/ApprovalsPending";
-import PRView from "./components/PRView";
+import PRSelf from "./pages/PRSelf";
+import PRApproval from "./pages/PRApproval";
+import ApprovalsHistory from "./pages/ApprovalsHistory";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -59,10 +61,19 @@ function App() {
                 }
               />
               <Route
-                path="/pr/:id"
+                path="/approvals/:id"
                 element={
                   <ProtectedRouter>
-                    <PRView />
+                    <PRApproval />
+                  </ProtectedRouter>
+                }
+              />
+
+              <Route
+                path="/approvals/history"
+                element={
+                  <ProtectedRouter>
+                    <ApprovalsHistory />
                   </ProtectedRouter>
                 }
               />
@@ -75,6 +86,15 @@ function App() {
                   </ProtectedRouter>
                 }
               />
+              <Route
+                path="/pr"
+                element={
+                  <ProtectedRouter>
+                    <PRSelf />
+                  </ProtectedRouter>
+                }
+              />
+
               <Route
                 path="/admin/users/add"
                 element={

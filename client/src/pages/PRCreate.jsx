@@ -44,11 +44,11 @@ const PRCreate = () => {
   });
 
   const itemSchema = z.object({
-    itemName: z.string().nonempty({ message: "required field" }),
-    itemDescription: z.string(),
+    name: z.string().nonempty({ message: "required field" }),
+    description: z.string(),
     quantity: z.coerce.number().positive({ message: "required field" }),
-    unitOfMeasure: z.string(),
-    unitCost: z.coerce.number().positive({ message: "required field" }),
+    unit_of_measure: z.string(),
+    unit_cost: z.coerce.number().positive({ message: "required field" }),
   });
 
   const formSchema = z.object({
@@ -85,18 +85,18 @@ const PRCreate = () => {
       ),
       items: [
         {
-          itemName: "Item A",
-          itemDescription: "Item A Description",
+          name: "Item A",
+          description: "Item A Description",
           quantity: 100,
-          unitOfMeasure: "pcs",
-          unitCost: 1500,
+          unit_of_measure: "pcs",
+          unit_cost: 1500,
         },
         {
-          itemName: "Item B",
-          itemDescription: "Item B Description",
+          name: "Item B",
+          description: "Item B Description",
           quantity: 150,
-          unitOfMeasure: "pcs",
-          unitCost: 800,
+          unit_of_measure: "pcs",
+          unit_cost: 800,
         },
       ],
     },
@@ -111,16 +111,16 @@ const PRCreate = () => {
   const items = form.watch("items");
 
   const totalAmount = items.reduce((acc, curr) => {
-    return (acc += curr.quantity * curr.unitCost);
+    return (acc += curr.quantity * curr.unit_cost);
   }, 0);
 
   const handleAddLineItems = () => {
     itemsFormArray.append({
-      itemName: "",
-      itemDescription: "",
+      name: "",
+      description: "",
       quantity: 0,
-      unitOfMeasure: "pcs",
-      unitCost: 0,
+      unit_of_measure: "pcs",
+      unit_cost: 0,
     });
   };
 
@@ -147,7 +147,7 @@ const PRCreate = () => {
     mutationFn: async (data) => {
       console.log(JSON.stringify(data.items));
       const total = data.items.reduce((acc, curr) => {
-        return (acc += curr.quantity * curr.unitCost);
+        return (acc += curr.quantity * curr.unit_cost);
       }, 0);
       console.log(`total amount is ${total}`);
       const body = {
@@ -423,7 +423,7 @@ const PRCreate = () => {
                 <FormLabel>Item Description</FormLabel>
                 <FormLabel>Quantity</FormLabel>
                 <FormLabel>Unit of Measure</FormLabel>
-                <FormLabel>Unit Cost</FormLabel>
+                <FormLabel>Unit Cost (Trade Currency)</FormLabel>
               </div>
               {/* Fields for each line item */}
               {itemsFormArray.fields.map((item, idx) => {
@@ -433,8 +433,8 @@ const PRCreate = () => {
                     itemsFormArray={itemsFormArray}
                     item={item}
                     idx={idx}
-                    handleAddLineItems={handleAddLineItems}
                     key={idx}
+                    disabled={false}
                   />
                 );
               })}

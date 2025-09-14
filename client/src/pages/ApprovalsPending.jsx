@@ -2,7 +2,6 @@ import React, { use, useEffect } from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -32,7 +31,7 @@ const ApprovalsPending = () => {
   });
 
   const handleViewButton = (event) => {
-    navigate(`/pr/${event.target.id}`);
+    navigate(`/approvals/${event.target.id}`);
   };
 
   useEffect(() => {
@@ -43,7 +42,7 @@ const ApprovalsPending = () => {
     <div className="w-full">
       <Card className="w-full h-screen mx-auto">
         <CardHeader>
-          <CardTitle>Requisitions - Pending Approvals</CardTitle>
+          <CardTitle>Pending Approvals</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

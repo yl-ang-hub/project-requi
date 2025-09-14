@@ -332,3 +332,124 @@ def get_PR_pending_approvals():
 
     finally:
         if conn: release_connection(conn)
+
+
+@requisitions.route("/<id>", methods=["GET"])
+@jwt_required()
+def get_pr(id):
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+
+        cursor.execute('SELECT *, users.name AS approver FROM requisition_approval_flow JOIN users ON users.id = approver_id WHERE requisition_id=%s ORDER BY requisition_approval_sequence', (id,))
+        approval_flow = cursor.fetchall()
+
+        cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
+        pr = cursor.fetchone()
+        pr['total_amount'] = f"{pr['currency']} {pr['total_amount']:,.2f}"
+        pr['amount_in_sgd'] = f"${pr['amount_in_sgd']:,.2f}"
+        pr['goods_required_by'] = pr['goods_required_by'].strftime("%-d %b %Y")
+        if pr['updated_by'] != None:
+            cursor.execute('SELECT name FROM users WHERE id=%s', (pr['updated_by'],))
+            updated_user = cursor.fetchone()
+            pr['updated_by'] = updated_user['name']
+
+        cursor.execute('SELECT * FROM requisition_items WHERE requisition_id=%s', (pr['id'],))
+        items = cursor.fetchall()
+        pr['items'] = items
+
+        return jsonify({"pr": pr, "approval_flow": approval_flow}), 200
+
+    except Exception as e:
+        print(f'unknown error: {e}')
+        return jsonify(status="error", msg="unable to retrieve from database"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@requisitions.route("/<id>", methods=["PATCH"])
+@jwt_required()
+def approve_pr(id):
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        inputs = request.get_json()
+        print(inputs['form']['approverComments'])
+
+        cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
+        requisition = cursor.fetchone()
+
+        if requisition['next_approver'] != inputs['userId']:
+            return jsonify(status="error", msg="Unauthorised to approve"), 401
+
+        # Check for any updates to any fields by the approver (by MMD or Finance)
+        updates = {}
+        if requisition['cost_centre'] != inputs['form']['costCentre']: updates['cost_centre'] = inputs['form']['costCentre']
+
+        # Update the approval in requisition_approval_flow
+        cursor.execute(
+            """
+            UPDATE requisition_approval_flow 
+            SET approval_status=%s, approved_at=%s, approver_comments=%s 
+            WHERE requisition_id=%s AND approver_id=%s AND approval_status=%s
+            RETURNING requisition_approval_sequence
+            """,
+            ("Approved", dt.datetime.now(), inputs['form']['approverComments'], requisition['id'],
+             requisition['next_approver'], "Queued")
+        )
+        next_approval_seq = cursor.fetchone()
+
+        # Update next_approver inside requisitions
+        next_approver_sequence = int(next_approval_seq['requisition_approval_sequence']) + 1
+        cursor.execute(
+            """
+            SELECT approver_id, approver_role FROM requisition_approval_flow
+            WHERE requisition_id=%s AND requisition_approval_sequence=%s
+            """, (requisition['id'], next_approver_sequence)
+        )
+        approver = cursor.fetchone()
+        if "MMD" in approver['approver_role']: pr_status = "Pending MMD"
+        elif "Finance" in inputs['role']: pr_status = "Pending Next Level Approver"
+        cursor.execute('UPDATE requisitions SET next_approver=%s, status=%s WHERE id=%s', (approver['approver_id'], pr_status, requisition['id']))
+
+        conn.commit()
+
+        return jsonify(status="ok", msg="approved successfully"), 200
+
+    except Exception as e:
+        print(f'unknown error: {e}')
+        return jsonify(status="error", msg="unable to approve PR"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+@requisitions.route("/", methods=["POST"])
+@jwt_required()
+def get_my_PRs():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        inputs = request.get_json()
+
+        cursor.execute(
+            """
+            SELECT * FROM requisitions WHERE requester_id = %s ORDER BY id
+            """, (inputs['userId'],)
+        )
+        results = cursor.fetchall()
+
+        for result in results:
+            result['total_amount'] = f"${result['total_amount']:,.2f}"
+            result['amount_in_sgd'] = f"${result['amount_in_sgd']:,.2f}"
+            result['goods_required_by'] = result['goods_required_by'].strftime("%-d %b %Y")
+            print(result['total_amount'], result['amount_in_sgd'], result['goods_required_by'])
+
+        return jsonify(results), 200
+
+    except Exception as e:
+        print(f'unknown error: {e}')
+        return jsonify(status="error", msg="unable to retrieve from database"), 400
+
+    finally:
+        if conn: release_connection(conn)
