@@ -9,6 +9,7 @@ import UserCreate from "./pages/UserCreate";
 import UserSearch from "./pages/UserSearch";
 import Dashboard from "./pages/Dashboard";
 import Logout from "./components/Logout";
+import ProtectedRouter from "./components/ProtectedRouter";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -33,13 +34,41 @@ function App() {
           </div>
           <div className="w-full flex">
             <Routes>
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/login" element={<Login />} />
               {/* <Route path="/admin/users" /> */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/pr/create" element={<PRCreate />} />
-              <Route path="/admin/users/add" element={<UserCreate />} />
-              <Route path="/admin/users/search" element={<UserSearch />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRouter>
+                    <Dashboard />
+                  </ProtectedRouter>
+                }
+              />
+              <Route
+                path="/pr/create"
+                element={
+                  <ProtectedRouter>
+                    <PRCreate />
+                  </ProtectedRouter>
+                }
+              />
+              <Route
+                path="/admin/users/add"
+                element={
+                  <ProtectedRouter>
+                    <UserCreate />
+                  </ProtectedRouter>
+                }
+              />
+              <Route
+                path="/admin/users/search"
+                element={
+                  <ProtectedRouter>
+                    <UserSearch />
+                  </ProtectedRouter>
+                }
+              />
               <Route path="/logout" element={<Logout />} />
             </Routes>
           </div>
