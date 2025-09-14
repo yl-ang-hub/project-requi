@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from db.db_pool import get_cursor, release_connection
 
+
 requisitions = Blueprint("requisitions", __name__)
 
 
@@ -341,7 +342,13 @@ def get_pr(id):
     try:
         conn, cursor = get_cursor()
 
-        cursor.execute('SELECT *, users.name AS approver FROM requisition_approval_flow JOIN users ON users.id = approver_id WHERE requisition_id=%s ORDER BY requisition_approval_sequence', (id,))
+        cursor.execute(
+            """
+            SELECT *, users.name AS approver FROM requisition_approval_flow 
+            LEFT JOIN users ON users.id = approver_id 
+            WHERE requisition_id=%s ORDER BY requisition_approval_sequence
+            """, (id,)
+        )
         approval_flow = cursor.fetchall()
 
         cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
@@ -375,7 +382,6 @@ def approve_pr(id):
     try:
         conn, cursor = get_cursor()
         inputs = request.get_json()
-        print(inputs['form']['approverComments'])
 
         cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
         requisition = cursor.fetchone()
@@ -398,10 +404,10 @@ def approve_pr(id):
             ("Approved", dt.datetime.now(), inputs['form']['approverComments'], requisition['id'],
              requisition['next_approver'], "Queued")
         )
-        next_approval_seq = cursor.fetchone()
+        approval_seq = cursor.fetchone()
 
         # Update next_approver inside requisitions
-        next_approver_sequence = int(next_approval_seq['requisition_approval_sequence']) + 1
+        next_approver_sequence = int(approval_seq['requisition_approval_sequence']) + 1
         cursor.execute(
             """
             SELECT approver_id, approver_role FROM requisition_approval_flow
@@ -420,6 +426,59 @@ def approve_pr(id):
     except Exception as e:
         print(f'unknown error: {e}')
         return jsonify(status="error", msg="unable to approve PR"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@requisitions.route("/<id>/reject", methods=["POST"])
+@jwt_required()
+def reject_pr(id):
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        inputs = request.get_json()
+
+        cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
+        requisition = cursor.fetchone()
+
+        if requisition['next_approver'] != inputs['userId']:
+            return jsonify(status="error", msg="Unauthorised"), 401
+
+        # Update the rejection in requisition_approval_flow
+        cursor.execute(
+            """
+            UPDATE requisition_approval_flow 
+            SET approval_status=%s, approved_at=%s, approver_comments=%s 
+            WHERE requisition_id=%s AND approver_id=%s AND approval_status=%s
+            """,
+            ("Rejected", dt.datetime.now(), inputs['form']['approverComments'], requisition['id'],
+             requisition['next_approver'], "Queued")
+        )
+        cursor.execute(
+            """
+            UPDATE requisition_approval_flow 
+            SET approval_status=%s
+            WHERE requisition_id=%s AND approval_status=%s
+            """,
+            ("Not Applicable", requisition['id'], "Queued")
+        )
+
+        # Update in requisitions
+        cursor.execute(
+            """
+            UPDATE requisitions SET next_approver=%s, status=%s, payment_status
+            WHERE id=%s'
+            """, (None, "Rejected", "Not Applicable")
+        )
+
+        conn.commit()
+
+        return jsonify(status="ok", msg="rejected successfully"), 200
+
+    except Exception as e:
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to reject PR"), 400
 
     finally:
         if conn: release_connection(conn)
