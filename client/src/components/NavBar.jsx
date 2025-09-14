@@ -89,7 +89,7 @@ function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Pending Approvals</Link>
+                  <Link to="/approvals/pending">Pending Approvals</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

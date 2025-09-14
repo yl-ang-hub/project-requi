@@ -67,7 +67,6 @@ def get_approval_flow():
         curr_rate = cursor.fetchone()
         amount_in_sgd = inputs["totalAmount"] / curr_rate['conversion_rate']
 
-
         # CREATE APPROVAL FLOW FOR THIS REQUISITION
         approval_flow = [{
             "approval_matrix_id": None,
@@ -218,7 +217,8 @@ def add_new_requisition():
                     %s, %s
                 ) RETURNING id;
                 """, (
-                    requisition['id'], item['itemName'], item['itemDescription'], item['quantity'], item['unitOfMeasure'],
+                    requisition['id'], item['itemName'], item['itemDescription'], item['quantity'],
+                    item['unitOfMeasure'],
                     item['unitCost'], inputs['currency']
                 ))
 
@@ -254,9 +254,11 @@ def add_new_requisition():
         # Retrieve the approver_id and add to approval flow
         for i in range(len(results)):
             if 'Head' in results[i]['role']:
-                cursor.execute('SELECT id FROM users WHERE cost_centre=%s AND role=%s', (cost_centre, results[i]['role']))
+                cursor.execute('SELECT id FROM users WHERE cost_centre=%s AND role=%s',
+                               (cost_centre, results[i]['role']))
             elif 'Director' in results[i]['role']:
-                cursor.execute('SELECT id FROM users WHERE division_name=%s AND role=%s', (cc_data['division_name'], results[i]['role']))
+                cursor.execute('SELECT id FROM users WHERE division_name=%s AND role=%s',
+                               (cc_data['division_name'], results[i]['role']))
             else:
                 cursor.execute('SELECT id FROM users WHERE role=%s', (results[i]['role'],))
             approver_details = cursor.fetchone()
@@ -296,6 +298,37 @@ def add_new_requisition():
     except Exception as e:
         print(f'"unknown error: {e}')
         return jsonify(status="error", msg="Unable to create new PR"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@requisitions.route("/approvals/pending", methods=["POST"])
+@jwt_required()
+def get_PR_pending_approvals():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        inputs = request.get_json()
+
+        cursor.execute(
+            """
+            SELECT * FROM requisitions WHERE next_approver = %s ORDER BY goods_required_by, id
+            """, (inputs['userId'],)
+        )
+        results = cursor.fetchall()
+
+        for result in results:
+            result['total_amount'] = f"${result['total_amount']:,.2f}"
+            result['amount_in_sgd'] = f"${result['amount_in_sgd']:,.2f}"
+            result['goods_required_by'] = result['goods_required_by'].strftime("%-d %b %Y")
+            print(result['total_amount'], result['amount_in_sgd'], result['goods_required_by'])
+
+        return jsonify(results), 200
+
+    except Exception as e:
+        print(f'unknown error: {e}')
+        return jsonify(status="error", msg="unable to retrieve from database"), 400
 
     finally:
         if conn: release_connection(conn)
