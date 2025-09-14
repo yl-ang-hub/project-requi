@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Card,
@@ -12,9 +12,11 @@ import {
 import useFetch from "@/hooks/useFetch";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import AuthCtx from "@/components/context/authContext";
 
 const UserSearch = () => {
   const fetchData = useFetch();
+  const authCtx = use(AuthCtx);
 
   const mutation = useMutation({
     mutationFn: async (searchQuery) => {
@@ -23,7 +25,12 @@ const UserSearch = () => {
         query: searchQuery,
       };
       console.log(JSON.stringify(body));
-      return await fetchData("/users/search", "POST", body);
+      return await fetchData(
+        "/users/search",
+        "POST",
+        body,
+        authCtx.accessToken
+      );
     },
     onSuccess: (data) => {
       console.log(data);

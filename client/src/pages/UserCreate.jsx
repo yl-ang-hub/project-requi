@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -16,22 +16,30 @@ import FormComboBox from "@/components/FormComboBox";
 import useFetch from "@/hooks/useFetch";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import AuthCtx from "@/components/context/authContext";
 
 const UserCreate = () => {
   const fetchData = useFetch();
   const navigate = useNavigate();
+  const authCtx = use(AuthCtx);
 
   const getRegistrationOptions = useQuery({
     queryKey: ["regOpts"],
     queryFn: async () => {
       console.log("running query");
-      const data = await fetchData("/auth/users");
+      const data = await fetchData(
+        "/auth/users",
+        "GET",
+        undefined,
+        authCtx.accessToken
+      );
       console.log(data);
       return data;
     },
+    enabled: !!authCtx.accessToken,
   });
 
-  const mutation = useMutation({
+  const createUserMutation = useMutation({
     mutationFn: async (data) => {
       const body = {
         name: data.name,
@@ -44,7 +52,7 @@ const UserCreate = () => {
         costCentre: data.costCentre,
         designation: data.designation,
       };
-      return await fetchData("/auth/users", "PUT", body);
+      return await fetchData("/auth/users", "PUT", body, authCtx.accessToken);
     },
     onSuccess: (data) => {
       console.log(JSON.stringify(data));
@@ -83,7 +91,7 @@ const UserCreate = () => {
 
   const onSubmit = (data) => {
     console.log(data);
-    mutation.mutate(data);
+    createUserMutation.mutate(data);
   };
 
   return (

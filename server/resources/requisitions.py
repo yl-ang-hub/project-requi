@@ -1,11 +1,13 @@
 import datetime as dt
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
 from db.db_pool import get_cursor, release_connection
 
 requisitions = Blueprint("requisitions", __name__)
 
 
 @requisitions.route("/getOptions", methods=["GET"])
+@jwt_required()
 def get_requisition_options():
     conn = None
     try:
@@ -41,6 +43,7 @@ def get_requisition_options():
 
 
 @requisitions.route("/getApprovalFlow", methods=["POST"])
+@jwt_required()
 def get_approval_flow():
     conn = None
     try:
@@ -58,6 +61,12 @@ def get_approval_flow():
         print(cc_data)
         if not cc_data:
             return jsonify(status="error", msg=f"No cost_centre found for {cost_centre}"), 400
+
+        # Calculate total amount in sgd
+        cursor.execute('SELECT conversion_rate FROM currencies WHERE code=%s', (inputs['currency'],))
+        curr_rate = cursor.fetchone()
+        amount_in_sgd = inputs["totalAmount"] / curr_rate['conversion_rate']
+
 
         # CREATE APPROVAL FLOW FOR THIS REQUISITION
         approval_flow = [{
@@ -77,13 +86,13 @@ def get_approval_flow():
                     for_cost_centre = %s OR for_cost_centre LIKE %s
                 ) 
                 ORDER BY min_cost;
-                """, (inputs['totalAmount'], cost_centre, 'ALL + MMD')
+                """, (amount_in_sgd, cost_centre, 'ALL + MMD')
             )
             results = cursor.fetchall()
         else:
             cursor.execute(
                 'SELECT * FROM approval_matrix WHERE for_cost_centre LIKE %s AND min_cost <= %s ORDER BY min_cost;',
-                ('ALL%', inputs['totalAmount'])
+                ('ALL%', amount_in_sgd)
             )
             results = cursor.fetchall()
 
@@ -126,7 +135,9 @@ def get_approval_flow():
     finally:
         if conn: release_connection(conn)
 
+
 @requisitions.route("/create", methods=["PUT"])
+@jwt_required()
 def add_new_requisition():
     conn = None
     try:
@@ -135,8 +146,7 @@ def add_new_requisition():
         cost_centre = inputs["costCentre"].split(" - ")[0]
         account_code = inputs["accountCode"].split(" - ")[0]
         gl_code = inputs["glCode"].split(" - ")[0]
-        amount_in_sgd = inputs["totalAmount"]
-        print(cost_centre, account_code, gl_code, amount_in_sgd)
+        print(cost_centre, account_code, gl_code)
         print(inputs['items'])
 
         # Get requester data
@@ -148,6 +158,11 @@ def add_new_requisition():
         cursor.execute('SELECT * FROM cost_centres WHERE cost_centre=%s', (cost_centre,))
         cc_data = cursor.fetchone()
         print(cc_data)
+
+        # Calculate amount in sgd
+        cursor.execute('SELECT conversion_rate FROM currencies WHERE code=%s', (inputs['currency'],))
+        curr_rate = cursor.fetchone()
+        amount_in_sgd = inputs["totalAmount"] / curr_rate['conversion_rate']
 
         # Create New PR
         cursor.execute(

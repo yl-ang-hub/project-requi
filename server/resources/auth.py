@@ -35,6 +35,7 @@ def get_registration_options():
 
 
 @auth.route("/users", methods=["PUT"])
+@jwt_required()
 def add_user():
     conn = None
     try:
