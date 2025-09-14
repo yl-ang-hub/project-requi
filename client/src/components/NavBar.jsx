@@ -91,7 +91,7 @@ function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Dashboard</Link>
+                  <Link to="/dashboard">Dashboard</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {authCtx.role !== "Staff" ? (
@@ -131,7 +131,7 @@ function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">My PRs</Link>
+                  <Link to="/pr">My PRs</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {authCtx.role.includes("MMD") ||

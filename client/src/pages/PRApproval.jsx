@@ -31,7 +31,6 @@ const PRApproval = () => {
 
   const finFields = authCtx.role.includes("Finance") ? false : true;
   const mmdFields = authCtx.role.includes("MMD") ? false : true;
-  const requesterFields = false;
 
   const getPR = useQuery({
     queryKey: ["pr"],
@@ -60,6 +59,7 @@ const PRApproval = () => {
   });
 
   const itemSchema = z.object({
+    id: z.number(),
     name: z.string().nonempty({ message: "required field" }),
     description: z.string(),
     quantity: z.coerce.number().positive({ message: "required field" }),
@@ -97,28 +97,28 @@ const PRApproval = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: getPR.data?.pr?.title,
-      description: getPR.data?.pr?.description,
-      requesterName: getPR.data?.pr?.requester_contact_name,
-      requesterContactNumber: getPR.data?.pr?.requester_contact_number,
-      requesterContactEmail: getPR.data?.pr?.requester_email,
-      prContactName: getPR.data?.pr?.pr_contact_name,
-      prContactNumber: getPR.data?.pr?.pr_contact_number,
-      prContactEmail: getPR.data?.pr?.pr_contact_email,
-      costCentre: getPR.data?.pr?.cost_centre,
-      accountCode: getPR.data?.pr?.account_code,
-      glCode: getPR.data?.pr?.gl_code,
-      totalAmount: getPR.data?.pr?.total_amount,
-      currency: getPR.data?.pr?.currency,
-      amountInSGD: getPR.data?.pr?.amount_in_sgd,
-      comments: getPR.data?.pr?.comments,
-      goodsRequiredBy: getPR.data?.pr?.goods_required_by,
-      prStatus: getPR.data?.pr?.status,
-      paymentStatus: getPR.data?.pr?.payment_status,
-      createdAt: getPR.data?.pr?.created_at,
+      title: getPR.data?.pr?.title || "",
+      description: getPR.data?.pr?.description || "",
+      requesterName: getPR.data?.pr?.requester_contact_name || "",
+      requesterContactNumber: getPR.data?.pr?.requester_contact_number || "",
+      requesterContactEmail: getPR.data?.pr?.requester_email || "",
+      prContactName: getPR.data?.pr?.pr_contact_name || "",
+      prContactNumber: getPR.data?.pr?.pr_contact_number || "",
+      prContactEmail: getPR.data?.pr?.pr_contact_email || "",
+      costCentre: getPR.data?.pr?.cost_centre || "",
+      accountCode: getPR.data?.pr?.account_code || "",
+      glCode: getPR.data?.pr?.gl_code || "",
+      totalAmount: getPR.data?.pr?.total_amount || "",
+      currency: getPR.data?.pr?.currency || "",
+      amountInSGD: getPR.data?.pr?.amount_in_sgd || "",
+      comments: getPR.data?.pr?.comments || "",
+      goodsRequiredBy: getPR.data?.pr?.goods_required_by || "",
+      prStatus: getPR.data?.pr?.status || "",
+      paymentStatus: getPR.data?.pr?.payment_status || "",
+      createdAt: getPR.data?.pr?.created_at || "",
       // updated_at: "",
       // updated_by: "",
-      items: getPR.data?.pr?.items,
+      items: getPR.data?.pr?.items || [],
       approverComments: "",
     },
   });
@@ -131,6 +131,7 @@ const PRApproval = () => {
 
   const approvePRMutation = useMutation({
     mutationFn: async (data) => {
+      console.log("running approvePR mutation");
       const body = {
         userId: authCtx.userId,
         role: authCtx.role,
@@ -153,6 +154,27 @@ const PRApproval = () => {
     console.log(data);
     approvePRMutation.mutate(data);
   };
+
+  const rejectPRMutation = useMutation({
+    mutationFn: async (data) => {
+      console.log("running rejectPR mutation");
+      console.log(data);
+      const body = {
+        userId: authCtx.userId,
+        form: data,
+      };
+
+      return await fetchData(
+        `/requisitions/${params.id}/reject`,
+        "POST",
+        body,
+        authCtx.accessToken
+      );
+    },
+    onSuccess: () => {
+      navigate("/approvals/pending");
+    },
+  });
 
   const refreshAccessToken = useMutation({
     mutationFn: async () => {
@@ -473,7 +495,6 @@ const PRApproval = () => {
 
           <div>
             <FormField
-              disabled={requesterFields}
               control={form.control}
               name="comments"
               render={({ field }) => (
@@ -599,7 +620,14 @@ const PRApproval = () => {
           </div>
 
           <Button type="submit">Approve</Button>
-          <Button variant="destructive">Reject</Button>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={() => {
+              rejectPRMutation.mutate(form.getValues());
+            }}>
+            Reject
+          </Button>
         </form>
       </Form>
     </div>

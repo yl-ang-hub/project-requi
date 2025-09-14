@@ -67,6 +67,7 @@ def get_approval_flow():
         cursor.execute('SELECT conversion_rate FROM currencies WHERE code=%s', (inputs['currency'],))
         curr_rate = cursor.fetchone()
         amount_in_sgd = inputs["totalAmount"] / curr_rate['conversion_rate']
+        print("calculated amount in sgd")
 
         # CREATE APPROVAL FLOW FOR THIS REQUISITION
         approval_flow = [{
@@ -206,7 +207,7 @@ def add_new_requisition():
         requisition = cursor.fetchone()
         print(requisition['id'])
 
-        # TODO: Create the line items
+        # Create the line items
         for item in inputs['items']:
             cursor.execute(
                 """
@@ -218,12 +219,12 @@ def add_new_requisition():
                     %s, %s
                 ) RETURNING id;
                 """, (
-                    requisition['id'], item['itemName'], item['itemDescription'], item['quantity'],
-                    item['unitOfMeasure'],
-                    item['unitCost'], inputs['currency']
-                ))
+                    requisition['id'], item['name'], item['description'], item['quantity'],
+                    item['unit_of_measure'],
+                    item['unit_cost'], inputs['currency']
+                )
+            )
 
-        # TODO: Create new approval flow for this requisition
         # CREATE APPROVAL FLOW FOR THIS REQUISITION
         approval_flow = [{
             "requisition_id": requisition['id'],
@@ -380,6 +381,7 @@ def get_pr(id):
 def approve_pr(id):
     conn = None
     try:
+        print("running approve_pr logic")
         conn, cursor = get_cursor()
         inputs = request.get_json()
 
@@ -390,8 +392,40 @@ def approve_pr(id):
             return jsonify(status="error", msg="Unauthorised to approve"), 401
 
         # Check for any updates to any fields by the approver (by MMD or Finance)
-        updates = {}
-        if requisition['cost_centre'] != inputs['form']['costCentre']: updates['cost_centre'] = inputs['form']['costCentre']
+        inputs['form']['costCentre'] = inputs['form']['costCentre'].split(" - ")[0]
+        inputs['form']['accountCode'] = inputs['form']['accountCode'].split(" - ")[0]
+        inputs['form']['glCode'] = inputs['form']['glCode'].split(" - ")[0]
+
+        if inputs['form']['costCentre'] != requisition['cost_centre']:
+            cursor.execute('UPDATE requisitions SET cost_centre=%s, updated_at=%s, updated_by=%s WHERE id=%s', (inputs['form']['costCentre'], dt.datetime.now(), inputs['userId'], id))
+        if inputs['form']['accountCode'] != requisition['account_code']:
+            cursor.execute('UPDATE requisitions SET account_code=%s, updated_at=%s, updated_by=%s WHERE id=%s', (inputs['form']['accountCode'], dt.datetime.now(), inputs['userId'], id))
+        if inputs['form']['glCode'] != requisition['gl_code']:
+            cursor.execute('UPDATE requisitions SET gl_code=%s, updated_at=%s, updated_by=%s WHERE id=%s', (inputs['form']['glCode'], dt.datetime.now(), inputs['userId'], id))
+
+        cursor.execute('SELECT * FROM requisition_items WHERE requisition_id=%s', (id,))
+        line_items = cursor.fetchall()
+        for item in inputs['form']['items']:
+            for i in range(len(line_items)):
+                if item['id'] == line_items[i]['id'] and ((item['name'] != line_items[i]['name']) or (item['description'] != line_items[i]['description']) or (item['quantity'] != line_items[i]['quantity']) or (item['unit_of_measure'] != line_items[i]['unit_of_measure']) or (item['unit_cost'] != line_items[i]['unit_cost'])):
+                    cursor.execute('DELETE FROM requisition_items WHERE id=%s', (item['id'],))
+                    cursor.execute(
+                        """
+                        INSERT INTO requisition_items (
+                            requisition_id, name, description, quantity, unit_of_measure,
+                            unit_cost, currency
+                        ) VALUES (
+                            %s, %s, %s, %s, %s,
+                            %s, %s
+                        )
+                        """, (
+                            requisition['id'], item['name'], item['description'], item['quantity'],
+                            item['unit_of_measure'],
+                            item['unit_cost'], requisition['currency']
+                        )
+                    )
+                    cursor.execute('UPDATE requisitions SET updated_at=%s, updated_by=%s WHERE id=%s',
+                               (dt.datetime.now(), inputs['userId'], id))
 
         # Update the approval in requisition_approval_flow
         cursor.execute(
@@ -416,7 +450,7 @@ def approve_pr(id):
         )
         approver = cursor.fetchone()
         if "MMD" in approver['approver_role']: pr_status = "Pending MMD"
-        elif "Finance" in inputs['role']: pr_status = "Pending Next Level Approver"
+        else: pr_status = "Pending Next Level Approver"
         cursor.execute('UPDATE requisitions SET next_approver=%s, status=%s WHERE id=%s', (approver['approver_id'], pr_status, requisition['id']))
 
         conn.commit()
@@ -455,6 +489,8 @@ def reject_pr(id):
             ("Rejected", dt.datetime.now(), inputs['form']['approverComments'], requisition['id'],
              requisition['next_approver'], "Queued")
         )
+
+        # Reset status of all other approvers queued for this PR
         cursor.execute(
             """
             UPDATE requisition_approval_flow 
@@ -464,12 +500,12 @@ def reject_pr(id):
             ("Not Applicable", requisition['id'], "Queued")
         )
 
-        # Update in requisitions
+        # Update the status in requisitions
         cursor.execute(
             """
-            UPDATE requisitions SET next_approver=%s, status=%s, payment_status
-            WHERE id=%s'
-            """, (None, "Rejected", "Not Applicable")
+            UPDATE requisitions SET next_approver=%s, status=%s, payment_status=%s
+            WHERE id=%s
+            """, (None, "Rejected", "Not Applicable", requisition['id'])
         )
 
         conn.commit()
