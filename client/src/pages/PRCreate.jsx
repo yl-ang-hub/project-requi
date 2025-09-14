@@ -18,21 +18,29 @@ import FormComboBox from "@/components/FormComboBox";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import useFetch from "@/hooks/useFetch";
 import AuthCtx from "@/components/context/authContext";
-import PRLineItem from "./PRLineItem";
+import PRLineItem from "../components/PRLineItem";
 import { jwtDecode } from "jwt-decode";
 import ApprovalFlow from "@/components/ApprovalFlow";
+import { useNavigate } from "react-router-dom";
 
 const PRCreate = () => {
   // const prCtx = use(PRContext);
   const authCtx = use(AuthCtx);
   const fetchData = useFetch();
   const [clearForm, setClearForm] = useState(false);
+  const navigate = useNavigate();
 
   const prOptions = useQuery({
     queryKey: ["prOptions"],
     queryFn: async () => {
-      return await fetchData("/requisitions/getOptions", "GET");
+      return await fetchData(
+        "/requisitions/getOptions",
+        "GET",
+        undefined,
+        authCtx.accessToken
+      );
     },
+    enabled: !!authCtx.accessToken,
   });
 
   const itemSchema = z.object({
@@ -42,6 +50,7 @@ const PRCreate = () => {
     unitOfMeasure: z.string(),
     unitCost: z.coerce.number().positive({ message: "required field" }),
   });
+
   const formSchema = z.object({
     title: z.string().nonempty({ message: "required field" }),
     description: z.string(),
@@ -51,9 +60,7 @@ const PRCreate = () => {
     costCentre: z.string().nonempty({ message: "required field" }),
     accountCode: z.string().nonempty({ message: "required field" }),
     glCode: z.string().nonempty({ message: "required field" }),
-    // totalAmount: z.coerce.number().positive({ message: "required field" }),
-    currency: z.string().nonempty({ message: "required field" }), // consider to omit
-    amountInSGD: z.coerce.number(), // consider to omit
+    currency: z.string().nonempty({ message: "required field" }),
     comments: z.string(),
     goodsRequiredBy: z.coerce.date(),
     items: z.array(itemSchema).min(1),
@@ -63,22 +70,35 @@ const PRCreate = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "New Bike",
-      description: "Bicycle",
+      title: "Test Title",
+      description: "Test Description",
       prContactName: "Shrek", // default to requester
       prContactNumber: "81234567", // default to requester
       prContactEmail: "shrek@example.com", // default to requester
       costCentre: "", // default to requester cost centre
       accountCode: "",
       glCode: "",
-      // totalAmount: 1203,
-      currency: "", // consider to omit
-      amountInSGD: 1203, // consider to omit
-      comments: "Dash and whell",
+      currency: "",
+      comments: "Test comments",
       goodsRequiredBy: new Date(
         new Date().getTime() + 30 * 1000 * 60 * 60 * 24
       ),
-      items: [],
+      items: [
+        {
+          itemName: "Item A",
+          itemDescription: "Item A Description",
+          quantity: 100,
+          unitOfMeasure: "pcs",
+          unitCost: 1500,
+        },
+        {
+          itemName: "Item B",
+          itemDescription: "Item B Description",
+          quantity: 150,
+          unitOfMeasure: "pcs",
+          unitCost: 800,
+        },
+      ],
     },
   });
 
@@ -104,7 +124,26 @@ const PRCreate = () => {
     });
   };
 
-  const mutation = useMutation({
+  const costCentre = form.watch("costCentre");
+  const currency = form.watch("currency");
+
+  const approvalFlow = useMutation({
+    mutationFn: async () => {
+      console.log(costCentre);
+      return await fetchData(
+        "/requisitions/getApprovalFlow",
+        "POST",
+        {
+          costCentre: costCentre,
+          totalAmount: totalAmount,
+          currency: currency,
+        },
+        authCtx.accessToken
+      );
+    },
+  });
+
+  const createPRMutation = useMutation({
     mutationFn: async (data) => {
       console.log(JSON.stringify(data.items));
       const total = data.items.reduce((acc, curr) => {
@@ -129,12 +168,15 @@ const PRCreate = () => {
       };
       return await fetchData("/requisitions/create", "PUT", body);
     },
+    onSuccess: () => {
+      navigate("/");
+    },
   });
 
   const onSubmit = (data) => {
     console.log("running onSubmit");
     console.log(data);
-    mutation.mutate(data);
+    createPRMutation.mutate(data);
   };
 
   const onReset = () => {
@@ -144,18 +186,6 @@ const PRCreate = () => {
       setClearForm(false);
     }, 1000);
   };
-
-  const costCentre = form.watch("costCentre");
-
-  const approvalFlow = useMutation({
-    mutationFn: async () => {
-      console.log(costCentre);
-      return await fetchData("/requisitions/getApprovalFlow", "POST", {
-        costCentre: costCentre,
-        totalAmount: totalAmount,
-      });
-    },
-  });
 
   const refreshAccessToken = useMutation({
     mutationFn: async () => {
@@ -168,10 +198,6 @@ const PRCreate = () => {
     },
     onSuccess: (data) => {
       try {
-        console.log(localStorage.getItem("refresh"));
-        console.log(JSON.stringify(data.access));
-        console.log(data.access);
-
         authCtx.setAccessToken(data.access);
         const decoded = jwtDecode(data.access);
         if (decoded) {
@@ -191,9 +217,9 @@ const PRCreate = () => {
   }, []);
 
   useEffect(() => {
-    if (costCentre !== "" && costCentre && totalAmount !== 0)
+    if (costCentre !== "" && costCentre && totalAmount !== 0 && currency !== "")
       approvalFlow.mutate();
-  }, [totalAmount, costCentre]);
+  }, [totalAmount, costCentre, currency]);
 
   return (
     <div className="w-full max-w-4xl m-auto">

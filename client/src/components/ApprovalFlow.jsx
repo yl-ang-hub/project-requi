@@ -6,8 +6,10 @@ const ApprovalFlow = (props) => {
   return (
     <div>
       <FormDescription>
-        Please contact MMD for any clarification on the approval flow.
+        Approval flow is determined based on total cost in SGD. Please contact
+        MMD for any clarifications.
       </FormDescription>
+      <br />
       <div className="my-1 grid grid-cols-5 gap-1">
         <FormLabel>No</FormLabel>
         <FormLabel>Role</FormLabel>
