@@ -443,7 +443,7 @@ const PRCreate = () => {
             <div className="bg-blue-200">
               Approval Flow
               <br />
-              <ApprovalFlow data={approvalFlow?.data} />
+              <ApprovalFlow data={approvalFlow?.data} newPR={true} />
             </div>
 
             <Button type="reset" onClick={() => onReset()}>

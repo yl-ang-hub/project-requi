@@ -89,13 +89,3 @@ const ApprovalsPending = () => {
 };
 
 export default ApprovalsPending;
-
-/*
-PR id
-PR title
-Requester Name
-Cost Centre
-Account Code
-Total Amount (SGD)
-Goods Required By
-*/

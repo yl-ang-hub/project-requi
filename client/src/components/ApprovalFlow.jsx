@@ -3,6 +3,8 @@ import { FormDescription, FormLabel } from "./ui/form";
 import { Input } from "./ui/input";
 
 const ApprovalFlow = (props) => {
+  const newPR = props.newPR || false;
+
   return (
     <div>
       <FormDescription>
@@ -10,21 +12,46 @@ const ApprovalFlow = (props) => {
         MMD for any clarifications.
       </FormDescription>
       <br />
-      <div className="my-1 grid grid-cols-5 gap-1">
-        <FormLabel>No</FormLabel>
-        <FormLabel>Role</FormLabel>
-        <FormLabel>Approver</FormLabel>
-      </div>
+      {newPR ? (
+        <div className="my-1 grid grid-cols-3 gap-1">
+          <FormLabel>Sequence</FormLabel>
+          <FormLabel>Role</FormLabel>
+          <FormLabel>Approver</FormLabel>
+        </div>
+      ) : (
+        <div className="my-1 grid grid-cols-5 gap-1">
+          <FormLabel>Sequence</FormLabel>
+          <FormLabel>Role</FormLabel>
+          <FormLabel>Approver</FormLabel>
+          <FormLabel>Status</FormLabel>
+          <FormLabel>Comments</FormLabel>
+        </div>
+      )}
 
       {props.data?.map((line, idx) => {
         return (
-          <div className="my-1 grid grid-cols-5 gap-1" key={idx}>
-            <Input
-              disabled={true}
-              defaultValue={line.requisition_approval_sequence}
-            />
-            <Input disabled={true} defaultValue={line.approver_role} />
-            <Input disabled={true} defaultValue={line.approver} />
+          <div key={idx}>
+            {newPR ? (
+              <div className="my-1 grid grid-cols-3 gap-1">
+                <Input
+                  disabled={true}
+                  defaultValue={line.requisition_approval_sequence}
+                />
+                <Input disabled={true} defaultValue={line.approver_role} />
+                <Input disabled={true} defaultValue={line.approver} />
+              </div>
+            ) : (
+              <div className="my-1 grid grid-cols-5 gap-1">
+                <Input
+                  disabled={true}
+                  defaultValue={line.requisition_approval_sequence}
+                />
+                <Input disabled={true} defaultValue={line.approver_role} />
+                <Input disabled={true} defaultValue={line.approver} />
+                <Input disabled={true} defaultValue={line.approval_status} />
+                <Input disabled={true} defaultValue={line.approver_comments} />
+              </div>
+            )}
           </div>
         );
       })}
