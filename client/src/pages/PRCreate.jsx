@@ -166,7 +166,12 @@ const PRCreate = () => {
         goodsRequiredBy: data.goodsRequiredBy,
         items: data.items,
       };
-      return await fetchData("/requisitions/create", "PUT", body);
+      return await fetchData(
+        "/requisitions/create",
+        "PUT",
+        body,
+        authCtx.accessToken
+      );
     },
     onSuccess: () => {
       navigate("/");
