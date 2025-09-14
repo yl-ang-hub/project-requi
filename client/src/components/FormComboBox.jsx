@@ -24,7 +24,9 @@ const FormComboBox = (props) => {
 
   useEffect(() => {
     props?.clearForm ? setValue("") : "";
-  });
+  }, [props.clearForm]);
+
+  useEffect(() => setValue(props.field.value || ""), [props.field.value]);
 
   return (
     <>
@@ -53,13 +55,8 @@ const FormComboBox = (props) => {
                     key={item}
                     value={item}
                     onSelect={(currentValue) => {
-                      setValue((prevState) =>
-                        currentValue === value ? "" : currentValue
-                      );
-                      props.setFormValue(
-                        props.field.name,
-                        currentValue === value ? "" : currentValue
-                      );
+                      setValue(currentValue);
+                      props.setFormValue(props.field.name, currentValue);
                       setOpen(false);
                     }}>
                     {item}
