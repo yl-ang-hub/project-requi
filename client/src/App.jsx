@@ -17,6 +17,7 @@ import ApprovalsHistory from "./pages/ApprovalsHistory";
 import MMDCentralPool from "./pages/MMDCentralPool";
 import PRView from "./pages/PRView";
 import POView from "./pages/POView";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -141,6 +142,16 @@ function App() {
                   </ProtectedRouter>
                 }
               />
+
+              <Route
+                path="/resetpassword"
+                element={
+                  <ProtectedRouter>
+                    <ResetPassword />
+                  </ProtectedRouter>
+                }
+              />
+
               <Route path="/logout" element={<Logout />} />
             </Routes>
           </div>

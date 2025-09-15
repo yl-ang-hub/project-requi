@@ -130,3 +130,42 @@ def refresh():
 
     finally:
         if conn: release_connection(conn)
+
+
+@auth.route("/resetpassword", methods=["PATCH"])
+@jwt_required()
+def reset_password():
+    conn = None
+    print("running reset password")
+    try:
+        conn, cursor = get_cursor()
+        user_id = get_jwt_identity()
+        print(user_id)
+        claims = get_jwt()
+        inputs = request.get_json()
+
+        cursor.execute('SELECT * FROM users JOIN auth ON users.id = auth.user_id WHERE users.login_id=%s',
+                       (claims['login_id'],))
+        user = cursor.fetchone()
+        print(user)
+        if not user:
+            return jsonify(status="error", msg="id or password incorrect"), 401
+
+        access = bcrypt.checkpw(inputs['currentPassword'].encode('utf-8'), user['hash'].encode('utf-8'))
+        print(access)
+        if not access:
+            return jsonify(status="error", msg="id or password incorrect"), 401
+
+        hashed_pw = bcrypt.hashpw(inputs['newPassword'].encode('utf-8'), bcrypt.gensalt())
+        cursor.execute('UPDATE auth SET hash=%s WHERE user_id=%s', (hashed_pw.decode('utf-8'), user_id))
+
+        conn.commit()
+        return jsonify(status="ok", msg="password changed"), 200
+
+    except Exception as e:
+        conn.rollback()
+        print(f'Encountered error: {e}')
+        return jsonify(status="error", msg="Unable to log in"), 401
+
+    finally:
+        if conn: release_connection(conn)

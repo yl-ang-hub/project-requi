@@ -70,7 +70,7 @@ function AppSidebar() {
 
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link to="/">Change my password</Link>
+                      <Link to="/resetpassword">Change my password</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
 
