@@ -1,7 +1,7 @@
 import React, { use, useState } from "react";
 import NavBar from "./components/NavBar";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import AuthContext from "./components/context/authContext";
 import PRCreate from "./pages/PRCreate";
@@ -14,6 +14,7 @@ import ApprovalsPending from "./pages/ApprovalsPending";
 import PRSelf from "./pages/PRSelf";
 import PRApproval from "./pages/PRApproval";
 import ApprovalsHistory from "./pages/ApprovalsHistory";
+import MMDCentralPool from "./pages/MMDCentralPool";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -78,6 +79,7 @@ function App() {
                 }
               />
 
+              {/* REQUISITIONS */}
               <Route
                 path="/pr/create"
                 element={
@@ -91,6 +93,14 @@ function App() {
                 element={
                   <ProtectedRouter>
                     <PRSelf />
+                  </ProtectedRouter>
+                }
+              />
+              <Route
+                path="/pr/mmd_pool"
+                element={
+                  <ProtectedRouter>
+                    <MMDCentralPool />
                   </ProtectedRouter>
                 }
               />

@@ -57,8 +57,8 @@ def add_user():
         new_user = cursor.fetchone()
         print(f'new_user is {new_user["id"]}')
         cursor.execute('INSERT INTO auth (user_id, hash) VALUES (%s, %s)', (new_user['id'], hashed_pw.decode('utf-8')))
-        conn.commit()
 
+        conn.commit()
         return jsonify(status="ok", msg="user added"), 200
 
     except Exception as e:

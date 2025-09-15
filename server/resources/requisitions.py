@@ -298,6 +298,7 @@ def add_new_requisition():
         return jsonify(status="ok", msg="PR successfully created"), 200
 
     except Exception as e:
+        conn.rollback()
         print(f'"unknown error: {e}')
         return jsonify(status="error", msg="Unable to create new PR"), 400
 
@@ -454,10 +455,10 @@ def approve_pr(id):
         cursor.execute('UPDATE requisitions SET next_approver=%s, status=%s WHERE id=%s', (approver['approver_id'], pr_status, requisition['id']))
 
         conn.commit()
-
         return jsonify(status="ok", msg="approved successfully"), 200
 
     except Exception as e:
+        conn.rollback()
         print(f'unknown error: {e}')
         return jsonify(status="error", msg="unable to approve PR"), 400
 
@@ -509,12 +510,95 @@ def reject_pr(id):
         )
 
         conn.commit()
-
         return jsonify(status="ok", msg="rejected successfully"), 200
 
     except Exception as e:
+        conn.rollback()
         print(f"unknown error: {e}")
         return jsonify(status="error", msg="unable to reject PR"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@requisitions.route("/approvals/mmd_central_pool", methods=["GET"])
+@jwt_required()
+def get_pr_in_mmd_central_pool():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        cursor.execute('SELECT * FROM requisitions WHERE status=%s AND next_approver IS NULL', ("Pending MMD", ))
+        requisitions = cursor.fetchall()
+
+        return jsonify(requisitions), 200
+
+    except Exception as e:
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to pull the PRs"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@requisitions.route("/approvals/mmd_central_pool", methods=["PATCH"])
+@jwt_required()
+def pull_pr():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        inputs = request.get_json()
+
+        if "MMD" not in inputs['role']:
+            return jsonify(status="error", msg="Unauthorised"), 401
+
+        cursor.execute('UPDATE requisitions SET mmd_in_charge=%s, next_approver=%s WHERE id=%s', (inputs['userId'], inputs['userId'], inputs['requisitionId']))
+        cursor.execute('UPDATE requisition_approval_flow SET approver_id=%s WHERE requisition_id=%s AND approver_role=%s', (inputs['userId'], inputs['requisitionId'], "MMD"))
+
+        conn.commit()
+        return jsonify(status="ok", msg="successfully pulled PR", requisition_id=inputs['requisitionId'])
+
+    except Exception as e:
+        conn.rollback()
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to pull PR"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@requisitions.route("/approvals/history", methods=["POST"])
+@jwt_required()
+def get_approval_history():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        inputs = request.get_json()
+
+        cursor.execute(
+            """
+            SELECT * FROM requisition_approval_flow
+            LEFT JOIN requisitions ON requisitions.id = requisition_approval_flow.requisition_id 
+            WHERE approver_id=%s AND approval_status=%s
+            ORDER BY requisition_approval_flow.approved_at DESC
+            """, (inputs['userId'], "Approved")
+        )
+        approved = cursor.fetchall()
+
+        cursor.execute(
+            """
+            SELECT * FROM requisition_approval_flow
+            LEFT JOIN requisitions ON requisitions.id = requisition_approval_flow.requisition_id 
+            WHERE approver_id=%s AND approval_status=%s
+            ORDER BY requisition_approval_flow.approved_at DESC
+            """, (inputs['userId'], "Rejected")
+        )
+        rejected = cursor.fetchall()
+
+        return jsonify({"approved": approved, "rejected": rejected}), 200
+
+    except Exception as e:
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to retrieve history"), 400
 
     finally:
         if conn: release_connection(conn)
