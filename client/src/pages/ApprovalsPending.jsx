@@ -38,6 +38,36 @@ const ApprovalsPending = () => {
     if (authCtx.accessToken.length !== 0) getPRPendingApprovals.mutate();
   }, []);
 
+  const refreshAccessToken = useMutation({
+    mutationFn: async () => {
+      return await fetchData(
+        `/auth/refresh`,
+        "GET",
+        undefined,
+        localStorage.getItem("refresh")
+      );
+    },
+    onSuccess: (data) => {
+      try {
+        authCtx.setAccessToken(data.access);
+        const decoded = jwtDecode(data.access);
+        if (decoded) {
+          authCtx.setUserId(decoded.id);
+          authCtx.setRole(decoded.role);
+          authCtx.setName(decoded.name);
+        }
+      } catch (e) {
+        console.error(e.message);
+      }
+    },
+  });
+
+  useEffect(() => {
+    // Auto login for users with refresh token in localStorage
+    const refresh = localStorage.getItem("refresh");
+    if (refresh && authCtx.accessToken == "") refreshAccessToken.mutate();
+  }, []);
+
   return (
     <div className="w-full">
       <Card className="w-full h-screen mx-auto">
