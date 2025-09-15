@@ -653,7 +653,7 @@ def get_my_PRs():
 
         cursor.execute(
             """
-            SELECT * FROM requisitions WHERE requester_id = %s ORDER BY id
+            SELECT * FROM requisitions WHERE requester_id = %s ORDER BY id DESC
             """, (inputs['userId'],)
         )
         results = cursor.fetchall()
