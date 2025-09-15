@@ -123,7 +123,11 @@ const ResetPassword = () => {
           <Button
             type="submit"
             className="w-full"
-            onClick={changePassword.mutate}>
+            onClick={() => {
+              if (error === "") {
+                changePassword.mutate();
+              }
+            }}>
             Change Password
           </Button>
         </CardFooter>
