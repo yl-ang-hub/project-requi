@@ -15,6 +15,7 @@ import PRSelf from "./pages/PRSelf";
 import PRApproval from "./pages/PRApproval";
 import ApprovalsHistory from "./pages/ApprovalsHistory";
 import MMDCentralPool from "./pages/MMDCentralPool";
+import PRView from "./pages/PRView";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -96,6 +97,15 @@ function App() {
                   </ProtectedRouter>
                 }
               />
+              <Route
+                path="/pr/:id"
+                element={
+                  <ProtectedRouter>
+                    <PRView />
+                  </ProtectedRouter>
+                }
+              />
+
               <Route
                 path="/pr/mmd_pool"
                 element={
