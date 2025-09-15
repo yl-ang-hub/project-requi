@@ -344,6 +344,7 @@ def get_pr(id):
     try:
         conn, cursor = get_cursor()
 
+        # Pull PR approval flow (left join to users)
         cursor.execute(
             """
             SELECT *, users.name AS approver FROM requisition_approval_flow 
@@ -353,6 +354,7 @@ def get_pr(id):
         )
         approval_flow = cursor.fetchall()
 
+        # Pull PR and modify some fields for rendering
         cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
         pr = cursor.fetchone()
         pr['total_amount'] = f"{pr['currency']} {pr['total_amount']:,.2f}"
@@ -363,11 +365,33 @@ def get_pr(id):
             updated_user = cursor.fetchone()
             pr['updated_by'] = updated_user['name']
 
+        # Pull line items for PR
         cursor.execute('SELECT * FROM requisition_items WHERE requisition_id=%s', (pr['id'],))
         items = cursor.fetchall()
         pr['items'] = items
 
-        return jsonify({"pr": pr, "approval_flow": approval_flow}), 200
+        # Pull attachments for PR (if any)
+        cursor.execute('SELECT * FROM requisition_attachments WHERE requisition_id=%s', (pr['id'],))
+        pr_attachments = cursor.fetchall()
+        if pr_attachments: pr['pr_attachments'] = pr_attachments
+
+        # Check if PR has a corresponding PO
+        cursor.execute('SELECT * FROM purchase_orders WHERE requisition_id=%s', (pr['id'],))
+        po = cursor.fetchone()
+        if po:
+            # Pull PO line items
+            cursor.execute('SELECT * FROM purchase_order_items WHERE purchase_order_id=%s', (po['id'],))
+            po_items = cursor.fetchall()
+            po['items'] = po_items
+
+            # Pull PO attachments
+            cursor.execute('SELECT * FROM purchase_order_attachments WHERE purchase_order_id=%s', (po['id'],))
+            po_attachments = cursor.fetchall()
+            if po_attachments: po['po_attachments'] = po_attachments
+
+        results = {"pr": pr, "approval_flow": approval_flow}
+        if po: results["po"] = po
+        return jsonify(results), 200
 
     except Exception as e:
         print(f'unknown error: {e}')
