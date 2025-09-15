@@ -112,7 +112,7 @@ function AppSidebar() {
               )}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Advanced Search for PRs/POs</Link>
+                  <Link to="/">Global Search</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -158,12 +158,12 @@ function AppSidebar() {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link to="/">Pending POs</Link>
+                    <Link to="/">POs Pending Delivery</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link to="/">PRs Pending Payment</Link>
+                    <Link to="/">POs Pending Payment</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>

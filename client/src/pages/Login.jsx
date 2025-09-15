@@ -85,7 +85,7 @@ const Login = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-4xl">
+    <div className="w-full max-w-4xl mx-auto mt-40">
       <div>{localStorage.getItem("refresh")}</div>
       <Card className="w-full max-w-md m-auto">
         <CardHeader>

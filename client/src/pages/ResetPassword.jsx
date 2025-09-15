@@ -45,7 +45,7 @@ const ResetPassword = () => {
   });
 
   return (
-    <div className="w-full max-w-4xl">
+    <div className="w-full max-w-4xl mx-auto mt-40">
       <Card className="w-full max-w-md m-auto">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>

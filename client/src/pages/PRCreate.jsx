@@ -228,10 +228,7 @@ const PRCreate = () => {
   }, [totalAmount, costCentre, currency]);
 
   return (
-    <div className="w-full max-w-4xl m-auto">
-      My id is {authCtx.userId}, my role is {authCtx.role}
-      and my access token is {authCtx.accessToken}. My refresh token is{" "}
-      {localStorage.getItem("refresh")}
+    <div className="w-full max-w-5xl mx-auto">
       <div>Create New PR</div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

@@ -95,7 +95,7 @@ const UserCreate = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl m-auto">
+    <div className="w-full max-w-2xl mx-auto mt-20">
       <div>Add New User</div>
 
       <Form {...form}>
