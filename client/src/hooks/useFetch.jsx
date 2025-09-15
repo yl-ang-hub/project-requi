@@ -28,7 +28,11 @@ const useFetch = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        throw "an unknown error has occurred, please try again later";
+        if (data.msg) {
+          throw data.msg;
+        } else {
+          throw "an unknown error has occurred, please try again later";
+        }
       }
 
       return data;

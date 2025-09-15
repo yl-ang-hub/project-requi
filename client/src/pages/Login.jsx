@@ -135,6 +135,9 @@ const Login = () => {
           <Button type="submit" className="w-full" onClick={auth.refetch}>
             Login
           </Button>
+          <div className="text-sm text-red-500">
+            {auth.isError && auth.error}
+          </div>
         </CardFooter>
       </Card>
     </div>
