@@ -16,6 +16,7 @@ import PRApproval from "./pages/PRApproval";
 import ApprovalsHistory from "./pages/ApprovalsHistory";
 import MMDCentralPool from "./pages/MMDCentralPool";
 import PRView from "./pages/PRView";
+import POView from "./pages/POView";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -111,6 +112,15 @@ function App() {
                 element={
                   <ProtectedRouter>
                     <MMDCentralPool />
+                  </ProtectedRouter>
+                }
+              />
+
+              <Route
+                path="/poview/:id"
+                element={
+                  <ProtectedRouter>
+                    <POView />
                   </ProtectedRouter>
                 }
               />

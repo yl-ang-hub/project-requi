@@ -34,22 +34,48 @@ const ApprovalFlow = (props) => {
             {newPR ? (
               <div className="my-1 grid grid-cols-3 gap-1">
                 <Input
-                  disabled={true}
+                  readOnly={true}
+                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
                   defaultValue={line.requisition_approval_sequence}
                 />
-                <Input disabled={true} defaultValue={line.approver_role} />
-                <Input disabled={true} defaultValue={line.approver} />
+                <Input
+                  readOnly={true}
+                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                  defaultValue={line.approver_role}
+                />
+                <Input
+                  readOnly={true}
+                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                  defaultValue={line.approver}
+                />
               </div>
             ) : (
               <div className="my-1 grid grid-cols-5 gap-1">
                 <Input
-                  disabled={true}
+                  readOnly={true}
+                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
                   defaultValue={line.requisition_approval_sequence}
                 />
-                <Input disabled={true} defaultValue={line.approver_role} />
-                <Input disabled={true} defaultValue={line.approver} />
-                <Input disabled={true} defaultValue={line.approval_status} />
-                <Input disabled={true} defaultValue={line.approver_comments} />
+                <Input
+                  readOnly={true}
+                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                  defaultValue={line.approver_role}
+                />
+                <Input
+                  readOnly={true}
+                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                  defaultValue={line.approver}
+                />
+                <Input
+                  readOnly={true}
+                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                  defaultValue={line.approval_status}
+                />
+                <Input
+                  readOnly={true}
+                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                  defaultValue={line.approver_comments}
+                />
               </div>
             )}
           </div>

@@ -231,7 +231,7 @@ def edit_draft_po():
         elif user_role == "MMD Director":
             # Update pr_status and next_approver inside requisitions
             cursor.execute('UPDATE requisitions SET status=%s, next_approver=%s WHERE id=%s',
-                           ("Pending Delivery", None, pr['id']))
+                           ("Approved", None, pr['id']))
 
         conn.commit()
         return jsonify(status="ok", msg="approved or edited PO"), 200
@@ -243,3 +243,5 @@ def edit_draft_po():
 
     finally:
         if conn: release_connection(conn)
+
+

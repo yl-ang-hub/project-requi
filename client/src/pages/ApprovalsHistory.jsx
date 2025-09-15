@@ -30,8 +30,18 @@ const ApprovalsHistory = () => {
     },
   });
 
-  const handleViewButton = (event) => {
-    navigate(`/approvals/${event.target.id}`);
+  const handleViewButton = (pr) => {
+    if (pr.next_approver === authCtx.userId) {
+      navigate(`/approvals/${pr.id}`);
+    } else if (
+      pr.status === "Approved" ||
+      pr.status === "Completed" ||
+      (pr.status === "Pending MMD" && authCtx.role.includes("MMD"))
+    ) {
+      navigate(`/poview/${pr.id}`);
+    } else {
+      navigate(`/pr/${pr.id}`);
+    }
   };
 
   useEffect(() => {
@@ -79,7 +89,7 @@ const ApprovalsHistory = () => {
                         <TableCell className="text-right">
                           <Button
                             id={pr.id}
-                            onClick={(event) => handleViewButton(event)}>
+                            onClick={() => handleViewButton(pr)}>
                             View
                           </Button>
                         </TableCell>
@@ -123,9 +133,7 @@ const ApprovalsHistory = () => {
                         <TableCell>{pr.amount_in_sgd}</TableCell>
                         <TableCell>{pr.status}</TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            id={pr.id}
-                            onClick={(event) => handleViewButton(event)}>
+                          <Button onClick={() => handleViewButton(pr)}>
                             View
                           </Button>
                         </TableCell>
