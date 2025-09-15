@@ -23,7 +23,6 @@ const PRLineItem = (props) => {
           <FormItem>
             <FormControl>
               <Input
-                placeholder="item name"
                 disabled={props.disabled}
                 {...field}
                 readOnly={readOnly}
@@ -42,7 +41,6 @@ const PRLineItem = (props) => {
           <FormItem>
             <FormControl>
               <Input
-                placeholder="description"
                 disabled={props.disabled}
                 {...field}
                 readOnly={readOnly}

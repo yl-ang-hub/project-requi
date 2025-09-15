@@ -29,7 +29,7 @@ const PRApproval = () => {
   const authCtx = use(AuthCtx);
   const navigate = useNavigate();
 
-  const isMMD = authCtx.role === "MMD";
+  const isMMD = authCtx.role.includes("MMD");
   const finFields = authCtx.role.includes("Finance") ? false : true;
   const mmdFields = authCtx.role.includes("MMD") ? false : true;
 
@@ -190,7 +190,7 @@ const PRApproval = () => {
         finalQuotation: null,
         finalFiles: null,
         otherFiles: null,
-        isMMD: authCtx.role === "MMD",
+        isMMD: authCtx.role.includes("MMD"),
       },
     },
   });
@@ -248,15 +248,21 @@ const PRApproval = () => {
     return (acc += curr.quantity * curr.unit_cost);
   }, 0);
 
-  const approveAndCreatePOMutation = useMutation({
+  const approveAndPOMutation = useMutation({
     mutationFn: async (data) => {
       console.log("running approveAndCreatePOMutation");
-      data.userId = authCtx.userId;
       data.requisitionId = params.id;
       data.totalAmount = totalAmount;
       data.amountInSGD = 0;
       console.log(data);
-      return await fetchData("/orders/", "PATCH", data, authCtx.accessToken);
+
+      if (authCtx.role === "MMD Head" || authCtx.role === "MMD Director") {
+        // Already has PO draft - to update
+        return await fetchData("/orders/", "PATCH", data, authCtx.accessToken);
+      } else if (isMMD) {
+        // Create new PO draft
+        return await fetchData("/orders/", "PUT", data, authCtx.accessToken);
+      }
     },
     onSuccess: () => {
       navigate("/approvals/history");
@@ -266,7 +272,7 @@ const PRApproval = () => {
   const onSubmit = (data) => {
     console.log("running onSubmit");
     if (isMMD) {
-      approveAndCreatePOMutation.mutate(data);
+      approveAndPOMutation.mutate(data);
     } else {
       approvePRMutation.mutate(data);
     }
@@ -352,16 +358,14 @@ const PRApproval = () => {
         items: getPR.data.pr.items || [],
         approverComments: "",
         supplier: {
-          nameAndRegNo: "",
-          supplierContactName: "",
-          supplierContactNumber:
-            getSuppliersMutation.data?.suppliers?.default_contact_number || "",
-          supplierEmail:
-            getSuppliersMutation.data?.suppliers?.default_contact_number || "",
+          nameAndRegNo: getPR.data.po?.supplier_business_reg_no || "",
+          supplierContactName: getPR.data.po?.supplier_contact_name || "",
+          supplierContactNumber: getPR.data.po?.supplier_contact_number || "",
+          supplierEmail: getPR.data.po?.supplier_contact_email || "",
           finalQuotation: null,
           finalFiles: null,
           otherFiles: null,
-          isMMD: authCtx.role === "MMD",
+          isMMD: authCtx.role.includes("MMD"),
         },
       });
     }
@@ -735,16 +739,11 @@ const PRApproval = () => {
                 </FormItem>
               )}
             />
+          </div>
 
+          <div>
             <div className="my-6">
               Line Items <br />
-              {isMMD ? (
-                <Button type="button" onClick={handleAddLineItems}>
-                  Add new line item
-                </Button>
-              ) : (
-                <></>
-              )}
               {/* Column headers for line items */}
               <div className="my-1 grid grid-cols-6 gap-1">
                 <FormLabel>Item Name</FormLabel>
@@ -754,16 +753,55 @@ const PRApproval = () => {
                 <FormLabel>Unit Cost (Trade Currency)</FormLabel>
               </div>
               {/* Fields for each line item */}
-              {itemsFormArray.fields.map((item, idx) => {
+              {getPR.data?.pr?.items?.map((item, idx) => {
                 return (
-                  <PRLineItem
-                    form={form}
-                    itemsFormArray={itemsFormArray}
-                    item={item}
-                    idx={idx}
-                    key={item.id}
-                    readOnly={mmdFields}
-                  />
+                  <div className="my-1 grid grid-cols-6 gap-1" key={item.id}>
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          value={item.name}
+                          readOnly={true}
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-800"
+                        />
+                      </FormControl>
+                    </FormItem>
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          value={item.description}
+                          readOnly={true}
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-800"
+                        />
+                      </FormControl>
+                    </FormItem>
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          value={item.quantity}
+                          readOnly={true}
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-800"
+                        />
+                      </FormControl>
+                    </FormItem>
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          value={item.unit_of_measure}
+                          readOnly={true}
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-800"
+                        />
+                      </FormControl>
+                    </FormItem>
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          value={item.unit_cost}
+                          readOnly={true}
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-800"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  </div>
                 );
               })}
             </div>
@@ -775,9 +813,43 @@ const PRApproval = () => {
             </div>
           </div>
 
+          {/* MMD Section - Line Items & Supplier Info */}
           {isMMD ? (
             <div className="bg-red-200">
               <div>For MMD</div>
+
+              <div className="my-6">
+                Line Items <br />
+                {isMMD ? (
+                  <Button type="button" onClick={handleAddLineItems}>
+                    Add new line item
+                  </Button>
+                ) : (
+                  <></>
+                )}
+                {/* Column headers for line items */}
+                <div className="my-1 grid grid-cols-6 gap-1">
+                  <FormLabel>Item Name</FormLabel>
+                  <FormLabel>Item Description</FormLabel>
+                  <FormLabel>Quantity</FormLabel>
+                  <FormLabel>Unit of Measure</FormLabel>
+                  <FormLabel>Unit Cost (Trade Currency)</FormLabel>
+                </div>
+                {/* Fields for each line item */}
+                {itemsFormArray.fields.map((item, idx) => {
+                  return (
+                    <PRLineItem
+                      form={form}
+                      itemsFormArray={itemsFormArray}
+                      item={item}
+                      idx={idx}
+                      key={item.id}
+                      readOnly={mmdFields}
+                    />
+                  );
+                })}
+              </div>
+
               <div>Supplier</div>
 
               <div>
@@ -786,7 +858,7 @@ const PRApproval = () => {
                   name="supplier.nameAndRegNo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Supplier</FormLabel>
+                      <FormLabel>Company</FormLabel>
                       <FormControl>
                         <FormComboBox
                           field={field}
@@ -878,17 +950,16 @@ const PRApproval = () => {
                 </FormItem>
               )}
             />
+            <Button type="submit">Approve</Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                rejectPRMutation.mutate(form.getValues());
+              }}>
+              Reject
+            </Button>
           </div>
-
-          <Button type="submit">Approve</Button>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={() => {
-              rejectPRMutation.mutate(form.getValues());
-            }}>
-            Reject
-          </Button>
         </form>
       </Form>
     </div>
