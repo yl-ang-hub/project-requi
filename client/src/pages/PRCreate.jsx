@@ -174,7 +174,7 @@ const PRCreate = () => {
       );
     },
     onSuccess: () => {
-      navigate("/");
+      navigate("/pr");
     },
   });
 

@@ -1,0 +1,123 @@
+import datetime as dt
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required
+from db.db_pool import get_cursor, release_connection
+
+orders = Blueprint("orders", __name__)
+
+
+@orders.route("/", methods=["PATCH"])
+@jwt_required()
+def draft_new_po():
+    conn = None
+    try:
+        print("running add new po")
+        conn, cursor = get_cursor()
+        inputs = request.get_json()
+
+        # STEP ONE: CREATE NEW PO
+
+        # Modify input values
+        cost_centre = inputs["costCentre"].split(" - ")[0]
+        account_code = inputs["accountCode"].split(" - ")[0]
+        gl_code = inputs["glCode"].split(" - ")[0]
+
+        # Calculate amount in sgd
+        cursor.execute('SELECT conversion_rate FROM currencies WHERE code=%s', (inputs['currency'],))
+        curr_rate = cursor.fetchone()
+        amount_in_sgd = inputs["totalAmount"] / curr_rate['conversion_rate']
+        supplier_name = inputs['supplier']['nameAndRegNo'].split(" - ")[0] or None
+        supplier_reg_no = inputs['supplier']['nameAndRegNo'].split(" - ")[1] or None
+        print("modified inputs and supplier info: ", supplier_reg_no, supplier_name)
+
+        # Get PR from database
+        cursor.execute('SELECT * FROM requisitions WHERE id=%s', (inputs['requisitionId'],))
+        pr = cursor.fetchone()
+
+        # Get supplier from database
+        cursor.execute('SELECT * FROM suppliers WHERE business_reg_no=%s', (supplier_reg_no,))
+        db_supplier = cursor.fetchone()
+
+        # Create new PO in database
+        cursor.execute(
+            """
+            INSERT INTO purchase_orders (
+            requisition_id, requester_id, requester_provided_name, requester_provided_contact_number, requester_provided_email, 
+            cost_centre, account_code, gl_code,total_amount, currency, 
+            amount_in_sgd, comments, status, supplier_business_reg_no, company_name, 
+            billing_address, supplier_contact_name, supplier_contact_number, supplier_contact_email, created_at, 
+            created_by
+            ) VALUES(
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s
+            ) RETURNING id;
+            """, (
+                pr['id'], pr['requester_id'], pr['pr_contact_name'], pr['pr_contact_number'], pr['pr_contact_email'],
+                cost_centre, account_code, gl_code, inputs['totalAmount'], inputs['currency'],
+                amount_in_sgd, pr['comments'], "Draft", db_supplier['business_reg_no'], db_supplier['company_name'],
+                db_supplier['billing_address'], inputs['supplier'].get('supplierContactName'),
+                inputs['supplier'].get('supplierContactNumber'), inputs['supplier'].get('supplierEmail'),
+                dt.datetime.now(), inputs['userId']
+            )
+        )
+        po = cursor.fetchone()
+        print("created PO")
+
+        # Create line items for PO
+        for item in inputs['items']:
+            cursor.execute(
+                """
+                INSERT INTO purchase_order_items (
+                    purchase_order_id, name, description, quantity, unit_of_measure,
+                    unit_cost, currency
+                ) VALUES (
+                    %s, %s, %s, %s, %s,
+                    %s, %s
+                ) RETURNING id;
+                """, (
+                    po['id'], item['name'], item['description'], item['quantity'], item['unit_of_measure'],
+                    item['unit_cost'], inputs['currency']
+                )
+            )
+
+        # STEP TWO: UPDATE APPROVAL FLOW & NEXT APPROVER FOR THE PR
+        # Do not update MMD edits into PR table
+
+        # Update the approval in requisition_approval_flow
+        cursor.execute(
+            """
+            UPDATE requisition_approval_flow 
+            SET approval_status=%s, approved_at=%s, approver_comments=%s 
+            WHERE requisition_id=%s AND approver_id=%s AND approval_status=%s
+            RETURNING requisition_approval_sequence
+            """,
+            ("Approved", dt.datetime.now(), inputs['approverComments'], pr['id'],
+             pr['next_approver'], "Queued")
+        )
+        approval_seq = cursor.fetchone()
+
+        # Update next_approver inside requisitions
+        next_approver_sequence = int(approval_seq['requisition_approval_sequence']) + 1
+        cursor.execute(
+            """
+            SELECT approver_id, approver_role FROM requisition_approval_flow
+            WHERE requisition_id=%s AND requisition_approval_sequence=%s
+            """, (pr['id'], next_approver_sequence)
+        )
+        approver = cursor.fetchone()
+        cursor.execute('UPDATE requisitions SET next_approver=%s WHERE id=%s',
+                       (approver['approver_id'], pr['id']))
+
+        conn.commit()
+        return jsonify(status="ok", msg="created new order"), 200
+
+    except Exception as e:
+        conn.rollback()
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to create new PO"), 400
+
+    finally:
+        if conn: release_connection(conn)

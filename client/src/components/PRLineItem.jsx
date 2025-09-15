@@ -110,6 +110,7 @@ const PRLineItem = (props) => {
 
       <Button
         type="button"
+        disabled={readOnly}
         onClick={() => props.itemsFormArray.remove(props.idx)}>
         Delete
       </Button>

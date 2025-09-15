@@ -29,6 +29,7 @@ const PRApproval = () => {
   const authCtx = use(AuthCtx);
   const navigate = useNavigate();
 
+  const isMMD = authCtx.role === "MMD";
   const finFields = authCtx.role.includes("Finance") ? false : true;
   const mmdFields = authCtx.role.includes("MMD") ? false : true;
 
@@ -59,13 +60,63 @@ const PRApproval = () => {
   });
 
   const itemSchema = z.object({
-    id: z.number(),
+    id: z.number().optional(),
     name: z.string().nonempty({ message: "required field" }),
     description: z.string(),
     quantity: z.coerce.number().positive({ message: "required field" }),
     unit_of_measure: z.string(),
     unit_cost: z.coerce.number().positive({ message: "required field" }),
   });
+
+  const supplierSchema = z
+    .object({
+      nameAndRegNo: z.string().optional(),
+      supplierContactName: z.string().optional(),
+      supplierContactNumber: z.string().optional(),
+      supplierEmail: z.string().optional(),
+      finalQuotation: z.any().optional(),
+      finalFiles: z.any().optional(),
+      otherFiles: z.any().optional(),
+      isMMD: z.boolean(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.isMMD) {
+        if (!data.nameAndRegNo) {
+          ctx.addIssue({
+            path: ["nameAndRegNo"],
+            code: "custom",
+            message: "Supplier name & registration number is required for MMD",
+          });
+        }
+        if (!data.supplierContactName) {
+          ctx.addIssue({
+            path: ["supplierContactName"],
+            code: "custom",
+            message: "Supplier contact name is required for MMD",
+          });
+        }
+        if (!data.supplierContactNumber) {
+          ctx.addIssue({
+            path: ["supplierContactNumber"],
+            code: "custom",
+            message: "Supplier contact number is required for MMD",
+          });
+        }
+        if (!data.supplierEmail) {
+          ctx.addIssue({
+            path: ["supplierEmail"],
+            code: "custom",
+            message: "Supplier email is required for MMD",
+          });
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.supplierEmail)) {
+          ctx.addIssue({
+            path: ["supplierEmail"],
+            code: "custom",
+            message: "Invalid email address",
+          });
+        }
+      }
+    });
 
   const formSchema = z.object({
     title: z.string().nonempty({ message: "required field" }),
@@ -83,14 +134,21 @@ const PRApproval = () => {
     currency: z.string().nonempty({ message: "required field" }),
     amountInSGD: z.string().nonempty({ message: "required field" }),
     comments: z.string(),
-    goodsRequiredBy: z.date(),
+    goodsRequiredBy: z.preprocess(
+      (val) => (val ? new Date(val) : undefined),
+      z.date()
+    ),
     prStatus: z.string().nonempty({ message: "required field" }),
     paymentStatus: z.string().nonempty({ message: "required field" }),
-    createdAt: z.date(),
+    createdAt: z.preprocess(
+      (val) => (val ? new Date(val) : undefined),
+      z.date()
+    ),
     // updated_at: z.date(),
     // updated_by: z.string(),
     items: z.array(itemSchema).min(1),
     approverComments: z.string(),
+    supplier: supplierSchema,
   });
 
   // form is an object of all the form fields
@@ -112,14 +170,28 @@ const PRApproval = () => {
       currency: getPR.data?.pr?.currency || "",
       amountInSGD: getPR.data?.pr?.amount_in_sgd || "",
       comments: getPR.data?.pr?.comments || "",
-      goodsRequiredBy: getPR.data?.pr?.goods_required_by || "",
+      goodsRequiredBy: getPR.data?.pr?.goods_required_by
+        ? new Date(getPR.data.pr.goods_required_by)
+        : undefined,
       prStatus: getPR.data?.pr?.status || "",
       paymentStatus: getPR.data?.pr?.payment_status || "",
-      createdAt: getPR.data?.pr?.created_at || "",
+      createdAt: getPR.data?.pr?.created_at
+        ? new Date(getPR.data.pr.created_at)
+        : undefined,
       // updated_at: "",
       // updated_by: "",
       items: getPR.data?.pr?.items || [],
       approverComments: "",
+      supplier: {
+        nameAndRegNo: "",
+        supplierContactName: "",
+        supplierContactNumber: "",
+        supplierEmail: "",
+        finalQuotation: null,
+        finalFiles: null,
+        otherFiles: null,
+        isMMD: authCtx.role === "MMD",
+      },
     },
   });
 
@@ -127,6 +199,27 @@ const PRApproval = () => {
   const itemsFormArray = useFieldArray({
     name: "items",
     control: form.control,
+  });
+
+  const handleAddLineItems = () => {
+    itemsFormArray.append({
+      name: "",
+      description: "",
+      quantity: 0,
+      unit_of_measure: "pcs",
+      unit_cost: 0,
+    });
+  };
+
+  const getSuppliersMutation = useMutation({
+    mutationFn: async () => {
+      return await fetchData(
+        "/suppliers",
+        "GET",
+        undefined,
+        authCtx.accessToken
+      );
+    },
   });
 
   const approvePRMutation = useMutation({
@@ -149,10 +242,34 @@ const PRApproval = () => {
     },
   });
 
+  const items = form.watch("items");
+
+  const totalAmount = items.reduce((acc, curr) => {
+    return (acc += curr.quantity * curr.unit_cost);
+  }, 0);
+
+  const approveAndCreatePOMutation = useMutation({
+    mutationFn: async (data) => {
+      console.log("running approveAndCreatePOMutation");
+      data.userId = authCtx.userId;
+      data.requisitionId = params.id;
+      data.totalAmount = totalAmount;
+      data.amountInSGD = 0;
+      console.log(data);
+      return await fetchData("/orders/", "PATCH", data, authCtx.accessToken);
+    },
+    onSuccess: () => {
+      navigate("/approvals/history");
+    },
+  });
+
   const onSubmit = (data) => {
     console.log("running onSubmit");
-    console.log(data);
-    approvePRMutation.mutate(data);
+    if (isMMD) {
+      approveAndCreatePOMutation.mutate(data);
+    } else {
+      approvePRMutation.mutate(data);
+    }
   };
 
   const rejectPRMutation = useMutation({
@@ -204,6 +321,8 @@ const PRApproval = () => {
     // Auto login for users with refresh token in localStorage
     const refresh = localStorage.getItem("refresh");
     if (refresh && authCtx.accessToken == "") refreshAccessToken.mutate();
+
+    getSuppliersMutation.mutate();
   }, []);
 
   useEffect(() => {
@@ -232,16 +351,32 @@ const PRApproval = () => {
         // updated_by: getPR.data.pr.updated_by,
         items: getPR.data.pr.items || [],
         approverComments: "",
+        supplier: {
+          nameAndRegNo: "",
+          supplierContactName: "",
+          supplierContactNumber:
+            getSuppliersMutation.data?.suppliers?.default_contact_number || "",
+          supplierEmail:
+            getSuppliersMutation.data?.suppliers?.default_contact_number || "",
+          finalQuotation: null,
+          finalFiles: null,
+          otherFiles: null,
+          isMMD: authCtx.role === "MMD",
+        },
       });
     }
-  }, [getPR.data, form]);
+  }, [getPR.data, form, getSuppliersMutation.data, authCtx.role]);
 
   return (
     <div className="w-full max-w-4xl m-auto">
-      <div>Create New PR</div>
+      <div>PR for Approval</div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(onSubmit, (err) => {
+            console.log("validation errors", err);
+          })}
+          className="space-y-8">
           <div className="grid grid-cols-2 gap-2">
             <div>
               <FormField
@@ -394,9 +529,13 @@ const PRApproval = () => {
             </div>
 
             <div>
-              <span className="text-red-800 text-right">
-                {getPR?.data?.pr?.total_amount}
-              </span>
+              {isMMD ? (
+                <span className="text-red-800 text-right">{`${
+                  getPR.data?.pr?.currency
+                } ${totalAmount.toLocaleString("en-SG")}`}</span>
+              ) : (
+                <span className="text-red-800 text-right">{`${getPR.data?.pr?.total_amount}`}</span>
+              )}
 
               <FormField
                 control={form.control}
@@ -465,7 +604,7 @@ const PRApproval = () => {
                         field={field}
                         setFormValue={form.setValue}
                         data={prOptions?.data?.["currencies"]}
-                        readOnly={true}
+                        readOnly={mmdFields}
                       />
                     </FormControl>
                     <FormMessage />
@@ -522,7 +661,12 @@ const PRApproval = () => {
                   <FormControl>
                     <Input
                       type="date"
-                      {...field}
+                      value={
+                        field.value
+                          ? new Date(field.value).toISOString().split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
                       readOnly={true}
                       className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-800"
                     />
@@ -568,8 +712,39 @@ const PRApproval = () => {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="createdAt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Created at</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      value={
+                        field.value
+                          ? new Date(field.value).toISOString().split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
+                      readOnly={true}
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-800"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="my-6">
               Line Items <br />
+              {isMMD ? (
+                <Button type="button" onClick={handleAddLineItems}>
+                  Add new line item
+                </Button>
+              ) : (
+                <></>
+              )}
               {/* Column headers for line items */}
               <div className="my-1 grid grid-cols-6 gap-1">
                 <FormLabel>Item Name</FormLabel>
@@ -600,6 +775,92 @@ const PRApproval = () => {
             </div>
           </div>
 
+          {isMMD ? (
+            <div className="bg-red-200">
+              <div>For MMD</div>
+              <div>Supplier</div>
+
+              <div>
+                <FormField
+                  control={form.control}
+                  name="supplier.nameAndRegNo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Supplier</FormLabel>
+                      <FormControl>
+                        <FormComboBox
+                          field={field}
+                          setFormValue={form.setValue}
+                          data={
+                            getSuppliersMutation?.data?.["supplier_listing"]
+                          }
+                          readOnly={mmdFields}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="supplier.supplierContactName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contact Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="supplier.supplierContactNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contact Number</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="supplier.supplierEmail"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contact Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Supplier information 
+              business_reg_no VARCHAR(100) PRIMARY KEY,
+              company_name VARCHAR(200), 
+              billing_address VARCHAR(200),
+              default_bank_account VARCHAR(20),
+              supplier_contact_name VARCHAR(200), 
+              supplier_contact_number
+              VARCHAR(20), 
+              supplier_contact_email VARCHAR(100)
+              Quotation (Final): 
+              Specs & Others (Final):
+              Quotations (Other suppliers): */}
+              </div>
+            </div>
+          ) : (
+            <></>
+          )}
+
           <div className="bg-green-200">
             Approver Comments
             <FormField
@@ -608,7 +869,7 @@ const PRApproval = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormDescription>
-                    Please key in any additional comments here.{" "}
+                    Please key in any additional comments here.
                   </FormDescription>
                   <FormControl>
                     <Textarea {...field} />

@@ -243,13 +243,13 @@ def add_new_requisition():
                     for_cost_centre = %s OR for_cost_centre LIKE %s
                 ) 
                 ORDER BY min_cost;
-                """, (inputs['totalAmount'], cost_centre, 'ALL + MMD')
+                """, (amount_in_sgd, cost_centre, 'ALL + MMD')
             )
             results = cursor.fetchall()
         else:
             cursor.execute(
                 'SELECT * FROM approval_matrix WHERE for_cost_centre LIKE %s AND min_cost <= %s ORDER BY min_cost;',
-                ('ALL%', inputs['totalAmount'])
+                ('ALL%', amount_in_sgd)
             )
             results = cursor.fetchall()
 
@@ -552,7 +552,22 @@ def pull_pr():
             return jsonify(status="error", msg="Unauthorised"), 401
 
         cursor.execute('UPDATE requisitions SET mmd_in_charge=%s, next_approver=%s WHERE id=%s', (inputs['userId'], inputs['userId'], inputs['requisitionId']))
+        # Update user_id for MMD person (pulling the PR)
         cursor.execute('UPDATE requisition_approval_flow SET approver_id=%s WHERE requisition_id=%s AND approver_role=%s', (inputs['userId'], inputs['requisitionId'], "MMD"))
+        # Update user_id for MMD head (Head of the MMD person pulling the PR)
+        cursor.execute('SELECT cost_centre FROM users WHERE id=%s', (inputs['userId'],))
+        user = cursor.fetchone()
+        cursor.execute('SELECT id FROM users WHERE role=%s AND cost_centre=%s', ("MMD Head", user['cost_centre']))
+        mmdHead = cursor.fetchone()
+        cursor.execute(
+            'UPDATE requisition_approval_flow SET approver_id=%s WHERE requisition_id=%s AND approver_role=%s',
+            (mmdHead['id'], inputs['requisitionId'], "MMD Head"))
+        # Update user_id for MMD Director
+        cursor.execute('SELECT id FROM users WHERE role=%s', ("MMD Director", ))
+        mmdDir = cursor.fetchone()
+        cursor.execute(
+            'UPDATE requisition_approval_flow SET approver_id=%s WHERE requisition_id=%s AND approver_role=%s',
+            (mmdDir['id'], inputs['requisitionId'], "MMD Director"))
 
         conn.commit()
         return jsonify(status="ok", msg="successfully pulled PR", requisition_id=inputs['requisitionId'])
@@ -602,6 +617,7 @@ def get_approval_history():
 
     finally:
         if conn: release_connection(conn)
+
 
 @requisitions.route("/", methods=["POST"])
 @jwt_required()
