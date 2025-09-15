@@ -103,7 +103,7 @@ function AppSidebar() {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <Link to="/">Approval History</Link>
+                      <Link to="/approvals/history">Approval History</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </>
@@ -138,7 +138,7 @@ function AppSidebar() {
               authCtx.role === "System Admin" ? (
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link to="/">PRs Awaiting MMD Action</Link>
+                    <Link to="/pr/mmd_pool">PRs Awaiting MMD Action</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ) : (
