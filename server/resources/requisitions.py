@@ -1,6 +1,6 @@
 import datetime as dt
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from db.db_pool import get_cursor, release_connection
 
 
@@ -669,6 +669,55 @@ def get_my_PRs():
     except Exception as e:
         print(f'unknown error: {e}')
         return jsonify(status="error", msg="unable to retrieve from database"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@requisitions.route("/<id>/drop", methods=["DELETE"])
+@jwt_required()
+def drop_pr(id):
+    conn = None
+    try:
+        print("running")
+        conn, cursor = get_cursor()
+        identity = get_jwt_identity()
+
+        cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
+        pr = cursor.fetchone()
+
+        if pr['requester_id'] != int(identity[0]):
+            return jsonify(status="error", msg="Unauthorised"), 401
+
+        if pr['status'] != "Pending Finance" and pr['status'] != "Pending MMD":
+            return jsonify(status="error", msg="PR cannot be dropped at this stage"), 403
+
+        # Update the dropping in requisition_approval_flow
+        cursor.execute(
+            """
+            UPDATE requisition_approval_flow 
+            SET approval_status=%s
+            WHERE requisition_id=%s AND approval_status=%s
+            """,
+            ("Dropped", id, "Queued")
+        )
+
+        # Update the status in requisitions
+        cursor.execute(
+            """
+            UPDATE requisitions SET next_approver=%s, status=%s, payment_status=%s, mmd_in_charge=%s,
+            updated_at=%s, updated_by=%s
+            WHERE id=%s
+            """, (None, "Dropped", "Not Applicable", None, dt.datetime.now(), int(identity[0]), id)
+        )
+
+        conn.commit()
+        return jsonify(status="ok", msg="successfully dropped"), 200
+
+    except Exception as e:
+        conn.rollback()
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to drop pr"), 400
 
     finally:
         if conn: release_connection(conn)
