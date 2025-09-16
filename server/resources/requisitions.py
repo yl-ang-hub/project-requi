@@ -1,7 +1,8 @@
 import datetime as dt
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from db.db_pool import get_cursor, release_connection
+from services.google_apis import gmail_send_message
 
 
 requisitions = Blueprint("requisitions", __name__)
@@ -143,6 +144,7 @@ def add_new_requisition():
     conn = None
     try:
         conn, cursor = get_cursor()
+        user_id = int(get_jwt()['id'])
         inputs = request.get_json()
         cost_centre = inputs["costCentre"].split(" - ")[0]
         account_code = inputs["accountCode"].split(" - ")[0]
@@ -151,7 +153,7 @@ def add_new_requisition():
         print(inputs['items'])
 
         # Get requester data
-        cursor.execute('SELECT * FROM users WHERE id=%s', (inputs['userId'],))
+        cursor.execute('SELECT * FROM users WHERE id=%s', (user_id,))
         user = cursor.fetchone()
         print(user)
 
@@ -294,6 +296,13 @@ def add_new_requisition():
                 )
             )
 
+        # Send email notification to next approver
+        cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (cc_data['finance_officer'],))
+        approver_info = cursor.fetchone()
+        subj = f"For your approval - PR {requisition['id']}"
+        msg = f"Hello {approver_info['name']}, PR {requisition['id']} - {inputs['title']} has just been submitted by {user['name']}.\n\nPlease log into Requi to view and approve in your role as Finance Officer."
+        gmail_send_message(approver_info['email'], subj, msg)
+
         conn.commit()
         return jsonify(status="ok", msg="PR successfully created"), 200
 
@@ -408,10 +417,14 @@ def approve_pr(id):
     try:
         print("running approve_pr logic")
         conn, cursor = get_cursor()
+        claims = get_jwt()
+        user_id = int(claims['id'])
+        user_name = claims['name']
         inputs = request.get_json()
 
         cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
         requisition = cursor.fetchone()
+        print(requisition)
 
         if requisition['next_approver'] != inputs['userId']:
             return jsonify(status="error", msg="Unauthorised to approve"), 401
@@ -422,11 +435,11 @@ def approve_pr(id):
         inputs['form']['glCode'] = inputs['form']['glCode'].split(" - ")[0]
 
         if inputs['form']['costCentre'] != requisition['cost_centre']:
-            cursor.execute('UPDATE requisitions SET cost_centre=%s, updated_at=%s, updated_by=%s WHERE id=%s', (inputs['form']['costCentre'], dt.datetime.now(), inputs['userId'], id))
+            cursor.execute('UPDATE requisitions SET cost_centre=%s, updated_at=%s, updated_by=%s WHERE id=%s', (inputs['form']['costCentre'], dt.datetime.now(), user_id, id))
         if inputs['form']['accountCode'] != requisition['account_code']:
-            cursor.execute('UPDATE requisitions SET account_code=%s, updated_at=%s, updated_by=%s WHERE id=%s', (inputs['form']['accountCode'], dt.datetime.now(), inputs['userId'], id))
+            cursor.execute('UPDATE requisitions SET account_code=%s, updated_at=%s, updated_by=%s WHERE id=%s', (inputs['form']['accountCode'], dt.datetime.now(), user_id, id))
         if inputs['form']['glCode'] != requisition['gl_code']:
-            cursor.execute('UPDATE requisitions SET gl_code=%s, updated_at=%s, updated_by=%s WHERE id=%s', (inputs['form']['glCode'], dt.datetime.now(), inputs['userId'], id))
+            cursor.execute('UPDATE requisitions SET gl_code=%s, updated_at=%s, updated_by=%s WHERE id=%s', (inputs['form']['glCode'], dt.datetime.now(), user_id, id))
 
         cursor.execute('SELECT * FROM requisition_items WHERE requisition_id=%s', (id,))
         line_items = cursor.fetchall()
@@ -450,7 +463,7 @@ def approve_pr(id):
                         )
                     )
                     cursor.execute('UPDATE requisitions SET updated_at=%s, updated_by=%s WHERE id=%s',
-                               (dt.datetime.now(), inputs['userId'], id))
+                               (dt.datetime.now(), user_id, id))
 
         # Update the approval in requisition_approval_flow
         cursor.execute(
@@ -477,6 +490,14 @@ def approve_pr(id):
         if "MMD" in approver['approver_role']: pr_status = "Pending MMD"
         else: pr_status = "Pending Next Level Approver"
         cursor.execute('UPDATE requisitions SET next_approver=%s, status=%s WHERE id=%s', (approver['approver_id'], pr_status, requisition['id']))
+
+        # Get next approver's email for notification
+        cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (approver['approver_id'],))
+        approver_info = cursor.fetchone()
+
+        subj = f"For your approval - PR {id}"
+        msg = f"Hello {approver_info['name']}, PR {id} - {requisition['title']} has just been approved by {user_name} with the comments: {inputs['form']['approverComments']}.\n\nPlease log into Requi to view and approve in your role as {approver_info['role']}."
+        gmail_send_message(approver_info['email'], subj, msg)
 
         conn.commit()
         return jsonify(status="ok", msg="approved successfully"), 200
@@ -718,6 +739,40 @@ def drop_pr(id):
         conn.rollback()
         print(f"unknown error: {e}")
         return jsonify(status="error", msg="unable to drop pr"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@requisitions.route("/search", methods=["GET"])
+@jwt_required()
+def search_pr():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        query = request.args.get("query")
+        query = f"%{query}%"
+
+        cursor.execute(
+            """
+            SELECT pr.id AS pr_id, po.total_amount AS po_total_amount, pr.total_amount AS pr_total_amount, 
+            po.amount_in_sgd AS po_amount_in_sgd, pr.amount_in_sgd AS pr_amount_in_sgd, pr.status AS pr_status, po.status AS pr_status,
+            po.cost_centre AS po_cost_centre, pr.cost_centre AS pr_cost_centre, 
+            po.account_code AS po_account_code, pr.account_code AS pr_account_code, * FROM purchase_orders po 
+            FULL OUTER JOIN requisitions pr ON pr.id = po.requisition_id
+            WHERE CAST(pr.id AS TEXT) ILIKE %s OR pr.title ILIKE %s OR pr.description ILIKE %s 
+                OR pr.requester_contact_name ILIKE %s OR pr.requester_email ILIKE %s OR po.cost_centre ILIKE %s 
+                OR po.account_code ILIKE %s OR pr.status ILIKE %s OR po.status ILIKE %s
+                OR CAST(po.id AS TEXT) ILIKE %s
+            """, (query, query, query, query, query, query, query, query, query, query)
+        )
+        results = cursor.fetchall()
+
+        return jsonify(results), 200
+
+    except Exception as e:
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to do a search"), 400
 
     finally:
         if conn: release_connection(conn)
