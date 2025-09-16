@@ -373,8 +373,17 @@ const PRApproval = () => {
   }, [getPR.data, form, getSuppliersMutation.data, authCtx.role]);
 
   return (
-    <div className="w-full max-w-4xl m-auto">
-      <div>PR for Approval</div>
+    <div className="w-full max-w-4xl m-auto mt-8 mb-20">
+      <div className="text-2xl font-extrabold dark:text-white">
+        Purchase Requisition for Approval
+      </div>
+      {isMMD ? (
+        <span className="text-red-800 text-right">{`${
+          getPR.data?.pr?.currency
+        } ${totalAmount.toLocaleString("en-SG")}`}</span>
+      ) : (
+        <span className="text-red-800 text-right">{`${getPR.data?.pr?.total_amount}`}</span>
+      )}
 
       <Form {...form}>
         <form
@@ -388,7 +397,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Title</FormLabel>
                     <FormControl>
                       <Input
@@ -406,13 +415,13 @@ const PRApproval = () => {
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-700"
+                        className="h-46 border-gray-300 bg-white text-black px-2 py-1 read-only:bg-gray-100 read-only:text-gray-700"
                       />
                     </FormControl>
                     <FormMessage />
@@ -424,7 +433,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="requesterName"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Requester's Name</FormLabel>
                     <FormControl>
                       <Input
@@ -442,7 +451,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="requesterContactNumber"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Requester's Contact Number</FormLabel>
                     <FormControl>
                       <Input
@@ -461,7 +470,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="requesterContactEmail"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Requester's Email</FormLabel>
                     <FormControl>
                       <Input
@@ -480,7 +489,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="prContactName"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Name of Contact (for this PR)</FormLabel>
                     <FormControl>
                       <Input
@@ -498,7 +507,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="prContactNumber"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Contact Number (for this PR)</FormLabel>
                     <FormControl>
                       <Input
@@ -517,7 +526,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="prContactEmail"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Contact Email (for this PR)</FormLabel>
                     <FormControl>
                       <Input
@@ -534,19 +543,11 @@ const PRApproval = () => {
             </div>
 
             <div>
-              {isMMD ? (
-                <span className="text-red-800 text-right">{`${
-                  getPR.data?.pr?.currency
-                } ${totalAmount.toLocaleString("en-SG")}`}</span>
-              ) : (
-                <span className="text-red-800 text-right">{`${getPR.data?.pr?.total_amount}`}</span>
-              )}
-
               <FormField
                 control={form.control}
                 name="costCentre"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Cost Centre</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -564,7 +565,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="accountCode"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Account Code</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -583,7 +584,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="glCode"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>GL Code</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -602,7 +603,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="currency"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Currency</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -621,7 +622,7 @@ const PRApproval = () => {
                 control={form.control}
                 name="amountInSGD"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Total Amount (SGD)</FormLabel>
                     <FormControl>
                       <Input
@@ -642,7 +643,7 @@ const PRApproval = () => {
               control={form.control}
               name="comments"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Comments</FormLabel>
                   <FormControl>
                     <Textarea
@@ -661,7 +662,7 @@ const PRApproval = () => {
               control={form.control}
               name="goodsRequiredBy"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Goods Required By</FormLabel>
                   <FormControl>
                     <Input
@@ -685,7 +686,7 @@ const PRApproval = () => {
               control={form.control}
               name="prStatus"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>PR Status</FormLabel>
                   <FormControl>
                     <Input
@@ -703,7 +704,7 @@ const PRApproval = () => {
               control={form.control}
               name="paymentStatus"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>PR's Payment Status</FormLabel>
                   <FormControl>
                     <Input
@@ -721,7 +722,7 @@ const PRApproval = () => {
               control={form.control}
               name="createdAt"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Created at</FormLabel>
                   <FormControl>
                     <Input
@@ -744,7 +745,9 @@ const PRApproval = () => {
 
           <div>
             <div className="my-6">
-              Line Items <br />
+              <div className="text-xl font-bold dark:text-white">
+                Line Items
+              </div>
               {/* Column headers for line items */}
               <div className="my-1 grid grid-cols-6 gap-1">
                 <FormLabel>Item Name</FormLabel>
@@ -757,7 +760,7 @@ const PRApproval = () => {
               {getPR.data?.pr?.items?.map((item, idx) => {
                 return (
                   <div className="my-1 grid grid-cols-6 gap-1" key={item.id}>
-                    <FormItem>
+                    <FormItem className="mt-4 font-bold">
                       <FormControl>
                         <Input
                           value={item.name}
@@ -766,7 +769,7 @@ const PRApproval = () => {
                         />
                       </FormControl>
                     </FormItem>
-                    <FormItem>
+                    <FormItem className="mt-4 font-bold">
                       <FormControl>
                         <Input
                           value={item.description}
@@ -775,7 +778,7 @@ const PRApproval = () => {
                         />
                       </FormControl>
                     </FormItem>
-                    <FormItem>
+                    <FormItem className="mt-4 font-bold">
                       <FormControl>
                         <Input
                           value={item.quantity}
@@ -784,7 +787,7 @@ const PRApproval = () => {
                         />
                       </FormControl>
                     </FormItem>
-                    <FormItem>
+                    <FormItem className="mt-4 font-bold">
                       <FormControl>
                         <Input
                           value={item.unit_of_measure}
@@ -793,7 +796,7 @@ const PRApproval = () => {
                         />
                       </FormControl>
                     </FormItem>
-                    <FormItem>
+                    <FormItem className="mt-4 font-bold">
                       <FormControl>
                         <Input
                           value={item.unit_cost}
@@ -808,8 +811,9 @@ const PRApproval = () => {
             </div>
 
             <div className="bg-blue-200">
-              Approval Flow
-              <br />
+              <div className="text-xl font-bold dark:text-white">
+                Approval Flow
+              </div>
               <ApprovalFlow data={getPR?.data?.approval_flow} />
             </div>
           </div>
@@ -820,7 +824,9 @@ const PRApproval = () => {
               <div>For MMD</div>
 
               <div className="my-6">
-                Line Items <br />
+                <div className="text-xl font-bold dark:text-white">
+                  Line Items
+                </div>
                 {isMMD ? (
                   <Button type="button" onClick={handleAddLineItems}>
                     Add new line item
@@ -858,7 +864,7 @@ const PRApproval = () => {
                   control={form.control}
                   name="supplier.nameAndRegNo"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="mt-4 font-bold">
                       <FormLabel>Company</FormLabel>
                       <FormControl>
                         <FormComboBox
@@ -879,7 +885,7 @@ const PRApproval = () => {
                   control={form.control}
                   name="supplier.supplierContactName"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="mt-4 font-bold">
                       <FormLabel>Contact Name</FormLabel>
                       <FormControl>
                         <Input {...field} />
@@ -893,7 +899,7 @@ const PRApproval = () => {
                   control={form.control}
                   name="supplier.supplierContactNumber"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="mt-4 font-bold">
                       <FormLabel>Contact Number</FormLabel>
                       <FormControl>
                         <Input {...field} />
@@ -907,7 +913,7 @@ const PRApproval = () => {
                   control={form.control}
                   name="supplier.supplierEmail"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="mt-4 font-bold">
                       <FormLabel>Contact Email</FormLabel>
                       <FormControl>
                         <Input {...field} />
@@ -940,7 +946,7 @@ const PRApproval = () => {
               control={form.control}
               name="approverComments"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormDescription>
                     Please key in any additional comments here.
                   </FormDescription>

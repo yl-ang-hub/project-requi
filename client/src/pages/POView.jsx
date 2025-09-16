@@ -5,7 +5,6 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -30,6 +29,7 @@ const POView = () => {
   const navigate = useNavigate();
 
   const isMMD = authCtx.role.includes("MMD");
+  const isFinance = authCtx.role.includes("Finance");
   const readonly = true;
 
   const getPR = useQuery({
@@ -256,7 +256,7 @@ const POView = () => {
   }, []);
 
   useEffect(() => {
-    if (getPR.data?.pr) {
+    if (getPR.data?.po) {
       form.reset({
         title: getPR.data.pr.title,
         description: getPR.data.pr.description,
@@ -297,8 +297,11 @@ const POView = () => {
   }, [getPR.data, form, getSuppliersMutation.data, authCtx.role]);
 
   return (
-    <div className="w-full max-w-4xl m-auto">
-      <div>PR for Approval</div>
+    <div className="w-full max-w-4xl m-auto mt-8 mb-20">
+      <div className="text-2xl font-extrabold dark:text-white">
+        Purchase Requisition/Order
+      </div>
+      <span className="text-red-800 text-right">{`${getPR.data?.pr?.total_amount}`}</span>
 
       <Form {...form}>
         <form
@@ -307,12 +310,50 @@ const POView = () => {
           })}
           className="space-y-8">
           <div className="grid grid-cols-2 gap-2">
+            <FormField
+              control={form.control}
+              name="prStatus"
+              render={({ field }) => (
+                <FormItem className="mt-4 font-bold">
+                  <FormLabel>PR Status</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      readOnly={true}
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="poStatus"
+              render={({ field }) => (
+                <FormItem className="mt-4 font-bold">
+                  <FormLabel>PO Status</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      readOnly={true}
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
             <div>
               <FormField
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Title</FormLabel>
                     <FormControl>
                       <Input
@@ -330,13 +371,13 @@ const POView = () => {
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="h-46 border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
                       />
                     </FormControl>
                     <FormMessage />
@@ -348,7 +389,7 @@ const POView = () => {
                 control={form.control}
                 name="requesterName"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Requester's Name</FormLabel>
                     <FormControl>
                       <Input
@@ -366,7 +407,7 @@ const POView = () => {
                 control={form.control}
                 name="requesterContactNumber"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Requester's Contact Number</FormLabel>
                     <FormControl>
                       <Input
@@ -385,7 +426,7 @@ const POView = () => {
                 control={form.control}
                 name="requesterContactEmail"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Requester's Email</FormLabel>
                     <FormControl>
                       <Input
@@ -404,7 +445,7 @@ const POView = () => {
                 control={form.control}
                 name="prContactName"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Name of Contact (for this PR)</FormLabel>
                     <FormControl>
                       <Input
@@ -422,7 +463,7 @@ const POView = () => {
                 control={form.control}
                 name="prContactNumber"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Contact Number (for this PR)</FormLabel>
                     <FormControl>
                       <Input
@@ -441,7 +482,7 @@ const POView = () => {
                 control={form.control}
                 name="prContactEmail"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Contact Email (for this PR)</FormLabel>
                     <FormControl>
                       <Input
@@ -458,13 +499,11 @@ const POView = () => {
             </div>
 
             <div>
-              <span className="text-red-800 text-right">{`${getPR.data?.pr?.total_amount}`}</span>
-
               <FormField
                 control={form.control}
                 name="costCentre"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Cost Centre</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -482,7 +521,7 @@ const POView = () => {
                 control={form.control}
                 name="accountCode"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Account Code</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -501,7 +540,7 @@ const POView = () => {
                 control={form.control}
                 name="glCode"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>GL Code</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -520,7 +559,7 @@ const POView = () => {
                 control={form.control}
                 name="currency"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Currency</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -539,7 +578,7 @@ const POView = () => {
                 control={form.control}
                 name="amountInSGD"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Total Amount (SGD)</FormLabel>
                     <FormControl>
                       <Input
@@ -560,7 +599,7 @@ const POView = () => {
               control={form.control}
               name="comments"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Comments</FormLabel>
                   <FormControl>
                     <Textarea
@@ -579,7 +618,7 @@ const POView = () => {
               control={form.control}
               name="goodsRequiredBy"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Goods Required By</FormLabel>
                   <FormControl>
                     <Input
@@ -599,11 +638,11 @@ const POView = () => {
               )}
             />
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="prStatus"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>PR Status</FormLabel>
                   <FormControl>
                     <Input
@@ -615,13 +654,13 @@ const POView = () => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             <FormField
               control={form.control}
               name="paymentStatus"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>PR's Payment Status</FormLabel>
                   <FormControl>
                     <Input
@@ -639,7 +678,7 @@ const POView = () => {
               control={form.control}
               name="createdAt"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Created at</FormLabel>
                   <FormControl>
                     <Input
@@ -660,14 +699,15 @@ const POView = () => {
             />
           </div>
 
-          <div className="bg-slate-">
-            Approval Flow
-            <br />
+          <div>
+            <div className="text-xl font-bold dark:text-white mt-10">
+              Approval Flow
+            </div>
             <ApprovalFlow data={getPR?.data?.approval_flow} readonly />
           </div>
 
-          <div className="my-6 ">
-            Line Items <br />
+          <div className="my-6 mt-10">
+            <div className="text-xl font-bold dark:text-white">Line Items</div>
             {/* Column headers for line items */}
             <div className="my-1 grid grid-cols-6 gap-1">
               <FormLabel>Item Name</FormLabel>
@@ -691,14 +731,16 @@ const POView = () => {
             })}
           </div>
 
-          <div>Supplier</div>
-
           <div>
+            <div className="text-xl font-bold dark:text-white mt-10">
+              Supplier
+            </div>
+
             <FormField
               control={form.control}
               name="supplier.nameAndRegNo"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Company</FormLabel>
                   <FormControl>
                     <FormComboBox
@@ -717,7 +759,7 @@ const POView = () => {
               control={form.control}
               name="supplier.supplierContactName"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Contact Name</FormLabel>
                   <FormControl>
                     <Input
@@ -735,7 +777,7 @@ const POView = () => {
               control={form.control}
               name="supplier.supplierContactNumber"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Contact Number</FormLabel>
                   <FormControl>
                     <Input
@@ -753,7 +795,7 @@ const POView = () => {
               control={form.control}
               name="supplier.supplierEmail"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Contact Email</FormLabel>
                   <FormControl>
                     <Input
@@ -766,19 +808,36 @@ const POView = () => {
                 </FormItem>
               )}
             />
-            {/* Supplier information 
-              business_reg_no VARCHAR(100) PRIMARY KEY,
-              company_name VARCHAR(200), 
-              billing_address VARCHAR(200),
-              default_bank_account VARCHAR(20),
-              supplier_contact_name VARCHAR(200), 
-              supplier_contact_number
-              VARCHAR(20), 
-              supplier_contact_email VARCHAR(100)
-              Quotation (Final): 
-              Specs & Others (Final):
-              Quotations (Other suppliers): */}
           </div>
+
+          {isMMD || isFinance ? (
+            <>
+              <div>
+                <div>For MMD Use</div>
+                <div>Upload invoices / DOs</div>
+                <div>Upload GRs</div>
+                {isMMD ? (
+                  <Button type="button">
+                    Verify All Goods Received for PO
+                  </Button>
+                ) : (
+                  <></>
+                )}
+              </div>
+
+              <div>
+                <div>For Finance Use</div>
+                <div>Upload proof of payment</div>
+                {isFinance ? (
+                  <Button type="button">Verify Payment Made to Supplier</Button>
+                ) : (
+                  <></>
+                )}
+              </div>
+            </>
+          ) : (
+            <></>
+          )}
         </form>
       </Form>
     </div>

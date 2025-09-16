@@ -41,10 +41,7 @@ const UserSearch = () => {
     <div className="w-full max-w-4xl mx-auto">
       <div>Search for Users</div>
       <div>
-        <Input
-          placeholder="Search by email"
-          onChange={(event) => mutation.mutate(event.target.value)}
-        />
+        <Input onChange={(event) => mutation.mutate(event.target.value)} />
 
         {mutation.isSuccess &&
           mutation?.data?.map((user) => {
@@ -54,17 +51,15 @@ const UserSearch = () => {
                   <CardTitle>
                     {user.name} ({user.designation})
                   </CardTitle>
-                  <CardAction>
-                    <Button>Delete</Button>
-                  </CardAction>
                 </CardHeader>
                 <CardContent>
+                  <p>Login ID: {user.login_id}</p>
                   <p>Email: {user.email}</p>
                   <p>Cost Centre: {user.cost_centre}</p>
                   <p>Role: {user.role}</p>
                 </CardContent>
                 <CardFooter>
-                  <Button>Edit</Button>
+                  {/* TODO: Reset password by sys admin */}
                   <Button>Reset Password</Button>
                 </CardFooter>
               </Card>

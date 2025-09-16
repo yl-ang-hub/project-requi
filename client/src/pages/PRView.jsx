@@ -197,12 +197,11 @@ const PRView = () => {
   }, [getPR.data, form, authCtx.role]);
 
   return (
-    <div className="w-full max-w-4xl m-auto">
-      <div>
+    <div className="w-full max-w-4xl m-auto mt-8 mb-20">
+      <div className="text-2xl font-extrabold dark:text-white">
         <p>Purchase Requisition</p>
-        {/* TODO: Use badge here */}
-        {getPR.data?.pr?.status}
       </div>
+      <span className="text-red-800 text-right">{`${getPR.data?.pr?.total_amount}`}</span>
 
       <Form {...form} className="overflow-scroll">
         <form
@@ -216,7 +215,7 @@ const PRView = () => {
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Title</FormLabel>
                     <FormControl>
                       <Input
@@ -234,13 +233,13 @@ const PRView = () => {
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="h-46 border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
                       />
                     </FormControl>
                     <FormMessage />
@@ -252,7 +251,7 @@ const PRView = () => {
                 control={form.control}
                 name="requesterName"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Requester's Name</FormLabel>
                     <FormControl>
                       <Input
@@ -270,7 +269,7 @@ const PRView = () => {
                 control={form.control}
                 name="requesterContactNumber"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Requester's Contact Number</FormLabel>
                     <FormControl>
                       <Input
@@ -289,7 +288,7 @@ const PRView = () => {
                 control={form.control}
                 name="requesterContactEmail"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Requester's Email</FormLabel>
                     <FormControl>
                       <Input
@@ -308,7 +307,7 @@ const PRView = () => {
                 control={form.control}
                 name="prContactName"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Name of Contact (for this PR)</FormLabel>
                     <FormControl>
                       <Input
@@ -326,7 +325,7 @@ const PRView = () => {
                 control={form.control}
                 name="prContactNumber"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Contact Number (for this PR)</FormLabel>
                     <FormControl>
                       <Input
@@ -345,7 +344,7 @@ const PRView = () => {
                 control={form.control}
                 name="prContactEmail"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Contact Email (for this PR)</FormLabel>
                     <FormControl>
                       <Input
@@ -362,13 +361,11 @@ const PRView = () => {
             </div>
 
             <div>
-              <span className="text-red-800 text-right">{`${getPR.data?.pr?.total_amount}`}</span>
-
               <FormField
                 control={form.control}
                 name="costCentre"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Cost Centre</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -386,7 +383,7 @@ const PRView = () => {
                 control={form.control}
                 name="accountCode"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Account Code</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -405,7 +402,7 @@ const PRView = () => {
                 control={form.control}
                 name="glCode"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>GL Code</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -424,7 +421,7 @@ const PRView = () => {
                 control={form.control}
                 name="currency"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Currency</FormLabel>
                     <FormControl>
                       <FormComboBox
@@ -443,7 +440,7 @@ const PRView = () => {
                 control={form.control}
                 name="amountInSGD"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="mt-4 font-bold">
                     <FormLabel>Total Amount (SGD)</FormLabel>
                     <FormControl>
                       <Input
@@ -464,7 +461,7 @@ const PRView = () => {
               control={form.control}
               name="comments"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Comments</FormLabel>
                   <FormControl>
                     <Textarea
@@ -483,7 +480,7 @@ const PRView = () => {
               control={form.control}
               name="goodsRequiredBy"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Goods Required By</FormLabel>
                   <FormControl>
                     <Input
@@ -507,7 +504,7 @@ const PRView = () => {
               control={form.control}
               name="prStatus"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>PR Status</FormLabel>
                   <FormControl>
                     <Input
@@ -525,7 +522,7 @@ const PRView = () => {
               control={form.control}
               name="paymentStatus"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>PR's Payment Status</FormLabel>
                   <FormControl>
                     <Input
@@ -543,7 +540,7 @@ const PRView = () => {
               control={form.control}
               name="createdAt"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mt-4 font-bold">
                   <FormLabel>Created at</FormLabel>
                   <FormControl>
                     <Input
@@ -563,8 +560,10 @@ const PRView = () => {
               )}
             />
 
-            <div className="my-6">
-              Line Items <br />
+            <div className="my-6 mt-10">
+              <div className="text-xl font-bold dark:text-white">
+                Line Items
+              </div>
               {/* Column headers for line items */}
               <div className="my-1 grid grid-cols-6 gap-1">
                 <FormLabel>Item Name</FormLabel>
@@ -588,11 +587,10 @@ const PRView = () => {
               })}
             </div>
 
-            <div className="bg-blue-200">
+            <div className="text-xl font-bold dark:text-white mt-10">
               Approval Flow
-              <br />
-              <ApprovalFlow data={getPR?.data?.approval_flow} />
             </div>
+            <ApprovalFlow data={getPR?.data?.approval_flow} />
           </div>
 
           {allowDropping ? <Button type="submit">Drop PR</Button> : <></>}
