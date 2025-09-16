@@ -18,6 +18,8 @@ import MMDCentralPool from "./pages/MMDCentralPool";
 import PRView from "./pages/PRView";
 import POView from "./pages/POView";
 import ResetPassword from "./pages/ResetPassword";
+import { GlassWater } from "lucide-react";
+import GlobalSearch from "./pages/GlobalSearch";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -78,6 +80,15 @@ function App() {
                 element={
                   <ProtectedRouter>
                     <ApprovalsHistory />
+                  </ProtectedRouter>
+                }
+              />
+
+              <Route
+                path="/search"
+                element={
+                  <ProtectedRouter>
+                    <GlobalSearch />
                   </ProtectedRouter>
                 }
               />

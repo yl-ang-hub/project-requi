@@ -112,7 +112,7 @@ function AppSidebar() {
               )}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/">Global Search</Link>
+                  <Link to="/search">Global Search</Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
