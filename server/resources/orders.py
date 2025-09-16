@@ -135,7 +135,7 @@ def draft_new_po():
 
 @orders.route("/", methods=["PATCH"])
 @jwt_required()
-def edit_draft_po():
+def edit_pr_and_draft_po():
     conn = None
     try:
         conn, cursor = get_cursor()
@@ -269,3 +269,74 @@ def edit_draft_po():
         if conn: release_connection(conn)
 
 
+
+@orders.route("/<id>/reject", methods=["PATCH"])
+@jwt_required()
+def reject_pr_and_po(id):
+    # only for MMD Head and MMD Director
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        user_id = int(get_jwt_identity())
+        user_name = get_jwt()['name']
+        user_role = get_jwt()['role']
+        inputs = request.get_json()
+        print(inputs)
+
+        cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
+        pr = cursor.fetchone()
+
+        if pr['next_approver'] != user_id or "MMD" not in user_role or user_role == "MMD":
+            return jsonify(status="error", msg="Unauthorised"), 401
+
+        # Update the rejection in requisition_approval_flow
+        cursor.execute(
+            """
+            UPDATE requisition_approval_flow 
+            SET approval_status=%s, approved_at=%s, approver_comments=%s 
+            WHERE requisition_id=%s AND approver_id=%s AND approval_status=%s
+            """,
+            ("Rejected", dt.datetime.now(), inputs['form']['approverComments'], pr['id'],
+             pr['next_approver'], "Queued")
+        )
+
+        # Reset status of all other approvers queued for this PR
+        cursor.execute(
+            """
+            UPDATE requisition_approval_flow 
+            SET approval_status=%s
+            WHERE requisition_id=%s AND approval_status=%s
+            """,
+            ("Not Applicable", pr['id'], "Queued")
+        )
+
+        # Update the status in requisitions
+        cursor.execute(
+            """
+            UPDATE requisitions SET next_approver=%s, status=%s, payment_status=%s
+            WHERE id=%s
+            """, (None, "Rejected", "Not Applicable", pr['id'])
+        )
+
+        # Update the status in purchase_orders
+        cursor.execute(
+            'UPDATE purchase_orders SET status=%s WHERE requisition_id=%s', ("Rejected", pr['id'])
+        )
+
+        # Email requester for notification and get latest email from users
+        cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (pr['requester_id'],))
+        requester_info = cursor.fetchone()
+        subj = f"Rejected - PR {pr['id']}"
+        msg = f"Hello {requester_info['name']}, \n\nPR {pr['id']} - {pr['title']} has just been rejected by {user_name} with the comments: {inputs['form']['approverComments']}."
+        gmail_send_message(requester_info['email'], subj, msg)
+
+        conn.commit()
+        return jsonify(status="ok", msg="rejected successfully"), 200
+
+    except Exception as e:
+        conn.rollback()
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to reject PR"), 400
+
+    finally:
+        if conn: release_connection(conn)

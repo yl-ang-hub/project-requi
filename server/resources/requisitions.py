@@ -296,7 +296,7 @@ def add_new_requisition():
                 )
             )
 
-        # Send email notification to next approver
+        # Send email notification to next approver using latest email from users
         cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (cc_data['finance_officer'],))
         approver_info = cursor.fetchone()
         subj = f"For your approval - PR {requisition['id']}"
@@ -495,7 +495,7 @@ def approve_pr(id):
         else: pr_status = "Pending Next Level Approver"
         cursor.execute('UPDATE requisitions SET next_approver=%s, status=%s WHERE id=%s', (approver['approver_id'], pr_status, requisition['id']))
 
-        # Get next approver's email for notification
+        # Get next approver's latest email for notification from users
         if approver['approver_role'] != "MMD":
             cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (approver['approver_id'],))
             approver_info = cursor.fetchone()
@@ -515,7 +515,7 @@ def approve_pr(id):
         if conn: release_connection(conn)
 
 
-@requisitions.route("/<id>/reject", methods=["POST"])
+@requisitions.route("/<id>/reject", methods=["PATCH"])
 @jwt_required()
 def reject_pr(id):
     conn = None
@@ -527,7 +527,7 @@ def reject_pr(id):
         cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
         requisition = cursor.fetchone()
 
-        if requisition['next_approver'] != inputs['userId']:
+        if requisition['next_approver'] != claims['id']:
             return jsonify(status="error", msg="Unauthorised"), 401
 
         # Update the rejection in requisition_approval_flow
@@ -559,11 +559,12 @@ def reject_pr(id):
             """, (None, "Rejected", "Not Applicable", requisition['id'])
         )
 
-
-        # Email requester for notification
+        # Email requester for notification and get latest email from users
+        cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (requisition['requester_id'],))
+        requester_info = cursor.fetchone()
         subj = f"Rejected - PR {id}"
-        msg = f"Hello {requisition['requester_contact_name']}, \n\nPR {id} - {requisition['title']} has just been rejected by {claims['name']} with the comments: {inputs['form']['approverComments']}."
-        gmail_send_message(requisition['requester_email'], subj, msg)
+        msg = f"Hello {requester_info['name']}, \n\nPR {id} - {requisition['title']} has just been rejected by {claims['name']} with the comments: {inputs['form']['approverComments']}."
+        gmail_send_message(requester_info['email'], subj, msg)
 
         conn.commit()
         return jsonify(status="ok", msg="rejected successfully"), 200

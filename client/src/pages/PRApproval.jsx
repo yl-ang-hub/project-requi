@@ -280,7 +280,7 @@ const PRApproval = () => {
 
   // TODO: Code mutation for rejectAndPOMutation (for MMD Head and MMD Director)
 
-  const rejectPRMutation = useMutation({
+  const rejectMutation = useMutation({
     mutationFn: async (data) => {
       console.log("running rejectPR mutation");
       console.log(data);
@@ -289,12 +289,23 @@ const PRApproval = () => {
         form: data,
       };
 
-      return await fetchData(
-        `/requisitions/${params.id}/reject`,
-        "POST",
-        body,
-        authCtx.accessToken
-      );
+      if (!isMMD || authCtx.role === "MMD") {
+        console.log("running reject for non-MMD and MMD officers");
+        return await fetchData(
+          `/requisitions/${params.id}/reject`,
+          "PATCH",
+          body,
+          authCtx.accessToken
+        );
+      } else if (isMMD && authCtx.role !== "MMD") {
+        console.log("running reject for MMD Head and Director");
+        return await fetchData(
+          `/orders/${params.id}/reject`,
+          "PATCH",
+          body,
+          authCtx.accessToken
+        );
+      }
     },
     onSuccess: () => {
       navigate("/approvals/pending");
@@ -407,7 +418,7 @@ const PRApproval = () => {
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -425,7 +436,7 @@ const PRApproval = () => {
                       <Textarea
                         {...field}
                         readOnly={true}
-                        className="h-46 border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="h-46 border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -445,7 +456,7 @@ const PRApproval = () => {
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -466,7 +477,7 @@ const PRApproval = () => {
                         type="tel"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -487,7 +498,7 @@ const PRApproval = () => {
                         type="email"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -507,7 +518,7 @@ const PRApproval = () => {
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -528,7 +539,7 @@ const PRApproval = () => {
                         type="tel"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -549,7 +560,7 @@ const PRApproval = () => {
                         type="email"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -646,7 +657,7 @@ const PRApproval = () => {
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -668,7 +679,7 @@ const PRApproval = () => {
                       placeholder="Comments if any"
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -692,7 +703,7 @@ const PRApproval = () => {
                       }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -710,7 +721,7 @@ const PRApproval = () => {
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -730,7 +741,7 @@ const PRApproval = () => {
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -754,7 +765,7 @@ const PRApproval = () => {
                       }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -787,7 +798,7 @@ const PRApproval = () => {
                         <Input
                           value={item.name}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
@@ -796,7 +807,7 @@ const PRApproval = () => {
                         <Input
                           value={item.description}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
@@ -805,7 +816,7 @@ const PRApproval = () => {
                         <Input
                           value={item.quantity}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
@@ -814,7 +825,7 @@ const PRApproval = () => {
                         <Input
                           value={item.unit_of_measure}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
@@ -823,7 +834,7 @@ const PRApproval = () => {
                         <Input
                           value={item.unit_cost}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
@@ -991,7 +1002,7 @@ const PRApproval = () => {
                 type="button"
                 variant="destructive"
                 onClick={() => {
-                  rejectPRMutation.mutate(form.getValues());
+                  rejectMutation.mutate(form.getValues());
                 }}>
                 Reject
               </Button>
