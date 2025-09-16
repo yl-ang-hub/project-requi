@@ -317,7 +317,7 @@ def add_new_requisition():
 
 @requisitions.route("/approvals/pending", methods=["POST"])
 @jwt_required()
-def get_PR_pending_approvals():
+def get_pr_pending_approvals():
     conn = None
     try:
         conn, cursor = get_cursor()
@@ -388,6 +388,9 @@ def get_pr(id):
         cursor.execute('SELECT * FROM purchase_orders WHERE requisition_id=%s', (pr['id'],))
         po = cursor.fetchone()
         if po:
+            po['total_amount'] = f"{po['currency']} {po['total_amount']:,.2f}"
+            po['amount_in_sgd'] = f"${po['amount_in_sgd']:,.2f}"
+
             # Pull PO line items
             cursor.execute('SELECT * FROM purchase_order_items WHERE purchase_order_id=%s', (po['id'],))
             po_items = cursor.fetchall()
@@ -413,6 +416,7 @@ def get_pr(id):
 @requisitions.route("/<id>", methods=["PATCH"])
 @jwt_required()
 def approve_pr(id):
+    # Only for approvals by non-MMD staff
     conn = None
     try:
         print("running approve_pr logic")
@@ -492,12 +496,12 @@ def approve_pr(id):
         cursor.execute('UPDATE requisitions SET next_approver=%s, status=%s WHERE id=%s', (approver['approver_id'], pr_status, requisition['id']))
 
         # Get next approver's email for notification
-        cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (approver['approver_id'],))
-        approver_info = cursor.fetchone()
-
-        subj = f"For your approval - PR {id}"
-        msg = f"Hello {approver_info['name']}, PR {id} - {requisition['title']} has just been approved by {user_name} with the comments: {inputs['form']['approverComments']}.\n\nPlease log into Requi to view and approve in your role as {approver_info['role']}."
-        gmail_send_message(approver_info['email'], subj, msg)
+        if approver['approver_role'] != "MMD":
+            cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (approver['approver_id'],))
+            approver_info = cursor.fetchone()
+            subj = f"For your approval - PR {id}"
+            msg = f"Hello {approver_info['name']}, \n\nPR {id} - {requisition['title']} has just been approved by {user_name} with the comments: {inputs['form']['approverComments']}.\n\nPlease log into Requi to view and approve in your role as {approver_info['role']}."
+            gmail_send_message(approver_info['email'], subj, msg)
 
         conn.commit()
         return jsonify(status="ok", msg="approved successfully"), 200
@@ -517,6 +521,7 @@ def reject_pr(id):
     conn = None
     try:
         conn, cursor = get_cursor()
+        claims = get_jwt()
         inputs = request.get_json()
 
         cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
@@ -553,6 +558,12 @@ def reject_pr(id):
             WHERE id=%s
             """, (None, "Rejected", "Not Applicable", requisition['id'])
         )
+
+
+        # Email requester for notification
+        subj = f"Rejected - PR {id}"
+        msg = f"Hello {requisition['requester_contact_name']}, \n\nPR {id} - {requisition['title']} has just been rejected by {claims['name']} with the comments: {inputs['form']['approverComments']}."
+        gmail_send_message(requisition['requester_email'], subj, msg)
 
         conn.commit()
         return jsonify(status="ok", msg="rejected successfully"), 200

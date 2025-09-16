@@ -11,6 +11,9 @@ psycopg2-binary = "*"
 flask-cors = "*"
 bcrypt = "*"
 flask-jwt-extended = "*"
+google-api-python-client = "*"
+google-auth-httplib2 = "*"
+google-auth-oauthlib = "*"
 
 [dev-packages]
 

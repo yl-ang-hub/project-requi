@@ -2,6 +2,7 @@ import datetime as dt
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from db.db_pool import get_cursor, release_connection
+from services.google_apis import gmail_send_message
 
 orders = Blueprint("orders", __name__)
 
@@ -14,6 +15,7 @@ def draft_new_po():
         print("running add new po")
         conn, cursor = get_cursor()
         user_id = int(get_jwt_identity()[0])
+        user_name = get_jwt()['name']
         inputs = request.get_json()
 
         # STEP ONE: CREATE NEW PO
@@ -112,6 +114,13 @@ def draft_new_po():
         cursor.execute('UPDATE requisitions SET next_approver=%s WHERE id=%s',
                        (approver['approver_id'], pr['id']))
 
+        # Get next approver's email and notify
+        cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (approver['approver_id'],))
+        approver_info = cursor.fetchone()
+        subj = f"For your approval - PR {pr['id']}"
+        msg = f"Hello {approver_info['name']}, \n\nPR {pr['id']} - {pr['title']} has just been approved by {user_name} with the comments: {inputs['approverComments']}.\n\nPlease log into Requi to view and approve in your role as {approver_info['role']}."
+        gmail_send_message(approver_info['email'], subj, msg)
+
         conn.commit()
         return jsonify(status="ok", msg="created new order"), 200
 
@@ -132,6 +141,7 @@ def edit_draft_po():
         conn, cursor = get_cursor()
         user_id = int(get_jwt_identity()[0])
         user_role = get_jwt()['role']
+        user_name = get_jwt()['name']
         inputs = request.get_json()
 
         # Modify input values
@@ -232,6 +242,20 @@ def edit_draft_po():
             # Update pr_status and next_approver inside requisitions
             cursor.execute('UPDATE requisitions SET status=%s, next_approver=%s WHERE id=%s',
                            ("Approved", None, pr['id']))
+
+        # Give email notification
+        if user_role == "MMD Head":     # notify next approver to approve
+            cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (approver['approver_id'],))
+            approver_info = cursor.fetchone()
+            subj = f"For your approval - PR {pr['id']}"
+            msg = f"Hello {approver_info['name']}, \n\nPR {pr['id']} - {pr['title']} has just been approved by {user_name} with the comments: {inputs['approverComments']}.\n\nPlease log into Requi to view and approve in your role as {approver_info['role']}."
+            gmail_send_message(approver_info['email'], subj, msg)
+        elif user_role == "MMD Director":       # notify requester of PO approval
+            cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (pr['requester_id'],))
+            requester_info = cursor.fetchone()
+            subj = f"Approved - PR {pr['id']}"
+            msg = f"Hello {requester_info['name']}, \n\nPR {pr['id']} - {pr['title']} has just been approved by {user_name}.\n\nPlease log into Requi to view the approved PO."
+            gmail_send_message(requester_info['email'], subj, msg)
 
         conn.commit()
         return jsonify(status="ok", msg="approved or edited PO"), 200

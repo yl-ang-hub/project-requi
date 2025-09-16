@@ -12,8 +12,7 @@ def search_users():
         conn, cursor = get_cursor()
         inputs = request.get_json()
         query = f"%{inputs['query']}%"
-        print(query)
-        cursor.execute('SELECT * FROM users WHERE email LIKE %s', (query,))
+        cursor.execute('SELECT * FROM users WHERE name LIKE %s OR login_id LIKE %s OR email LIKE %s OR cost_centre LIKE %s OR role LIKE %s', (query, query, query, query, query))
         results = cursor.fetchall()
         print(results)
         return jsonify(results), 200
