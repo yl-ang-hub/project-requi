@@ -198,7 +198,7 @@ const PRView = () => {
 
   return (
     <div className="w-full max-w-4xl m-auto mt-8 mb-20">
-      <div className="flex justify-between mb4">
+      <div className="flex justify-between mb-4">
         <span className="text-2xl text-blue-800 font-extrabold dark:text-white">
           Purchase Requisition
         </span>
@@ -217,13 +217,13 @@ const PRView = () => {
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Title</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Title</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -235,13 +235,13 @@ const PRView = () => {
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Description</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Description</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         readOnly={true}
-                        className="h-46 border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="h-46 border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -253,13 +253,15 @@ const PRView = () => {
                 control={form.control}
                 name="requesterName"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Requester's Name</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Requester's Name
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -271,14 +273,16 @@ const PRView = () => {
                 control={form.control}
                 name="requesterContactNumber"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Requester's Contact Number</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Requester's Contact Number
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -290,14 +294,16 @@ const PRView = () => {
                 control={form.control}
                 name="requesterContactEmail"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Requester's Email</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Requester's Email
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -309,13 +315,15 @@ const PRView = () => {
                 control={form.control}
                 name="prContactName"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Name of Contact (for this PR)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Name of Contact (for this PR)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -327,14 +335,16 @@ const PRView = () => {
                 control={form.control}
                 name="prContactNumber"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Contact Number (for this PR)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Contact Number (for this PR)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -346,14 +356,16 @@ const PRView = () => {
                 control={form.control}
                 name="prContactEmail"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Contact Email (for this PR)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Contact Email (for this PR)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -367,8 +379,8 @@ const PRView = () => {
                 control={form.control}
                 name="costCentre"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Cost Centre</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Cost Centre</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -385,8 +397,8 @@ const PRView = () => {
                 control={form.control}
                 name="accountCode"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Account Code</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Account Code</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -404,8 +416,8 @@ const PRView = () => {
                 control={form.control}
                 name="glCode"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>GL Code</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">GL Code</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -423,8 +435,8 @@ const PRView = () => {
                 control={form.control}
                 name="currency"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Currency</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Currency</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -442,13 +454,15 @@ const PRView = () => {
                 control={form.control}
                 name="amountInSGD"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Total Amount (SGD)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Total Amount (SGD)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -463,14 +477,14 @@ const PRView = () => {
               control={form.control}
               name="comments"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>Comments</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">Comments</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Comments if any"
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -482,8 +496,8 @@ const PRView = () => {
               control={form.control}
               name="goodsRequiredBy"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>Goods Required By</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">Goods Required By</FormLabel>
                   <FormControl>
                     <Input
                       type="date"
@@ -494,7 +508,7 @@ const PRView = () => {
                       }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -506,13 +520,13 @@ const PRView = () => {
               control={form.control}
               name="prStatus"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>PR Status</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">PR Status</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -524,13 +538,15 @@ const PRView = () => {
               control={form.control}
               name="paymentStatus"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>PR's Payment Status</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">
+                    PR's Payment Status
+                  </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -542,8 +558,8 @@ const PRView = () => {
               control={form.control}
               name="createdAt"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>Created at</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">Created at</FormLabel>
                   <FormControl>
                     <Input
                       type="date"
@@ -554,7 +570,7 @@ const PRView = () => {
                       }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -568,11 +584,13 @@ const PRView = () => {
               </div>
               {/* Column headers for line items */}
               <div className="my-1 grid grid-cols-6 gap-1">
-                <FormLabel>Item Name</FormLabel>
-                <FormLabel>Item Description</FormLabel>
-                <FormLabel>Quantity</FormLabel>
-                <FormLabel>Unit of Measure</FormLabel>
-                <FormLabel>Unit Cost (Trade Currency)</FormLabel>
+                <FormLabel className="font-bold">Item Name</FormLabel>
+                <FormLabel className="font-bold">Item Description</FormLabel>
+                <FormLabel className="font-bold">Quantity</FormLabel>
+                <FormLabel className="font-bold">Unit of Measure</FormLabel>
+                <FormLabel className="font-bold">
+                  Unit Cost (Trade Currency)
+                </FormLabel>
               </div>
               {/* Fields for each line item */}
               {itemsFormArray.fields.map((item, idx) => {

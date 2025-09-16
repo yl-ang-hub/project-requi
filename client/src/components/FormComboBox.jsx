@@ -34,10 +34,11 @@ const FormComboBox = (props) => {
         <PopoverTrigger asChild>
           <Button
             disabled={readOnly}
+            readOnly={readOnly}
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between">
+            className="w-full justify-between enabled:bg-white read-only:bg-gray-200 read-only:cursor-grab read-only:select-text">
             {value !== ""
               ? props.data?.find((item) => item.includes(value))
               : "Select"}

@@ -399,13 +399,13 @@ const PRApproval = () => {
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Title</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Title</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -417,13 +417,13 @@ const PRApproval = () => {
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Description</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Description</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
                         readOnly={true}
-                        className="h-46 border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="h-46 border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -435,13 +435,15 @@ const PRApproval = () => {
                 control={form.control}
                 name="requesterName"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Requester's Name</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Requester's Name
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -453,14 +455,16 @@ const PRApproval = () => {
                 control={form.control}
                 name="requesterContactNumber"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Requester's Contact Number</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Requester's Contact Number
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -472,14 +476,16 @@ const PRApproval = () => {
                 control={form.control}
                 name="requesterContactEmail"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Requester's Email</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Requester's Email
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -491,13 +497,15 @@ const PRApproval = () => {
                 control={form.control}
                 name="prContactName"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Name of Contact (for this PR)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Name of Contact (for this PR)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -509,14 +517,16 @@ const PRApproval = () => {
                 control={form.control}
                 name="prContactNumber"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Contact Number (for this PR)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Contact Number (for this PR)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -528,14 +538,16 @@ const PRApproval = () => {
                 control={form.control}
                 name="prContactEmail"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Contact Email (for this PR)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Contact Email (for this PR)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -549,8 +561,8 @@ const PRApproval = () => {
                 control={form.control}
                 name="costCentre"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Cost Centre</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Cost Centre</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -567,8 +579,8 @@ const PRApproval = () => {
                 control={form.control}
                 name="accountCode"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Account Code</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Account Code</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -586,8 +598,8 @@ const PRApproval = () => {
                 control={form.control}
                 name="glCode"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>GL Code</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">GL Code</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -605,8 +617,8 @@ const PRApproval = () => {
                 control={form.control}
                 name="currency"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Currency</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Currency</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -624,13 +636,15 @@ const PRApproval = () => {
                 control={form.control}
                 name="amountInSGD"
                 render={({ field }) => (
-                  <FormItem className="mt-4 font-bold">
-                    <FormLabel>Total Amount (SGD)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Total Amount (SGD)
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -645,14 +659,14 @@ const PRApproval = () => {
               control={form.control}
               name="comments"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>Comments</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">Comments</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Comments if any"
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -664,8 +678,8 @@ const PRApproval = () => {
               control={form.control}
               name="goodsRequiredBy"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>Goods Required By</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">Goods Required By</FormLabel>
                   <FormControl>
                     <Input
                       type="date"
@@ -676,7 +690,7 @@ const PRApproval = () => {
                       }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -688,13 +702,13 @@ const PRApproval = () => {
               control={form.control}
               name="prStatus"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>PR Status</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">PR Status</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -706,13 +720,15 @@ const PRApproval = () => {
               control={form.control}
               name="paymentStatus"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>PR's Payment Status</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">
+                    PR's Payment Status
+                  </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -724,8 +740,8 @@ const PRApproval = () => {
               control={form.control}
               name="createdAt"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
-                  <FormLabel>Created at</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">Created at</FormLabel>
                   <FormControl>
                     <Input
                       type="date"
@@ -736,7 +752,7 @@ const PRApproval = () => {
                       }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -752,58 +768,60 @@ const PRApproval = () => {
               </div>
               {/* Column headers for line items */}
               <div className="my-1 grid grid-cols-6 gap-1">
-                <FormLabel>Item Name</FormLabel>
-                <FormLabel>Item Description</FormLabel>
-                <FormLabel>Quantity</FormLabel>
-                <FormLabel>Unit of Measure</FormLabel>
-                <FormLabel>Unit Cost (Trade Currency)</FormLabel>
+                <FormLabel className="font-bold">Item Name</FormLabel>
+                <FormLabel className="font-bold">Item Description</FormLabel>
+                <FormLabel className="font-bold">Quantity</FormLabel>
+                <FormLabel className="font-bold">Unit of Measure</FormLabel>
+                <FormLabel className="font-bold">
+                  Unit Cost (Trade Currency)
+                </FormLabel>
               </div>
               {/* Fields for each line item */}
               {getPR.data?.pr?.items?.map((item, idx) => {
                 return (
                   <div className="my-1 grid grid-cols-6 gap-1" key={item.id}>
-                    <FormItem className="mt-4 font-bold">
+                    <FormItem className="mt-4">
                       <FormControl>
                         <Input
                           value={item.name}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
-                    <FormItem className="mt-4 font-bold">
+                    <FormItem className="mt-4">
                       <FormControl>
                         <Input
                           value={item.description}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
-                    <FormItem className="mt-4 font-bold">
+                    <FormItem className="mt-4">
                       <FormControl>
                         <Input
                           value={item.quantity}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
-                    <FormItem className="mt-4 font-bold">
+                    <FormItem className="mt-4">
                       <FormControl>
                         <Input
                           value={item.unit_of_measure}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
-                    <FormItem className="mt-4 font-bold">
+                    <FormItem className="mt-4">
                       <FormControl>
                         <Input
                           value={item.unit_cost}
                           readOnly={true}
-                          className="border-gray-300 bg-white text-black font-normal px-2 py-1 read-only:border-gray-100 read-only:text-gray-500 read-only:cursor-grab read-only:select-none"
+                          className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                         />
                       </FormControl>
                     </FormItem>
@@ -812,7 +830,7 @@ const PRApproval = () => {
               })}
             </div>
 
-            <div className="bg-blue-200">
+            <div>
               <div className="text-xl font-bold dark:text-white">
                 Approval Flow
               </div>
@@ -825,24 +843,26 @@ const PRApproval = () => {
             <div className="bg-red-200">
               <div>For MMD</div>
 
-              <div className="my-6">
+              <div className="my-6 mt-10">
                 <div className="text-xl font-bold dark:text-white">
-                  Line Items
+                  <span className="mr-4">Line Items</span>
+                  {isMMD ? (
+                    <Button type="button" onClick={handleAddLineItems}>
+                      Add new line item
+                    </Button>
+                  ) : (
+                    <></>
+                  )}
                 </div>
-                {isMMD ? (
-                  <Button type="button" onClick={handleAddLineItems}>
-                    Add new line item
-                  </Button>
-                ) : (
-                  <></>
-                )}
                 {/* Column headers for line items */}
                 <div className="my-1 grid grid-cols-6 gap-1">
-                  <FormLabel>Item Name</FormLabel>
-                  <FormLabel>Item Description</FormLabel>
-                  <FormLabel>Quantity</FormLabel>
-                  <FormLabel>Unit of Measure</FormLabel>
-                  <FormLabel>Unit Cost (Trade Currency)</FormLabel>
+                  <FormLabel className="font-bold">Item Name</FormLabel>
+                  <FormLabel className="font-bold">Item Description</FormLabel>
+                  <FormLabel className="font-bold">Quantity</FormLabel>
+                  <FormLabel className="font-bold">Unit of Measure</FormLabel>
+                  <FormLabel className="font-bold">
+                    Unit Cost (Trade Currency)
+                  </FormLabel>
                 </div>
                 {/* Fields for each line item */}
                 {itemsFormArray.fields.map((item, idx) => {
@@ -866,8 +886,8 @@ const PRApproval = () => {
                   control={form.control}
                   name="supplier.nameAndRegNo"
                   render={({ field }) => (
-                    <FormItem className="mt-4 font-bold">
-                      <FormLabel>Company</FormLabel>
+                    <FormItem className="mt-4">
+                      <FormLabel className="font-bold">Company</FormLabel>
                       <FormControl>
                         <FormComboBox
                           field={field}
@@ -887,8 +907,8 @@ const PRApproval = () => {
                   control={form.control}
                   name="supplier.supplierContactName"
                   render={({ field }) => (
-                    <FormItem className="mt-4 font-bold">
-                      <FormLabel>Contact Name</FormLabel>
+                    <FormItem className="mt-4">
+                      <FormLabel className="font-bold">Contact Name</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -901,8 +921,10 @@ const PRApproval = () => {
                   control={form.control}
                   name="supplier.supplierContactNumber"
                   render={({ field }) => (
-                    <FormItem className="mt-4 font-bold">
-                      <FormLabel>Contact Number</FormLabel>
+                    <FormItem className="mt-4">
+                      <FormLabel className="font-bold">
+                        Contact Number
+                      </FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -915,8 +937,8 @@ const PRApproval = () => {
                   control={form.control}
                   name="supplier.supplierEmail"
                   render={({ field }) => (
-                    <FormItem className="mt-4 font-bold">
-                      <FormLabel>Contact Email</FormLabel>
+                    <FormItem className="mt-4">
+                      <FormLabel className="font-bold">Contact Email</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -942,13 +964,15 @@ const PRApproval = () => {
             <></>
           )}
 
-          <div className="bg-green-200">
-            Approver Comments
+          <div>
+            <span className="text-xl font-bold dark:text-white">
+              Approver Comments
+            </span>
             <FormField
               control={form.control}
               name="approverComments"
               render={({ field }) => (
-                <FormItem className="mt-4 font-bold">
+                <FormItem>
                   <FormDescription>
                     Please key in any additional comments here.
                   </FormDescription>
@@ -959,15 +983,17 @@ const PRApproval = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit">Approve</Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => {
-                rejectPRMutation.mutate(form.getValues());
-              }}>
-              Reject
-            </Button>
+            <div className="my-6">
+              <Button type="submit">Approve</Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                  rejectPRMutation.mutate(form.getValues());
+                }}>
+                Reject
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

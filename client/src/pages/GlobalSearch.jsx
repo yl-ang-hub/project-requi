@@ -56,13 +56,16 @@ const GlobalSearch = () => {
       <div className="text-2xl font-extrabold dark:text-white">
         Global Search
       </div>
-      <div>
-        <Input onChange={(event) => mutation.mutate(event.target.value)} />
+      <div className="mt-8">
+        <Input
+          placeholder="Key in your search query"
+          onChange={(event) => mutation.mutate(event.target.value)}
+        />
 
         {mutation.isSuccess &&
           mutation?.data?.map((item) => {
             return (
-              <Card className="my-1" key={item.id}>
+              <Card className="my-6" key={item.id}>
                 <CardHeader>
                   <CardTitle>
                     PR{item.pr_id} - {item.title}

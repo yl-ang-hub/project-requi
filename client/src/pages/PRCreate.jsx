@@ -192,6 +192,12 @@ const PRCreate = () => {
     }, 1000);
   };
 
+  const formatter = new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    useGrouping: true,
+  });
+
   const refreshAccessToken = useMutation({
     mutationFn: async () => {
       return await fetchData(
@@ -228,8 +234,16 @@ const PRCreate = () => {
   }, [totalAmount, costCentre, currency]);
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      <div>Create New PR</div>
+    <div className="w-full max-w-5xl mx-auto mt-8 mb-20">
+      <div className="flex justify-between mb-4">
+        <span className="text-2xl text-blue-800 font-extrabold dark:text-white">
+          Create New Purchase Requisition
+        </span>
+        <span className="bg-blue-100 text-blue-800 text-2xl font-semibold px-2.5 py-0.5 rounded-sm dark:bg-blue-200 dark:text-blue-800">
+          {form.getValues("currency") || "$"} {formatter.format(totalAmount)}
+        </span>
+      </div>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-2 gap-2">
@@ -238,8 +252,8 @@ const PRCreate = () => {
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Title</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -252,8 +266,8 @@ const PRCreate = () => {
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Description</FormLabel>
                     <FormControl>
                       <Textarea {...field} />
                     </FormControl>
@@ -266,8 +280,10 @@ const PRCreate = () => {
                 control={form.control}
                 name="prContactName"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Name of Contact (for this PR)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Name of Contact (for this PR)
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -280,8 +296,10 @@ const PRCreate = () => {
                 control={form.control}
                 name="prContactNumber"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Number (for this PR)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Contact Number (for this PR)
+                    </FormLabel>
                     <FormControl>
                       <Input type="tel" {...field} />
                     </FormControl>
@@ -294,8 +312,10 @@ const PRCreate = () => {
                 control={form.control}
                 name="prContactEmail"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contact Email (for this PR)</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">
+                      Contact Email (for this PR)
+                    </FormLabel>
                     <FormControl>
                       <Input type="email" {...field} />
                     </FormControl>
@@ -306,16 +326,12 @@ const PRCreate = () => {
             </div>
 
             <div>
-              <span className="text-red-800">
-                Insert total amount here {totalAmount}
-              </span>
-
               <FormField
                 control={form.control}
                 name="costCentre"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cost Centre</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Cost Centre</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -332,8 +348,8 @@ const PRCreate = () => {
                 control={form.control}
                 name="accountCode"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Code</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Account Code</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -350,8 +366,8 @@ const PRCreate = () => {
                 control={form.control}
                 name="glCode"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>GL Code</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">GL Code</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -368,8 +384,8 @@ const PRCreate = () => {
                 control={form.control}
                 name="currency"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Currency</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel className="font-bold">Currency</FormLabel>
                     <FormControl>
                       <FormComboBox
                         field={field}
@@ -390,8 +406,8 @@ const PRCreate = () => {
               control={form.control}
               name="comments"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Comments</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">Comments</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Comments if any" {...field} />
                   </FormControl>
@@ -404,8 +420,8 @@ const PRCreate = () => {
               control={form.control}
               name="goodsRequiredBy"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Goods Required By</FormLabel>
+                <FormItem className="mt-4">
+                  <FormLabel className="font-bold">Goods Required By</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -414,18 +430,22 @@ const PRCreate = () => {
               )}
             />
 
-            <div className="my-6">
-              Line Items <br />
-              <Button type="button" onClick={handleAddLineItems}>
-                Add new line item
-              </Button>
+            <div className="my-6 mt-10">
+              <div className="text-xl font-bold dark:text-white mb-3">
+                <span className="mr-4">Line Items</span>
+                <Button type="button" onClick={handleAddLineItems}>
+                  Add new line item
+                </Button>
+              </div>
               {/* Column headers for line items */}
               <div className="my-1 grid grid-cols-6 gap-1">
-                <FormLabel>Item Name</FormLabel>
-                <FormLabel>Item Description</FormLabel>
-                <FormLabel>Quantity</FormLabel>
-                <FormLabel>Unit of Measure</FormLabel>
-                <FormLabel>Unit Cost (Trade Currency)</FormLabel>
+                <FormLabel className="font-bold">Item Name</FormLabel>
+                <FormLabel className="font-bold">Item Description</FormLabel>
+                <FormLabel className="font-bold">Quantity</FormLabel>
+                <FormLabel className="font-bold">Unit of Measure</FormLabel>
+                <FormLabel className="font-bold">
+                  Unit Cost (Trade Currency)
+                </FormLabel>
               </div>
               {/* Fields for each line item */}
               {itemsFormArray.fields.map((item, idx) => {
@@ -442,9 +462,10 @@ const PRCreate = () => {
               })}
             </div>
 
-            <div className="bg-blue-200">
-              Approval Flow
-              <br />
+            <div className="mb-10">
+              <div className="text-xl font-bold dark:text-white mt-10">
+                Approval Flow
+              </div>
               <ApprovalFlow data={approvalFlow?.data} newPR={true} />
             </div>
 
