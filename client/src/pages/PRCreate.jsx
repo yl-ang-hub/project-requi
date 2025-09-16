@@ -66,6 +66,8 @@ const PRCreate = () => {
     items: z.array(itemSchema).min(1),
   });
 
+  // TODO: Default some fields to requester
+
   // form is an object of all the form fields
   const form = useForm({
     resolver: zodResolver(formSchema),

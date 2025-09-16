@@ -90,18 +90,6 @@ const Login = () => {
       <Card className="w-full max-w-md m-auto">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            {refreshAccessToken.isLoading}
-            {refreshAccessToken.isPending}
-            {refreshAccessToken.isError}
-            {refreshAccessToken.isSuccess}
-            Enter your email below to login to your account.
-            <p>
-              My id is {authCtx.userId}, my role is {authCtx.role}
-              and my access token is {authCtx.accessToken}. My refresh token is
-              {localStorage.getItem("refresh")}
-            </p>
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <form>
@@ -110,7 +98,6 @@ const Login = () => {
                 <Label htmlFor="loginId">Login ID</Label>
                 <Input
                   id="loginId"
-                  placeholder="company id"
                   value={loginIdInput}
                   onChange={(event) => setLoginIdInput(event.target.value)}
                   required

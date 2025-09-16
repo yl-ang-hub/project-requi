@@ -278,6 +278,8 @@ const PRApproval = () => {
     }
   };
 
+  // TODO: Code mutation for rejectAndPOMutation (for MMD Head and MMD Director)
+
   const rejectPRMutation = useMutation({
     mutationFn: async (data) => {
       console.log("running rejectPR mutation");
@@ -840,9 +842,7 @@ const PRApproval = () => {
 
           {/* MMD Section - Line Items & Supplier Info */}
           {isMMD ? (
-            <div className="bg-red-200">
-              <div>For MMD</div>
-
+            <div>
               <div className="my-6 mt-10">
                 <div className="text-xl font-bold dark:text-white">
                   <span className="mr-4">Line Items</span>
@@ -879,7 +879,9 @@ const PRApproval = () => {
                 })}
               </div>
 
-              <div>Supplier</div>
+              <div className="text-xl font-bold dark:text-white">
+                Supplier Information
+              </div>
 
               <div>
                 <FormField

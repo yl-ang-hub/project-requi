@@ -302,7 +302,7 @@ const POView = () => {
         <span className="text-2xl text-blue-800 font-extrabold dark:text-white">
           Purchase Requisition/Order
         </span>
-        <span className="bg-blue-100 text-blue-800 text-2xl font-semibold px-2.5 py-0.5 rounded-sm dark:bg-blue-200 dark:text-blue-800">{`${getPR.data?.pr?.total_amount}`}</span>
+        <span className="bg-blue-100 text-blue-800 text-2xl font-semibold px-2.5 py-0.5 rounded-sm dark:bg-blue-200 dark:text-blue-800">{`${getPR.data?.po?.total_amount}`}</span>
       </div>
 
       <Form {...form}>
