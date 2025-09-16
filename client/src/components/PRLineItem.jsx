@@ -26,7 +26,7 @@ const PRLineItem = (props) => {
                 disabled={props.disabled}
                 {...field}
                 readOnly={readOnly}
-                className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
               />
             </FormControl>
             <FormMessage />
@@ -44,7 +44,7 @@ const PRLineItem = (props) => {
                 disabled={props.disabled}
                 {...field}
                 readOnly={readOnly}
-                className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
               />
             </FormControl>
             <FormMessage />
@@ -62,7 +62,7 @@ const PRLineItem = (props) => {
                 disabled={props.disabled}
                 {...field}
                 readOnly={readOnly}
-                className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
               />
             </FormControl>
             <FormMessage />
@@ -80,7 +80,7 @@ const PRLineItem = (props) => {
                 disabled={props.disabled}
                 {...field}
                 readOnly={readOnly}
-                className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
               />
             </FormControl>
             <FormMessage />
@@ -98,7 +98,7 @@ const PRLineItem = (props) => {
                 disabled={props.disabled}
                 {...field}
                 readOnly={readOnly}
-                className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
               />
             </FormControl>
             <FormMessage />

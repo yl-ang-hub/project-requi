@@ -322,7 +322,7 @@ const POView = () => {
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -340,7 +340,7 @@ const POView = () => {
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -361,7 +361,7 @@ const POView = () => {
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -379,7 +379,7 @@ const POView = () => {
                       <Textarea
                         {...field}
                         readOnly={true}
-                        className="h-46 border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="h-46 border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -399,7 +399,7 @@ const POView = () => {
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -420,7 +420,7 @@ const POView = () => {
                         type="tel"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -441,7 +441,7 @@ const POView = () => {
                         type="email"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -461,7 +461,7 @@ const POView = () => {
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -482,7 +482,7 @@ const POView = () => {
                         type="tel"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -503,7 +503,7 @@ const POView = () => {
                         type="email"
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -600,7 +600,7 @@ const POView = () => {
                       <Input
                         {...field}
                         readOnly={true}
-                        className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                       />
                     </FormControl>
                     <FormMessage />
@@ -622,7 +622,7 @@ const POView = () => {
                       placeholder="Comments if any"
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -646,7 +646,7 @@ const POView = () => {
                       }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -664,7 +664,7 @@ const POView = () => {
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -684,7 +684,7 @@ const POView = () => {
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -708,7 +708,7 @@ const POView = () => {
                       }
                       onChange={(e) => field.onChange(new Date(e.target.value))}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -785,7 +785,7 @@ const POView = () => {
                     <Input
                       {...field}
                       readOnly={readonly}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -803,7 +803,7 @@ const POView = () => {
                     <Input
                       {...field}
                       readOnly={readonly}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -821,7 +821,7 @@ const POView = () => {
                     <Input
                       {...field}
                       readOnly={readonly}
-                      className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />

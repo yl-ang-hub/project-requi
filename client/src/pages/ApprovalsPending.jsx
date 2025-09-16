@@ -83,7 +83,7 @@ const ApprovalsPending = () => {
                 <TableHead>Requester</TableHead>
                 <TableHead>Cost Centre</TableHead>
                 <TableHead>Account Code</TableHead>
-                <TableHead>Total Amount</TableHead>
+                <TableHead>PR Total (SGD)</TableHead>
                 <TableHead>Required By</TableHead>
                 <TableHead className="text-right"></TableHead>
               </TableRow>

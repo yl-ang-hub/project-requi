@@ -32,27 +32,27 @@ const ApprovalFlow = (props) => {
         <div className="my-1 grid grid-cols-5 gap-1">
           <Input
             readOnly={true}
-            className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
             defaultValue={""}
           />
           <Input
             readOnly={true}
-            className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
             defaultValue={""}
           />
           <Input
             readOnly={true}
-            className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
             defaultValue={""}
           />
           <Input
             readOnly={true}
-            className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
             defaultValue={""}
           />
           <Input
             readOnly={true}
-            className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
             defaultValue={""}
           />
         </div>
@@ -65,17 +65,17 @@ const ApprovalFlow = (props) => {
               <div className="my-1 grid grid-cols-3 gap-1">
                 <Input
                   readOnly={true}
-                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                   defaultValue={line.requisition_approval_sequence}
                 />
                 <Input
                   readOnly={true}
-                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                   defaultValue={line.approver_role}
                 />
                 <Input
                   readOnly={true}
-                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                   defaultValue={line.approver}
                 />
               </div>
@@ -83,27 +83,27 @@ const ApprovalFlow = (props) => {
               <div className="my-1 grid grid-cols-5 gap-1">
                 <Input
                   readOnly={true}
-                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                   defaultValue={line.requisition_approval_sequence}
                 />
                 <Input
                   readOnly={true}
-                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                   defaultValue={line.approver_role}
                 />
                 <Input
                   readOnly={true}
-                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                   defaultValue={line.approver}
                 />
                 <Input
                   readOnly={true}
-                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                   defaultValue={line.approval_status}
                 />
                 <Input
                   readOnly={true}
-                  className="border-gray-300 bg-white text-black px-2 py-1 read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
                   defaultValue={line.approver_comments}
                 />
               </div>
