@@ -23,14 +23,14 @@ def upload_file_to_s3(names, files, content_types, types, pr_po_id):
             # Generate a unique filename to avoid overwriting
             datestamp = dt.datetime.now().strftime("%Y-%m-%d-%H%M%S")
             print(datestamp)
-            filename = f"quotations/{pr_po_id}_{datestamp}_{idx+1}_{secure_filename(names[idx])}"
+            filename = f"{pr_po_id}_{types[idx]}_{datestamp}_{idx+1}_{secure_filename(names[idx])}"
             print(filename)
 
             # Upload file to S3
             response = s3.upload_fileobj(
                 file,
                 BUCKET_NAME,
-                names[idx],
+                filename,
                 ExtraArgs={"ContentType": content_types[idx]}
             )
             print(f"Amazon response is :{response}")
