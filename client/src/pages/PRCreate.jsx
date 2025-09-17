@@ -49,6 +49,17 @@ const PRCreate = () => {
     unit_cost: z.coerce.number().positive({ message: "required field" }),
   });
 
+  const fileSchema = z.object({
+    name: z.string().optional(),
+    type: z.string().nonempty({ message: "required field" }),
+    file: z
+      .instanceof(File, { message: "select a file" })
+      .refine((file) => file.size <= 1024 * 1024 * 2, {
+        message: "file size must be less than 2MB",
+      }),
+    contentType: z.string().optional(),
+  });
+
   const formSchema = z.object({
     title: z.string().nonempty({ message: "required field" }),
     description: z.string(),
@@ -62,6 +73,7 @@ const PRCreate = () => {
     comments: z.string(),
     goodsRequiredBy: z.coerce.date(),
     items: z.array(itemSchema).min(1),
+    files: z.array(fileSchema).optional(),
   });
 
   // TODO: Default some fields to requester
@@ -99,12 +111,25 @@ const PRCreate = () => {
           unit_cost: 800,
         },
       ],
+      files: [
+        {
+          name: "",
+          type: "",
+          file: undefined,
+          contentType: "",
+        },
+      ],
     },
   });
 
   // itemsFormArray is an object of the field arrays
   const itemsFormArray = useFieldArray({
     name: "items",
+    control: form.control,
+  });
+
+  const filesFormArray = useFieldArray({
+    name: "files",
     control: form.control,
   });
 
@@ -124,6 +149,13 @@ const PRCreate = () => {
     });
   };
 
+  const handleAddFiles = () => {
+    filesFormArray.append({
+      type: "",
+      file: undefined,
+    });
+  };
+
   const costCentre = form.watch("costCentre");
   const currency = form.watch("currency");
 
@@ -140,6 +172,37 @@ const PRCreate = () => {
         },
         authCtx.accessToken
       );
+    },
+  });
+
+  const uploadFilesMutation = useMutation({
+    mutationFn: async (data) => {
+      console.log("inside uploadFilesMutation");
+      console.log(data);
+      // TODO: useFormData
+      const formData = new FormData();
+      formData.append("id", data.id);
+      data.data.files.forEach((f) => {
+        console.log(f);
+        formData.append("names", f.name);
+        formData.append("files", f.file);
+        formData.append("types", f.type);
+        formData.append("contentTypes", f.contentType);
+      });
+      console.log([...formData.entries()]);
+      return await fetchData(
+        "/files/upload",
+        "PUT",
+        formData,
+        authCtx.accessToken,
+        true
+      );
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+    onSuccess: () => {
+      navigate("/pr");
     },
   });
 
@@ -166,21 +229,31 @@ const PRCreate = () => {
         goodsRequiredBy: data.goodsRequiredBy,
         items: data.items,
       };
-      return await fetchData(
+      const response = await fetchData(
         "/requisitions/create",
         "PUT",
         body,
         authCtx.accessToken
       );
+      return { data, id: response.id };
     },
-    onSuccess: () => {
-      navigate("/pr");
+    onSuccess: (data) => {
+      // TODO: check that there are files inside data.files (not empty)
+      let noFile = false;
+      for (let file of data.data.files) {
+        if (!file.type) {
+          noFile = true;
+        }
+      }
+      console.log("noFile = ", JSON.stringify(noFile));
+      if (!noFile) uploadFilesMutation.mutate(data);
     },
   });
 
   const onSubmit = (data) => {
     console.log("running onSubmit");
     console.log(data);
+    console.log(data.files);
     createPRMutation.mutate(data);
   };
 
@@ -458,6 +531,77 @@ const PRCreate = () => {
                     key={idx}
                     disabled={false}
                   />
+                );
+              })}
+            </div>
+
+            <div className="my-6 mt-10">
+              <div className="text-xl font-bold dark:text-white mb-3">
+                <span className="mr-4">Upload Attachments</span>
+                <Button type="button" onClick={handleAddFiles}>
+                  Add more files
+                </Button>
+              </div>
+              {/* Column headers for line items */}
+              <div className="my-1 grid grid-cols-5 gap-1">
+                <FormLabel className="font-bold">Type</FormLabel>
+                <FormLabel className="cols-span-2 font-bold">File</FormLabel>
+              </div>
+              {/* Fields for each line item */}
+              {filesFormArray.fields.map((file, idx) => {
+                return (
+                  <div className="my-1 grid grid-cols-5 gap-1" key={file.id}>
+                    <FormField
+                      control={form.control}
+                      name={`files.${idx}.type`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <FormComboBox
+                              field={field}
+                              setFormValue={form.setValue}
+                              clearForm={clearForm}
+                              data={["Quotation", "Specs", "Others"]}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`files.${idx}.file`}
+                      render={({ field }) => (
+                        <FormItem className="col-span-2">
+                          <FormControl>
+                            <Input
+                              type="file"
+                              onChange={(e) => {
+                                field.onChange(e.target.files?.[0]);
+                                form.setValue(
+                                  `files.${idx}.name`,
+                                  e.target.files?.[0].name
+                                );
+                                form.setValue(
+                                  `files.${idx}.contentType`,
+                                  e.target.files?.[0].type
+                                );
+                              }}
+                              className=" border-gray-300 bg-white text-black px-2 py-1 dark:text-white cursor-grab"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button
+                      type="button"
+                      onClick={() => filesFormArray.remove(idx)}>
+                      Remove
+                    </Button>
+                  </div>
                 );
               })}
             </div>

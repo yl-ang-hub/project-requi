@@ -7,6 +7,7 @@ from resources.users import users
 from resources.requisitions import requisitions
 from resources.suppliers import suppliers
 from resources.orders import orders
+from resources.files import files_upload
 
 app = Flask(__name__)
 CORS(app)
@@ -19,6 +20,8 @@ app.register_blueprint(users, url_prefix="/users")
 app.register_blueprint(requisitions, url_prefix="/requisitions")
 app.register_blueprint(suppliers)
 app.register_blueprint(orders, url_prefix="/orders")
+app.register_blueprint(files_upload)
+
 
 if __name__ == "__main__":
     app.run(port=5001, debug=os.getenv("DEBUG", False))
