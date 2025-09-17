@@ -25,6 +25,8 @@ def gmail_send_message(addressee, subj, msg):
 
   Code amended by AYL to for auth using client data from .env and to build service
   """
+    print("running gmail_send_email")
+
     creds = Credentials(
         None,  # access_token (None means it will refresh when needed)
         refresh_token=GOOGLE_REFRESH_TOKEN,
@@ -49,13 +51,9 @@ def gmail_send_message(addressee, subj, msg):
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
         create_message = {"raw": encoded_message}
 
-        send_message = (
-            service.users()
-            .messages()
-            .send(userId="me", body=create_message)
-            .execute()
-        )
-        print(f'Message Id: {send_message["id"]}')
+        send_message = service.users().messages().send(userId="me", body=create_message).execute()
+
+        return f'Message Id: {send_message["id"]}'
 
     except Exception as e:
         print(f"An error occurred: {e}")

@@ -20,6 +20,5 @@ app.register_blueprint(requisitions, url_prefix="/requisitions")
 app.register_blueprint(suppliers)
 app.register_blueprint(orders, url_prefix="/orders")
 
-
 if __name__ == "__main__":
     app.run(port=5001, debug=os.getenv("DEBUG", False))

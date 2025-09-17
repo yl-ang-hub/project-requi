@@ -14,7 +14,7 @@ def draft_new_po():
     try:
         print("running add new po")
         conn, cursor = get_cursor()
-        user_id = int(get_jwt_identity()[0])
+        user_id = int(get_jwt_identity())
         user_name = get_jwt()['name']
         inputs = request.get_json()
 
@@ -139,7 +139,7 @@ def edit_pr_and_draft_po():
     conn = None
     try:
         conn, cursor = get_cursor()
-        user_id = int(get_jwt_identity()[0])
+        user_id = int(get_jwt_identity())
         user_role = get_jwt()['role']
         user_name = get_jwt()['name']
         inputs = request.get_json()

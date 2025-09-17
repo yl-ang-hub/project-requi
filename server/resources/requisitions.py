@@ -149,18 +149,14 @@ def add_new_requisition():
         cost_centre = inputs["costCentre"].split(" - ")[0]
         account_code = inputs["accountCode"].split(" - ")[0]
         gl_code = inputs["glCode"].split(" - ")[0]
-        print(cost_centre, account_code, gl_code)
-        print(inputs['items'])
 
         # Get requester data
         cursor.execute('SELECT * FROM users WHERE id=%s', (user_id,))
         user = cursor.fetchone()
-        print(user)
 
         # Get Finance in charge
         cursor.execute('SELECT * FROM cost_centres WHERE cost_centre=%s', (cost_centre,))
         cc_data = cursor.fetchone()
-        print(cc_data)
 
         # Calculate amount in sgd
         cursor.execute('SELECT conversion_rate FROM currencies WHERE code=%s', (inputs['currency'],))
@@ -207,7 +203,6 @@ def add_new_requisition():
             )
         )
         requisition = cursor.fetchone()
-        print(requisition['id'])
 
         # Create the line items
         for item in inputs['items']:
@@ -300,8 +295,10 @@ def add_new_requisition():
         cursor.execute('SELECT name, email, role FROM users WHERE id=%s', (cc_data['finance_officer'],))
         approver_info = cursor.fetchone()
         subj = f"For your approval - PR {requisition['id']}"
-        msg = f"Hello {approver_info['name']}, PR {requisition['id']} - {inputs['title']} has just been submitted by {user['name']}.\n\nPlease log into Requi to view and approve in your role as Finance Officer."
-        gmail_send_message(approver_info['email'], subj, msg)
+        msg = f"Hello {approver_info['name']}, \n\nPR {requisition['id']} - {inputs['title']} has just been submitted by {user['name']}.\n\nPlease log into Requi to view and approve in your role as Finance Officer."
+        print("gg 2 send msg")
+        gmail_response = gmail_send_message(approver_info['email'], subj, msg)
+        print(gmail_response)
 
         conn.commit()
         return jsonify(status="ok", msg="PR successfully created"), 200
@@ -334,7 +331,6 @@ def get_pr_pending_approvals():
             result['total_amount'] = f"${result['total_amount']:,.2f}"
             result['amount_in_sgd'] = f"${result['amount_in_sgd']:,.2f}"
             result['goods_required_by'] = result['goods_required_by'].strftime("%-d %b %Y")
-            print(result['total_amount'], result['amount_in_sgd'], result['goods_required_by'])
 
         return jsonify(results), 200
 
