@@ -111,7 +111,7 @@ const PRLineItem = (props) => {
         disabled={readOnly}
         className="disabled:hidden"
         onClick={() => props.itemsFormArray.remove(props.idx)}>
-        Delete
+        Remove
       </Button>
     </div>
   );

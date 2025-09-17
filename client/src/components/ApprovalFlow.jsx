@@ -13,7 +13,7 @@ const ApprovalFlow = (props) => {
       </FormDescription>
       <br />
       {newPR ? (
-        <div className="my-1 grid grid-cols-3 gap-1">
+        <div className="my-1 grid grid-cols-5 gap-1">
           <FormLabel>Sequence</FormLabel>
           <FormLabel>Role</FormLabel>
           <FormLabel>Approver</FormLabel>
@@ -28,7 +28,27 @@ const ApprovalFlow = (props) => {
         </div>
       )}
 
-      {props.data === undefined && (
+      {/* SHOW SKELETON WHEN NO DATA */}
+      {props.data === undefined && newPR && (
+        <div className="my-1 grid grid-cols-5 gap-1">
+          <Input
+            readOnly={true}
+            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+            defaultValue={""}
+          />
+          <Input
+            readOnly={true}
+            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+            defaultValue={""}
+          />
+          <Input
+            readOnly={true}
+            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+            defaultValue={""}
+          />
+        </div>
+      )}
+      {props.data === undefined && !newPR && (
         <div className="my-1 grid grid-cols-5 gap-1">
           <Input
             readOnly={true}
@@ -58,11 +78,12 @@ const ApprovalFlow = (props) => {
         </div>
       )}
 
+      {/* SHOW DATA */}
       {props.data?.map((line, idx) => {
         return (
           <div key={idx}>
             {newPR ? (
-              <div className="my-1 grid grid-cols-3 gap-1">
+              <div className="my-1 grid grid-cols-5 gap-1">
                 <Input
                   readOnly={true}
                   className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
