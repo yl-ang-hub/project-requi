@@ -68,6 +68,16 @@ const PRView = () => {
     unit_cost: z.coerce.number().positive({ message: "required field" }),
   });
 
+  const fileSchema = z.object({
+    name: z.string().nonempty({ message: "required field" }),
+    type: z.string().nonempty({ message: "required field" }),
+    link: z
+      .instanceof(File, { message: "select a file" })
+      .refine((file) => file.size <= 1024 * 1024 * 2, {
+        message: "file size must be less than 2MB",
+      }),
+  });
+
   const formSchema = z.object({
     title: z.string().nonempty({ message: "required field" }),
     description: z.string(),
@@ -97,6 +107,7 @@ const PRView = () => {
     // updated_at: z.date(),
     // updated_by: z.string(),
     items: z.array(itemSchema).min(1),
+    files: z.array(fileSchema).optional(),
   });
 
   // form is an object of all the form fields
@@ -129,12 +140,18 @@ const PRView = () => {
       // updated_at: "",
       // updated_by: "",
       items: getPR.data?.pr?.items || [],
+      files: getPR.data?.pr?.pr_attachments || [],
     },
   });
 
   // itemsFormArray is an object of the field arrays
   const itemsFormArray = useFieldArray({
     name: "items",
+    control: form.control,
+  });
+
+  const filesFormArray = useFieldArray({
+    name: "files",
     control: form.control,
   });
 
@@ -155,6 +172,11 @@ const PRView = () => {
   const onSubmit = (data) => {
     console.log("running onSubmit");
     dropPRMutation.mutate(data);
+  };
+
+  const openInNewTab = (url) => {
+    const win = window.open(url, "_blank");
+    win.focus();
   };
 
   useEffect(() => {
@@ -186,6 +208,7 @@ const PRView = () => {
         // updated_at: new Date(getPR.data.pr.updated_at),
         // updated_by: getPR.data.pr.updated_by,
         items: getPR.data.pr.items || [],
+        files: getPR.data.pr.pr_attachments || [],
       });
     }
 
@@ -603,6 +626,69 @@ const PRView = () => {
                     key={item.id}
                     readOnly={mmdFields}
                   />
+                );
+              })}
+            </div>
+
+            <div className="my-6 mt-10">
+              <div className="text-xl font-bold dark:text-white mb-3">
+                <span className="mr-4">PR Attachments</span>
+              </div>
+              {/* Column headers for line items */}
+              <div className="my-1 grid grid-cols-10 gap-1">
+                <FormLabel className="font-bold">No</FormLabel>
+                <FormLabel className="col-span-7 font-bold">File</FormLabel>
+                <FormLabel className="col-span-2 font-bold">Type</FormLabel>
+              </div>
+              {/* Fields for each line item */}
+              {filesFormArray.fields.map((file, idx) => {
+                return (
+                  <div className="my-1 grid grid-cols-10 gap-1" key={file.id}>
+                    <Input
+                      value={idx + 1}
+                      readOnly={true}
+                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`files.${idx}.name`}
+                      render={({ field }) => (
+                        <FormItem className="col-span-7">
+                          <FormControl>
+                            <Input
+                              {...field}
+                              onClick={() =>
+                                openInNewTab(
+                                  form.getValues(`files.${idx}.link`)
+                                )
+                              }
+                              readOnly={true}
+                              className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`files.${idx}.type`}
+                      render={({ field }) => (
+                        <FormItem className="col-span-2">
+                          <FormControl>
+                            <Input
+                              {...field}
+                              readOnly={true}
+                              className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 );
               })}
             </div>
