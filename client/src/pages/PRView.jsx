@@ -634,63 +634,73 @@ const PRView = () => {
               <div className="text-xl font-bold dark:text-white mb-3">
                 <span className="mr-4">PR Attachments</span>
               </div>
-              {/* Column headers for line items */}
-              <div className="my-1 grid grid-cols-10 gap-1">
-                <FormLabel className="font-bold">No</FormLabel>
-                <FormLabel className="col-span-7 font-bold">File</FormLabel>
-                <FormLabel className="col-span-2 font-bold">Type</FormLabel>
-              </div>
-              {/* Fields for each line item */}
-              {filesFormArray.fields.map((file, idx) => {
-                return (
-                  <div className="my-1 grid grid-cols-10 gap-1" key={file.id}>
-                    <Input
-                      value={idx + 1}
-                      readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name={`files.${idx}.name`}
-                      render={({ field }) => (
-                        <FormItem className="col-span-7">
-                          <FormControl>
-                            <Input
-                              {...field}
-                              onClick={() =>
-                                openInNewTab(
-                                  form.getValues(`files.${idx}.link`)
-                                )
-                              }
-                              readOnly={true}
-                              className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name={`files.${idx}.type`}
-                      render={({ field }) => (
-                        <FormItem className="col-span-2">
-                          <FormControl>
-                            <Input
-                              {...field}
-                              readOnly={true}
-                              className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+              {filesFormArray.fields.length != 0 ? (
+                <>
+                  {/* Column headers for line items */}
+                  <div className="my-1 grid grid-cols-10 gap-1">
+                    <FormLabel className="font-bold">No</FormLabel>
+                    <FormLabel className="col-span-7 font-bold">File</FormLabel>
+                    <FormLabel className="col-span-2 font-bold">Type</FormLabel>
                   </div>
-                );
-              })}
+                  {/* Fields for each line item */}
+                  {filesFormArray.fields.map((file, idx) => {
+                    return (
+                      <div
+                        className="my-1 grid grid-cols-10 gap-1"
+                        key={file.id}>
+                        <Input
+                          value={idx + 1}
+                          readOnly={true}
+                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`files.${idx}.name`}
+                          render={({ field }) => (
+                            <FormItem className="col-span-7">
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  onClick={() =>
+                                    openInNewTab(
+                                      form.getValues(`files.${idx}.link`)
+                                    )
+                                  }
+                                  readOnly={true}
+                                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`files.${idx}.type`}
+                          render={({ field }) => (
+                            <FormItem className="col-span-2">
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  readOnly={true}
+                                  className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
+                <>
+                  <div>No files submitted</div>
+                </>
+              )}
             </div>
 
             <div className="text-xl font-bold dark:text-white mt-10">
