@@ -46,8 +46,8 @@ function AppSidebar() {
       <SidebarHeader className="my-2 mx-3">
         <div>
           <ModeToggle />
-          <span class="text-gray-900 text-4xl font-extrabold md:text-xl lg:text-3xl">
-            <span class="ml-3 text-transparent bg-clip-text bg-gradient-to-r to-indigo-600 from-violet-400">
+          <span className="text-gray-900 text-4xl font-extrabold md:text-xl lg:text-3xl">
+            <span className="ml-3 text-transparent bg-clip-text bg-gradient-to-r to-indigo-600 from-violet-400">
               REQUI APP
             </span>
           </span>

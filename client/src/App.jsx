@@ -22,6 +22,7 @@ import GlobalSearch from "./pages/GlobalSearch";
 import POPendingDelivery from "./pages/POPendingDelivery";
 import POPendingPayment from "./pages/POPendingPayment";
 import POCompleted from "./pages/POCompleted";
+import ResetPasswordAdmin from "./pages/ResetPasswordAdmin";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -179,6 +180,14 @@ function App() {
                 element={
                   <ProtectedRouter>
                     <ResetPassword />
+                  </ProtectedRouter>
+                }
+              />
+              <Route
+                path="/admin/resetpassword/:login/:id"
+                element={
+                  <ProtectedRouter>
+                    <ResetPasswordAdmin />
                   </ProtectedRouter>
                 }
               />

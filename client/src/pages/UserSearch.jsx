@@ -28,7 +28,7 @@ const UserSearch = () => {
       };
       console.log(JSON.stringify(body));
       return await fetchData(
-        "/users/search",
+        "/admin/users/search",
         "POST",
         body,
         authCtx.accessToken
@@ -64,7 +64,14 @@ const UserSearch = () => {
                 </CardContent>
                 <CardFooter>
                   {/* TODO: Reset password by sys admin */}
-                  <Button>Reset Password</Button>
+                  <Button
+                    onClick={() =>
+                      navigate(
+                        `/admin/resetpassword/${user.login_id}/${user.id}`
+                      )
+                    }>
+                    Reset Password
+                  </Button>
                 </CardFooter>
               </Card>
             );

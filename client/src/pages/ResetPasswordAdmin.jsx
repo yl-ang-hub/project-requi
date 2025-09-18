@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { use } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useFetch from "../hooks/useFetch";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
@@ -18,29 +18,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const ResetPasswordAdmin = () => {
+  const params = useParams();
   const authCtx = use(AuthCtx);
   const fetchData = useFetch();
-  const [currentPassword, setCurrentPassword] = useState("password123");
   const [newPassword, setNewPassword] = useState("12345678");
   const [newPassword2, setNewPassword2] = useState("12345678");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const changePassword = useMutation({
-    mutationFn: async (loginId) => {
+    mutationFn: async () => {
       return await fetchData(
-        "/auth/resetpassword",
+        "/auth/admin/resetpassword",
         "PATCH",
         {
-          loginId: props.loginId,
-          currentPassword,
+          userId: params.id,
           newPassword,
         },
         authCtx.accessToken
       );
     },
     onSuccess: () => {
-      navigate("/logout");
+      navigate("/users/search");
     },
   });
 
@@ -48,23 +47,11 @@ const ResetPasswordAdmin = () => {
     <div className="w-full max-w-4xl mx-auto mt-40">
       <Card className="w-full max-w-md m-auto">
         <CardHeader>
-          <CardTitle>Reset your password</CardTitle>
+          <CardTitle>Admin Password Reset for {params.login}</CardTitle>
         </CardHeader>
         <CardContent>
           <form>
             <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="oldpassword">Current Password</Label>
-                </div>
-                <Input
-                  id="oldpassword"
-                  type="password"
-                  value={currentPassword}
-                  onChange={(event) => setCurrentPassword(event.target.value)}
-                  required
-                />
-              </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="newpassword">New Password</Label>
@@ -82,7 +69,7 @@ const ResetPasswordAdmin = () => {
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="newpassword">
-                    Key in your new password again
+                    Key in the new password again
                   </Label>
                 </div>
                 <Input
@@ -111,6 +98,13 @@ const ResetPasswordAdmin = () => {
             type="submit"
             className="w-full"
             onClick={() => {
+              if (
+                authCtx.role !== "IT Officer" &&
+                authCtx.role !== "System Admin"
+              ) {
+                setError("You're unauthorised to execute this action");
+                return;
+              }
               if (error === "") {
                 changePassword.mutate();
               }

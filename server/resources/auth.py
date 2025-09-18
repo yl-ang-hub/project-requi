@@ -170,3 +170,38 @@ def reset_password():
 
     finally:
         if conn: release_connection(conn)
+
+
+@auth.route("/admin/resetpassword", methods=["PATCH"])
+@jwt_required()
+def admin_reset_password():
+    conn = None
+    print("running admin reset password")
+    try:
+        conn, cursor = get_cursor()
+        claims = get_jwt()
+        inputs = request.get_json()
+        print(claims['role'])
+        if claims['role'] != "IT Officer" and claims['role'] != "System Admin":
+            return jsonify(status="error", msg="unauthorised"), 401
+
+        cursor.execute('SELECT * FROM users JOIN auth ON users.id = auth.user_id WHERE users.id=%s',
+                       (inputs['userId'],))
+        user = cursor.fetchone()
+        print(user)
+        if not user:
+            return jsonify(status="error", msg="id or password incorrect"), 401
+
+        hashed_pw = bcrypt.hashpw(inputs['newPassword'].encode('utf-8'), bcrypt.gensalt())
+        cursor.execute('UPDATE auth SET hash=%s WHERE user_id=%s', (hashed_pw.decode('utf-8'), inputs['userId']))
+
+        conn.commit()
+        return jsonify(status="ok", msg="password changed"), 200
+
+    except Exception as e:
+        conn.rollback()
+        print(f'Encountered error: {e}')
+        return jsonify(status="error", msg="Unable to log in"), 401
+
+    finally:
+        if conn: release_connection(conn)
