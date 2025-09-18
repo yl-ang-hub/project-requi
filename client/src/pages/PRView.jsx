@@ -606,7 +606,7 @@ const PRView = () => {
                 Line Items
               </div>
               {/* Column headers for line items */}
-              <div className="my-1 grid grid-cols-6 gap-1">
+              <div className="my-1 grid grid-cols-5 gap-1">
                 <FormLabel className="font-bold">Item Name</FormLabel>
                 <FormLabel className="font-bold">Item Description</FormLabel>
                 <FormLabel className="font-bold">Quantity</FormLabel>
