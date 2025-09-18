@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import useFetch from "@/hooks/useFetch";
 import AuthCtx from "@/components/context/authContext";
 import { useNavigate } from "react-router-dom";
@@ -70,7 +70,7 @@ const ApprovalsPending = () => {
 
   return (
     <div className="w-full">
-      <Card className="w-full h-screen mx-auto">
+      <Card className="w-9/10 h-screen mx-auto mt-5">
         <CardHeader>
           <CardTitle>Pending Approvals</CardTitle>
         </CardHeader>

@@ -158,12 +158,12 @@ function AppSidebar() {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link to="/">POs Pending Delivery</Link>
+                    <Link to="/po/pending/delivery">POs Pending Delivery</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link to="/">POs Pending Payment</Link>
+                    <Link to="/po/pending/payment">POs Pending Payment</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>

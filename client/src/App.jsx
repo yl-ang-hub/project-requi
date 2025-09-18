@@ -20,6 +20,8 @@ import POView from "./pages/POView";
 import ResetPassword from "./pages/ResetPassword";
 import { GlassWater } from "lucide-react";
 import GlobalSearch from "./pages/GlobalSearch";
+import POPendingDelivery from "./pages/POPendingDelivery";
+import POPendingPayment from "./pages/POPendingPayment";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -133,6 +135,24 @@ function App() {
                 element={
                   <ProtectedRouter>
                     <POView />
+                  </ProtectedRouter>
+                }
+              />
+
+              <Route
+                path="/po/pending/delivery"
+                element={
+                  <ProtectedRouter>
+                    <POPendingDelivery />
+                  </ProtectedRouter>
+                }
+              />
+
+              <Route
+                path="/po/pending/payment"
+                element={
+                  <ProtectedRouter>
+                    <POPendingPayment />
                   </ProtectedRouter>
                 }
               />

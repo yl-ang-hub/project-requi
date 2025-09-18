@@ -344,3 +344,57 @@ def reject_pr_and_po(id):
 
     finally:
         if conn: release_connection(conn)
+
+
+@orders.route("/pending/delivery")
+@jwt_required()
+def get_po_pending_delivery():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+
+        cursor.execute(
+            """
+            SELECT po.amount_in_sgd AS po_amount_in_sgd, po.cost_centre AS po_cost_centre, * FROM requisitions pr
+            JOIN purchase_orders po ON pr.id = po.requisition_id
+            WHERE pr.status=%s
+            ORDER BY pr.goods_required_by DESC
+            """, ("Approved",)
+        )
+        po = cursor.fetchall()
+
+        return jsonify(po), 200
+
+    except Exception as e:
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to retrieve POs"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@orders.route("/pending/payment")
+@jwt_required()
+def get_po_pending_payment():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+
+        cursor.execute(
+            """
+            SELECT po.amount_in_sgd AS po_amount_in_sgd, po.cost_centre AS po_cost_centre, * FROM requisitions pr
+            JOIN purchase_orders po ON pr.id = po.requisition_id
+            WHERE pr.status=%s
+            ORDER BY pr.goods_required_by DESC
+            """, ("Delivered",)
+        )
+        po = cursor.fetchall()
+
+        return jsonify(po), 200
+
+    except Exception as e:
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to retrieve POs"), 400
+
+    finally:
+        if conn: release_connection(conn)
