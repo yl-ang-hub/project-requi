@@ -168,7 +168,7 @@ function AppSidebar() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link to="/">Completed POs</Link>
+                    <Link to="/po/completed">Completed POs</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

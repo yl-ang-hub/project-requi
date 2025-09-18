@@ -22,6 +22,7 @@ import { GlassWater } from "lucide-react";
 import GlobalSearch from "./pages/GlobalSearch";
 import POPendingDelivery from "./pages/POPendingDelivery";
 import POPendingPayment from "./pages/POPendingPayment";
+import POCompleted from "./pages/POCompleted";
 
 function App() {
   const authCtx = use(AuthContext);
@@ -153,6 +154,15 @@ function App() {
                 element={
                   <ProtectedRouter>
                     <POPendingPayment />
+                  </ProtectedRouter>
+                }
+              />
+
+              <Route
+                path="/po/completed"
+                element={
+                  <ProtectedRouter>
+                    <POCompleted />
                   </ProtectedRouter>
                 }
               />

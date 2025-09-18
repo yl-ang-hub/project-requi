@@ -398,3 +398,30 @@ def get_po_pending_payment():
 
     finally:
         if conn: release_connection(conn)
+
+
+@orders.route("/completed")
+@jwt_required()
+def get_completed_po():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+
+        cursor.execute(
+            """
+            SELECT po.amount_in_sgd AS po_amount_in_sgd, po.cost_centre AS po_cost_centre, * FROM requisitions pr
+            JOIN purchase_orders po ON pr.id = po.requisition_id
+            WHERE pr.status=%s
+            ORDER BY pr.goods_required_by DESC
+            """, ("Completed",)
+        )
+        po = cursor.fetchall()
+
+        return jsonify(po), 200
+
+    except Exception as e:
+        print(f"unknown error: {e}")
+        return jsonify(status="error", msg="unable to retrieve POs"), 400
+
+    finally:
+        if conn: release_connection(conn)
