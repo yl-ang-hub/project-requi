@@ -391,6 +391,16 @@ def get_pr(id):
             po_attachments = cursor.fetchall()
             if po_attachments: po['po_attachments'] = po_attachments
 
+            # Pull MMD attachments
+            cursor.execute('SELECT * FROM mmd_attachments WHERE purchase_order_id=%s', (po['id'],))
+            mmd_attachments = cursor.fetchall()
+            if mmd_attachments: po['mmd_attachments'] = mmd_attachments
+
+            # Pull Finance attachments
+            cursor.execute('SELECT * FROM finance_attachments WHERE purchase_order_id=%s', (po['id'],))
+            finance_attachments = cursor.fetchall()
+            if finance_attachments: po['finance_attachments'] = finance_attachments
+
         results = {"pr": pr, "approval_flow": approval_flow}
         if po: results["po"] = po
         return jsonify(results), 200

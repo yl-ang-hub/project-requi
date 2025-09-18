@@ -5,6 +5,7 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -66,6 +67,24 @@ const POView = () => {
     unit_of_measure: z.string(),
     unit_cost: z.coerce.number().positive({ message: "required field" }),
   });
+
+  const fileSchema = z
+    .object({
+      name: z.string().optional(),
+      type: z.string().nonempty({ message: "required field" }),
+      file: z
+        .instanceof(File, { message: "select a file" })
+        .refine((file) => file.size <= 1024 * 1024 * 2, {
+          message: "file size must be less than 2MB",
+        })
+        .optional(),
+      link: z.url("must be a valid url").optional(),
+      contentType: z.string().optional(),
+    })
+    .refine((data) => data.file instanceof File || data.name, {
+      message: "Please select a file",
+      path: ["file"], // error show up under file field if both file and link missing
+    });
 
   const supplierSchema = z
     .object({
@@ -149,6 +168,10 @@ const POView = () => {
     items: z.array(itemSchema).min(1),
     approverComments: z.string(),
     supplier: supplierSchema,
+    mmdFiles: z.array(fileSchema).optional(),
+    finFiles: z.array(fileSchema).optional(),
+    prId: z.coerce.number().min(1, { message: "required field" }),
+    poId: z.coerce.number().min(1, { message: "required field" }),
   });
 
   // form is an object of all the form fields
@@ -193,12 +216,25 @@ const POView = () => {
         otherFiles: null,
         isMMD: authCtx.role.includes("MMD"),
       },
+      mmdFiles: getPR.data?.po?.mmd_attachments || [],
+      finFiles: getPR.data?.po?.finance_attachments || [],
+      prId: getPR.data?.pr?.id || "",
+      poId: getPR.data?.po?.id || "",
     },
   });
 
   // itemsFormArray is an object of the field arrays
   const itemsFormArray = useFieldArray({
     name: "items",
+    control: form.control,
+  });
+
+  const mmdFilesFormArray = useFieldArray({
+    name: "mmdFiles",
+    control: form.control,
+  });
+  const finFilesFormArray = useFieldArray({
+    name: "finFiles",
     control: form.control,
   });
 
@@ -219,13 +255,78 @@ const POView = () => {
     return (acc += curr.quantity * curr.unit_cost);
   }, 0);
 
-  const onSubmit = (data) => {
-    console.log("running onSubmit");
+  const handleAddMMDFiles = () => {
+    mmdFilesFormArray.append({
+      type: "",
+      file: undefined,
+    });
+  };
+
+  const handleAddFinFiles = () => {
+    finFilesFormArray.append({
+      type: "",
+      file: undefined,
+    });
   };
 
   const openInNewTab = (url) => {
     const win = window.open(url, "_blank");
     win.focus();
+  };
+
+  const uploadFilesMutation = useMutation({
+    mutationFn: async (data) => {
+      console.log("inside uploadFilesMutation");
+      const formData = new FormData();
+      formData.append("pr_id", data.prId);
+      formData.append("po_id", data.poId);
+      if (isMMD) {
+        data.mmdFiles.forEach((f) => {
+          console.log(f);
+          formData.append("names", f.name);
+          formData.append("files", f.file);
+          formData.append("types", f.type);
+          formData.append("contentTypes", f.contentType);
+          console.log([...formData.entries()]);
+        });
+        return await fetchData(
+          "/files/upload/mmd",
+          "PUT",
+          formData,
+          authCtx.accessToken,
+          true
+        );
+      } else if (isFinance) {
+        data.finFiles.forEach((f) => {
+          console.log(f);
+          formData.append("names", f.name);
+          formData.append("files", f.file);
+          formData.append("types", f.type);
+          formData.append("contentTypes", f.contentType);
+        });
+        console.log([...formData.entries()]);
+        return await fetchData(
+          "/files/upload/finance",
+          "PUT",
+          formData,
+          authCtx.accessToken,
+          true
+        );
+      }
+    },
+    onSuccess: () => {
+      if (isMMD) {
+        navigate("/po/pending/delivery");
+      } else if (isFinance) {
+        navigate("/po/pending/payment");
+      }
+    },
+  });
+
+  const onSubmit = (data) => {
+    console.log("running onSubmit");
+    console.log(data);
+    uploadFilesMutation.mutate(data);
   };
 
   const refreshAccessToken = useMutation({
@@ -297,6 +398,10 @@ const POView = () => {
           otherFiles: null,
           isMMD: authCtx.role.includes("MMD"),
         },
+        mmdFiles: getPR.data.po?.mmd_attachments || [],
+        finFiles: getPR.data.po?.finance_attachments || [],
+        prId: getPR.data?.pr?.id || 0,
+        poId: getPR.data?.po?.id || 0,
       });
     }
   }, [getPR.data, form, getSuppliersMutation.data, authCtx.role]);
@@ -319,33 +424,17 @@ const POView = () => {
           <div className="grid grid-cols-2 gap-2">
             <FormField
               control={form.control}
-              name="prStatus"
-              render={({ field }) => (
-                <FormItem className="mt-4">
-                  <FormLabel className="font-bold">PR Status</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="poStatus"
               render={({ field }) => (
                 <FormItem className="mt-4">
-                  <FormLabel className="font-bold">PO Status</FormLabel>
+                  <FormLabel className="font-bold text-blue-700 dark:text-white">
+                    Status
+                  </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       readOnly={true}
-                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      className="border-gray-300 font-bold bg-white text-black px-2 py-1 dark:text-white read-only:border-blue-100 read-only:text-blue-700 read-only:bg-blue-100 read-only:cursor-grab read-only:select-text"
                     />
                   </FormControl>
                   <FormMessage />
@@ -947,29 +1036,363 @@ const POView = () => {
           {isMMD || isFinance ? (
             <>
               <div>
-                <div>For MMD Use</div>
-                <div>Upload invoices / DOs</div>
-                <div>Upload GRs</div>
-                {isMMD ? (
-                  <Button type="button">
-                    Verify All Goods Received for PO
-                  </Button>
-                ) : (
-                  <></>
-                )}
+                <div className="text-2xl font-bold text-blue-900 dark:text-white mt-10">
+                  For MMD Use
+                </div>
+
+                <div>
+                  <div className="text-xl font-bold dark:text-white my-4">
+                    <span className="mr-4">Invoices / DOs / GRs</span>
+                    {getPR.data?.pr?.status === "Approved" && isMMD && (
+                      <>
+                        <Button type="button" onClick={handleAddMMDFiles}>
+                          {mmdFilesFormArray.fields.length !== 0
+                            ? "Add more files"
+                            : "Add file"}
+                        </Button>
+
+                        <FormDescription className="font-normal mt-3">
+                          PO will be routed to Finance for payment once you
+                          verified that all goods are received. Please upload
+                          the delivery note, invoice and goods received note
+                          (goods receipt) here.
+                        </FormDescription>
+                      </>
+                    )}
+                  </div>
+                  <div>
+                    {getPR.data?.pr?.status === "Approved" &&
+                      mmdFilesFormArray.fields.length === 0 && (
+                        <>No files attached</>
+                      )}
+                    {getPR.data?.pr?.status === "Approved" &&
+                      mmdFilesFormArray.fields.length > 0 && (
+                        <>
+                          {/* Column headers for line items */}
+                          <div className="my-1 grid grid-cols-5 gap-1">
+                            <FormLabel className="font-bold">Type</FormLabel>
+                            <FormLabel className="cols-span-2 font-bold">
+                              File
+                            </FormLabel>
+                          </div>
+                          {/* Fields for each line item */}
+                          {mmdFilesFormArray.fields.map((file, idx) => {
+                            return (
+                              <div
+                                className="my-1 grid grid-cols-5 gap-1"
+                                key={file.id}>
+                                <FormField
+                                  control={form.control}
+                                  name={`mmdFiles.${idx}.type`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <FormComboBox
+                                          field={field}
+                                          setFormValue={form.setValue}
+                                          data={[
+                                            "Invoice",
+                                            "Delivery Note",
+                                            "Goods Received",
+                                          ]}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <FormField
+                                  control={form.control}
+                                  name={`mmdFiles.${idx}.file`}
+                                  render={({ field }) => (
+                                    <FormItem className="col-span-2">
+                                      <FormControl>
+                                        <Input
+                                          type="file"
+                                          onChange={(e) => {
+                                            field.onChange(e.target.files?.[0]);
+                                            form.setValue(
+                                              `mmdFiles.${idx}.name`,
+                                              e.target.files?.[0].name
+                                            );
+                                            form.setValue(
+                                              `mmdFiles.${idx}.contentType`,
+                                              e.target.files?.[0].type
+                                            );
+                                          }}
+                                          className=" border-gray-300 bg-white text-black px-2 py-1 dark:text-white cursor-grab"
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <Button
+                                  type="button"
+                                  onClick={() => mmdFilesFormArray.remove(idx)}>
+                                  Remove Line
+                                </Button>
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
+                    {getPR.data?.pr?.status === "Delivered" ||
+                    getPR.data?.pr?.status === "Completed" ? (
+                      <>
+                        {getPR.data?.po?.mmd_attachments?.length > 0 ? (
+                          <>
+                            {/* Column headers for line items */}
+                            <div className="my-1 grid grid-cols-10 gap-1">
+                              <FormLabel className="font-bold">No</FormLabel>
+                              <FormLabel className="col-span-7 font-bold">
+                                File
+                              </FormLabel>
+                              <FormLabel className="col-span-2 font-bold">
+                                Type
+                              </FormLabel>
+                            </div>
+                            {/* Fields for each line item */}
+                            {getPR.data?.po?.mmd_attachments?.map(
+                              (file, idx) => {
+                                return (
+                                  <div
+                                    className="my-1 grid grid-cols-10 gap-1"
+                                    key={idx}>
+                                    <Input
+                                      value={idx + 1}
+                                      readOnly={true}
+                                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                                    />
+
+                                    <FormItem className="col-span-7">
+                                      <FormControl>
+                                        <Input
+                                          value={file.name}
+                                          onClick={() =>
+                                            openInNewTab(file.link)
+                                          }
+                                          readOnly={true}
+                                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+
+                                    <FormItem className="col-span-2">
+                                      <FormControl>
+                                        <Input
+                                          value={file.type}
+                                          readOnly={true}
+                                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  </div>
+                                );
+                              }
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <div>No files submitted</div>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <div>For Finance Use</div>
-                <div>Upload proof of payment</div>
-                {isFinance ? (
-                  <Button type="button">Verify Payment Made to Supplier</Button>
-                ) : (
-                  <></>
+              {getPR.data?.pr?.status === "Delivered" ||
+              getPR.data?.pr?.status === "Completed" ? (
+                <div>
+                  <div className="text-2xl font-bold text-blue-900 dark:text-white mt-10 mb-6">
+                    For Finance Use
+                  </div>
+                  <div className="text-xl dark:text-white mt-4">
+                    <span className="mr-4 font-bold">Proof of Payment</span>
+
+                    {getPR.data?.pr?.status === "Delivered" && isFinance && (
+                      <>
+                        <Button type="button" onClick={handleAddFinFiles}>
+                          {finFilesFormArray.fields.length !== 0
+                            ? "Add more files"
+                            : "Add file"}
+                        </Button>
+
+                        <FormDescription className="mt-3 mb-3">
+                          The PO will be completed once Finance upload the proof
+                          of payment here for verification.
+                        </FormDescription>
+                      </>
+                    )}
+                  </div>
+
+                  <div>
+                    {getPR.data?.pr?.status === "Delivered" &&
+                      finFilesFormArray.fields.length === 0 && (
+                        <div className="text-base font-normal mt-5">
+                          No files submitted
+                        </div>
+                      )}
+
+                    {getPR.data?.pr?.status === "Delivered" &&
+                      finFilesFormArray.fields.length > 0 && (
+                        <>
+                          {/* Column headers for line items */}
+                          <div className="my-1 grid grid-cols-5 gap-1">
+                            <FormLabel className="font-bold">Type</FormLabel>
+                            <FormLabel className="cols-span-2 font-bold">
+                              File
+                            </FormLabel>
+                          </div>
+                          {/* Fields for each line item */}
+                          {finFilesFormArray.fields.map((file, idx) => {
+                            return (
+                              <div
+                                className="my-1 grid grid-cols-5 gap-1"
+                                key={file.id}>
+                                <FormField
+                                  control={form.control}
+                                  name={`finFiles.${idx}.type`}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormControl>
+                                        <FormComboBox
+                                          field={field}
+                                          setFormValue={form.setValue}
+                                          data={["Proof of Payment", "Others"]}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <FormField
+                                  control={form.control}
+                                  name={`finFiles.${idx}.file`}
+                                  render={({ field }) => (
+                                    <FormItem className="col-span-2">
+                                      <FormControl>
+                                        <Input
+                                          type="file"
+                                          onChange={(e) => {
+                                            field.onChange(e.target.files?.[0]);
+                                            form.setValue(
+                                              `finFiles.${idx}.name`,
+                                              e.target.files?.[0].name
+                                            );
+                                            form.setValue(
+                                              `finFiles.${idx}.contentType`,
+                                              e.target.files?.[0].type
+                                            );
+                                          }}
+                                          className=" border-gray-300 bg-white text-black px-2 py-1 dark:text-white cursor-grab"
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <Button
+                                  type="button"
+                                  onClick={() => finFilesFormArray.remove(idx)}>
+                                  Remove Line
+                                </Button>
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
+
+                    {getPR.data?.pr?.status === "Completed" && (
+                      <>
+                        {getPR.data?.po?.finance_attachments?.length > 0 ? (
+                          <>
+                            {/* Column headers for line items */}
+                            <div className="my-1 grid grid-cols-10 gap-1">
+                              <FormLabel className="font-bold">No</FormLabel>
+                              <FormLabel className="col-span-7 font-bold">
+                                File
+                              </FormLabel>
+                              <FormLabel className="col-span-2 font-bold">
+                                Type
+                              </FormLabel>
+                            </div>
+                            {/* Fields for each line item */}
+                            {getPR.data?.po?.finance_attachments?.map(
+                              (file, idx) => {
+                                return (
+                                  <div
+                                    className="my-1 grid grid-cols-10 gap-1"
+                                    key={idx}>
+                                    <Input
+                                      value={idx + 1}
+                                      readOnly={true}
+                                      className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                                    />
+
+                                    <FormItem className="col-span-7">
+                                      <FormControl>
+                                        <Input
+                                          value={file.name}
+                                          onClick={() =>
+                                            openInNewTab(file.link)
+                                          }
+                                          readOnly={true}
+                                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+
+                                    <FormItem className="col-span-2">
+                                      <FormControl>
+                                        <Input
+                                          value={file.type}
+                                          readOnly={true}
+                                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  </div>
+                                );
+                              }
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <div>No files submitted</div>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <></>
+              )}
+
+              {isMMD &&
+                mmdFilesFormArray.fields.length > 0 &&
+                getPR.data?.pr?.status === "Approved" && (
+                  <Button type="submit">
+                    Upload & Verify All Goods Received for PO
+                  </Button>
                 )}
-              </div>
+              {isFinance &&
+                finFilesFormArray.fields.length > 0 &&
+                getPR.data?.pr?.status === "Delivered" && (
+                  <Button type="submit">Verify Payment Made to Supplier</Button>
+                )}
             </>
           ) : (
+            // Display nothing for non-MMD or non-Finance folks
             <></>
           )}
         </form>

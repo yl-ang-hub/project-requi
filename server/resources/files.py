@@ -112,3 +112,102 @@ def upload_files_to_po():
     finally:
         if conn: release_connection(conn)
 
+
+@files_upload.route("/upload/mmd", methods=["PUT"])
+@jwt_required()
+def upload_mmd_files():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        pr_id = int(request.form.get('pr_id'))
+        po_id = int(request.form.get('po_id'))
+        names = request.form.getlist("names")
+        files = request.files.getlist("files")
+        types = request.form.getlist("types")
+        content_types = request.form.getlist("contentTypes")
+
+        if not po_id:
+            return jsonify(status="error", msg="missing PO id"), 400
+
+        if files:
+            response = upload_all_files_to_s3(names, files, content_types, types, po_id)
+        else:
+            raise Exception("no files transmitted to server")
+
+        if not response or len(response) == 0: raise Exception("no response from upload files to s3")
+
+        for file in response:
+            print(file['p_id'], file['name'], file['type'], file['url'])
+            cursor.execute(
+                """
+                INSERT INTO mmd_attachments (purchase_order_id, name, type, link) VALUES (
+                %s, %s, %s, %s)
+                """, (int(file['p_id']), file['name'], file['type'], file['url'])
+            )
+
+        cursor.execute('UPDATE requisitions SET status=%s WHERE id=%s', ("Delivered", pr_id))
+        cursor.execute('UPDATE purchase_orders SET status=%s WHERE id=%s', ("Delivered", po_id))
+
+        conn.commit()
+        return jsonify(status="ok", msg="uploaded files"), 200
+
+    except Exception as e:
+        conn.rollback()
+        exc_type, exc_obj, tb = sys.exc_info()
+        line_number = tb.tb_lineno
+        print(f"unknown error: {e} on line {line_number}")
+        print(f"error occurred uploading files")
+        return jsonify(status="error", msg="unable to upload files to S3"), 400
+
+    finally:
+        if conn: release_connection(conn)
+
+
+@files_upload.route("/upload/finance", methods=["PUT"])
+@jwt_required()
+def upload_finance_files():
+    conn = None
+    try:
+        conn, cursor = get_cursor()
+        pr_id = int(request.form.get('pr_id'))
+        po_id = int(request.form.get('po_id'))
+        names = request.form.getlist("names")
+        files = request.files.getlist("files")
+        types = request.form.getlist("types")
+        content_types = request.form.getlist("contentTypes")
+
+        if not po_id:
+            return jsonify(status="error", msg="missing PO id"), 400
+
+        if files:
+            response = upload_all_files_to_s3(names, files, content_types, types, po_id)
+        else:
+            raise Exception("no files transmitted to server")
+
+        if not response or len(response) == 0: raise Exception("no response from upload files to s3")
+
+        for file in response:
+            print(file['p_id'], file['name'], file['type'], file['url'])
+            cursor.execute(
+                """
+                INSERT INTO finance_attachments (purchase_order_id, name, type, link) VALUES (
+                %s, %s, %s, %s)
+                """, (int(file['p_id']), file['name'], file['type'], file['url'])
+            )
+
+        cursor.execute('UPDATE requisitions SET status=%s WHERE id=%s', ("Completed", pr_id))
+        cursor.execute('UPDATE purchase_orders SET status=%s WHERE id=%s', ("Completed", po_id))
+
+        conn.commit()
+        return jsonify(status="ok", msg="uploaded files"), 200
+
+    except Exception as e:
+        conn.rollback()
+        exc_type, exc_obj, tb = sys.exc_info()
+        line_number = tb.tb_lineno
+        print(f"unknown error: {e} on line {line_number}")
+        print(f"error occurred uploading files")
+        return jsonify(status="error", msg="unable to upload files to S3"), 400
+
+    finally:
+        if conn: release_connection(conn)
