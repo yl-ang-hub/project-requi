@@ -111,14 +111,7 @@ const PRCreate = () => {
           unit_cost: 800,
         },
       ],
-      files: [
-        {
-          name: "",
-          type: "",
-          file: undefined,
-          contentType: "",
-        },
-      ],
+      files: [],
     },
   });
 
@@ -239,14 +232,7 @@ const PRCreate = () => {
     },
     onSuccess: (data) => {
       // TODO: check that there are files inside data.files (not empty)
-      let noFile = false;
-      for (let file of data.data.files) {
-        if (!file.type) {
-          noFile = true;
-        }
-      }
-      console.log("noFile = ", JSON.stringify(noFile));
-      if (!noFile) uploadFilesMutation.mutate(data);
+      if (data.data.files.length != 0) uploadFilesMutation.mutate(data);
     },
   });
 
@@ -539,71 +525,84 @@ const PRCreate = () => {
               <div className="text-xl font-bold dark:text-white mb-3">
                 <span className="mr-4">Upload Attachments</span>
                 <Button type="button" onClick={handleAddFiles}>
-                  Add more files
+                  {filesFormArray.fields.length !== 0
+                    ? "Add more files"
+                    : "Add file"}
                 </Button>
               </div>
-              {/* Column headers for line items */}
-              <div className="my-1 grid grid-cols-5 gap-1">
-                <FormLabel className="font-bold">Type</FormLabel>
-                <FormLabel className="cols-span-2 font-bold">File</FormLabel>
-              </div>
-              {/* Fields for each line item */}
-              {filesFormArray.fields.map((file, idx) => {
-                return (
-                  <div className="my-1 grid grid-cols-5 gap-1" key={file.id}>
-                    <FormField
-                      control={form.control}
-                      name={`files.${idx}.type`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <FormComboBox
-                              field={field}
-                              setFormValue={form.setValue}
-                              clearForm={clearForm}
-                              data={["Quotation", "Specs", "Others"]}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
 
-                    <FormField
-                      control={form.control}
-                      name={`files.${idx}.file`}
-                      render={({ field }) => (
-                        <FormItem className="col-span-2">
-                          <FormControl>
-                            <Input
-                              type="file"
-                              onChange={(e) => {
-                                field.onChange(e.target.files?.[0]);
-                                form.setValue(
-                                  `files.${idx}.name`,
-                                  e.target.files?.[0].name
-                                );
-                                form.setValue(
-                                  `files.${idx}.contentType`,
-                                  e.target.files?.[0].type
-                                );
-                              }}
-                              className=" border-gray-300 bg-white text-black px-2 py-1 dark:text-white cursor-grab"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <Button
-                      type="button"
-                      onClick={() => filesFormArray.remove(idx)}>
-                      Remove
-                    </Button>
+              {filesFormArray.fields.length != 0 ? (
+                <>
+                  {/* Column headers for line items */}
+                  <div className="my-1 grid grid-cols-5 gap-1">
+                    <FormLabel className="font-bold">Type</FormLabel>
+                    <FormLabel className="cols-span-2 font-bold">
+                      File
+                    </FormLabel>
                   </div>
-                );
-              })}
+                  {/* Fields for each line item */}
+                  {filesFormArray.fields.map((file, idx) => {
+                    return (
+                      <div
+                        className="my-1 grid grid-cols-5 gap-1"
+                        key={file.id}>
+                        <FormField
+                          control={form.control}
+                          name={`files.${idx}.type`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <FormComboBox
+                                  field={field}
+                                  setFormValue={form.setValue}
+                                  clearForm={clearForm}
+                                  data={["Quotation", "Specs", "Others"]}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`files.${idx}.file`}
+                          render={({ field }) => (
+                            <FormItem className="col-span-2">
+                              <FormControl>
+                                <Input
+                                  type="file"
+                                  onChange={(e) => {
+                                    field.onChange(e.target.files?.[0]);
+                                    form.setValue(
+                                      `files.${idx}.name`,
+                                      e.target.files?.[0].name
+                                    );
+                                    form.setValue(
+                                      `files.${idx}.contentType`,
+                                      e.target.files?.[0].type
+                                    );
+                                  }}
+                                  className=" border-gray-300 bg-white text-black px-2 py-1 dark:text-white cursor-grab"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <Button
+                          type="button"
+                          onClick={() => filesFormArray.remove(idx)}>
+                          Remove
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
+                <></>
+              )}
             </div>
 
             <div className="mb-10">
