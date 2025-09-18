@@ -7,7 +7,6 @@ import AuthContext from "./components/context/authContext";
 import PRCreate from "./pages/PRCreate";
 import UserCreate from "./pages/UserCreate";
 import UserSearch from "./pages/UserSearch";
-import Dashboard from "./pages/Dashboard";
 import Logout from "./components/Logout";
 import ProtectedRouter from "./components/ProtectedRouter";
 import ApprovalsPending from "./pages/ApprovalsPending";
@@ -50,17 +49,8 @@ function App() {
           </div>
           <div className="w-full flex">
             <Routes>
-              {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
               <Route path="/login" element={<Login />} />
-              {/* <Route path="/admin/users" /> */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRouter>
-                    <Dashboard />
-                  </ProtectedRouter>
-                }
-              />
+
               <Route
                 path="/approvals/pending"
                 element={

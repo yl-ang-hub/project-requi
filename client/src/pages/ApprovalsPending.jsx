@@ -70,9 +70,11 @@ const ApprovalsPending = () => {
 
   return (
     <div className="w-full">
-      <Card className="w-9/10 h-screen mx-auto mt-5 mb-10 overflow-scroll">
+      <Card className="mx-auto overflow-y-auto border-transparent shadow-none">
         <CardHeader>
-          <CardTitle>Pending Approvals</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-800 dark:text-white">
+            Pending Approvals
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

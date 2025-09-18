@@ -53,9 +53,11 @@ const PRSelf = () => {
   }, []);
   return (
     <div className="w-full">
-      <Card className="w-full h-screen mx-auto">
+      <Card className="w-full  mx-auto border-transparent shadow-none">
         <CardHeader>
-          <CardTitle>My Purchase Requisitions</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-800 dark:text-white">
+            My Purchase Requisitions
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {/* IN PROGRESS */}

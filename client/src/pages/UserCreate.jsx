@@ -95,8 +95,10 @@ const UserCreate = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto mt-20">
-      <div>Add New User</div>
+    <div className="w-full max-w-2xl mx-auto my-5">
+      <div className="text-2xl font-bold text-gray-800 dark:text-white my-5">
+        Add New User
+      </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

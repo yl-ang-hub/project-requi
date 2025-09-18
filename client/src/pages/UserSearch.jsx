@@ -13,10 +13,12 @@ import useFetch from "@/hooks/useFetch";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import AuthCtx from "@/components/context/authContext";
+import { useNavigate } from "react-router-dom";
 
 const UserSearch = () => {
   const fetchData = useFetch();
   const authCtx = use(AuthCtx);
+  const navigate = useNavigate();
 
   const mutation = useMutation({
     mutationFn: async (searchQuery) => {
@@ -38,8 +40,10 @@ const UserSearch = () => {
   });
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div>Search for Users</div>
+    <div className="w-full max-w-4xl mx-auto my-2">
+      <div className="text-2xl font-bold text-gray-800 dark:text-white my-5">
+        Search for Users
+      </div>
       <div>
         <Input onChange={(event) => mutation.mutate(event.target.value)} />
 

@@ -28,9 +28,9 @@ export default function NavBar(props) {
   const isAuthenticated = authCtx.accessToken.length > 0;
 
   return (
-    <SidebarProvider className="bg-green-300">
+    <SidebarProvider>
       {isAuthenticated ? <AppSidebar /> : <GuestSidebar />}
-      <main className="bg-blue-300">
+      <main>
         <SidebarTrigger />
       </main>
       <div>{props.children}</div>
@@ -46,7 +46,11 @@ function AppSidebar() {
       <SidebarHeader className="my-2 mx-3">
         <div>
           <ModeToggle />
-          <span className="ml-3">REQUI APP</span>
+          <span class="text-gray-900 text-4xl font-extrabold md:text-xl lg:text-3xl">
+            <span class="ml-3 text-transparent bg-clip-text bg-gradient-to-r to-indigo-600 from-violet-400">
+              REQUI APP
+            </span>
+          </span>
         </div>
       </SidebarHeader>
 
@@ -62,12 +66,6 @@ function AppSidebar() {
             <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Link to="/">Edit my profile</Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
                       <Link to="/resetpassword">Change my password</Link>
@@ -89,11 +87,6 @@ function AppSidebar() {
           <SidebarGroupLabel>Important Links</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link to="/dashboard">Dashboard</Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
               {authCtx.role !== "Staff" ? (
                 <>
                   <SidebarMenuItem>
@@ -234,11 +227,6 @@ function AppSidebar() {
           ""
         )}
       </SidebarContent>
-
-      <SidebarFooter className="my-3 mx-3">
-        Sidebar Footer
-        <br />
-      </SidebarFooter>
     </Sidebar>
   );
 }
@@ -249,7 +237,7 @@ function GuestSidebar() {
       <SidebarHeader className="my-2 mx-3">
         <div>
           <ModeToggle />
-          <span className="ml-3">REQUI APP</span>
+          <span className="ml-3 font-extrabold">REQUI</span>
         </div>
       </SidebarHeader>
 

@@ -61,6 +61,12 @@ const GlobalSearch = () => {
           placeholder="Key in your search query"
           onChange={(event) => mutation.mutate(event.target.value)}
         />
+        <div className="mt-3 text-sm pl-2">
+          <em>
+            Search for ID, title, description, requester, cost centre, account
+            or status
+          </em>
+        </div>
 
         {mutation.isSuccess &&
           mutation?.data?.map((item) => {

@@ -50,15 +50,17 @@ const ApprovalsHistory = () => {
 
   return (
     <div className="w-full">
-      <Card className="w-full h-screen mx-auto">
+      <Card className="w-full mx-auto border-transparent shadow-none">
         <CardHeader>
-          <CardTitle>My Approval History</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-800 dark:text-white">
+            My Approval History
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {/* PRs APPROVED BY USER */}
-          <Card className="overflow-scroll">
+          <Card className="overflow-y-auto">
             <CardHeader>
-              <CardTitle>PRs Approved</CardTitle>
+              <CardTitle>My Approvals</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -102,9 +104,9 @@ const ApprovalsHistory = () => {
           </Card>
 
           {/* PRs REJECTED BY USER */}
-          <Card className="my-6">
+          <Card className="my-6  overflow-y-auto">
             <CardHeader>
-              <CardTitle>PRs Rejected</CardTitle>
+              <CardTitle>My Rejections</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>

@@ -57,9 +57,11 @@ const MMDCentralPool = () => {
 
   return (
     <div className="w-full">
-      <Card className="w-full h-screen mx-auto">
+      <Card className="w-full mx-auto overflow-y-auto border-transparent shadow-none">
         <CardHeader>
-          <CardTitle>PRs in Central Pool (MMD)</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-800 dark:text-white">
+            PRs in Central Pool (MMD)
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <Table>

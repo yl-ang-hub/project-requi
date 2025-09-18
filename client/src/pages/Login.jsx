@@ -39,7 +39,7 @@ const Login = () => {
         authCtx.setRole(decoded.role);
         authCtx.setName(decoded.name);
       }
-      navigate("/dashboard");
+      navigate("/pr");
     } catch (e) {
       throw "A login error has occurred";
     }
@@ -71,7 +71,7 @@ const Login = () => {
           authCtx.setRole(decoded.role);
           authCtx.setName(decoded.name);
         }
-        navigate("/dashboard");
+        if (decoded.role.includes("MMD")) navigate("/approvals/pending");
       } catch (e) {
         console.error(e.message);
       }
@@ -86,7 +86,6 @@ const Login = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto mt-40">
-      <div>{localStorage.getItem("refresh")}</div>
       <Card className="w-full max-w-md m-auto">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
