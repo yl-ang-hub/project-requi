@@ -994,7 +994,7 @@ const PRApproval = () => {
                   )}
                 </div>
                 {/* Column headers for line items */}
-                <div className="my-1 grid grid-cols-5 gap-1">
+                <div className="my-1 grid grid-cols-6 gap-1">
                   <FormLabel className="font-bold">Item Name</FormLabel>
                   <FormLabel className="font-bold">Item Description</FormLabel>
                   <FormLabel className="font-bold">Quantity</FormLabel>
@@ -1019,16 +1019,19 @@ const PRApproval = () => {
               </div>
 
               <div className="my-6 mt-10">
-                <div className="text-xl font-bold dark:text-white mb-3">
-                  <span className="mr-4">Upload PO Attachments</span>
+                <div className="text-xl dark:text-white mb-3">
+                  <span className="mr-4 font-bold">Upload PO Attachments</span>
                   <Button type="button" onClick={handleAddFiles}>
                     {filesFormArray.fields.length !== 0
                       ? "Add more files"
                       : "Add file"}
                   </Button>
+                  <FormDescription className="mt-4">
+                    Upload attachments such as specifications, quotations etc.
+                  </FormDescription>
                 </div>
 
-                {filesFormArray.fields.length != 0 ? (
+                {filesFormArray.fields.length > 0 ? (
                   <>
                     {/* Column headers for line items */}
                     <div className="my-1 grid grid-cols-5 gap-1">

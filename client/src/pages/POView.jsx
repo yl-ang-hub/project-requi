@@ -1033,7 +1033,8 @@ const POView = () => {
             </div>
           </div>
 
-          {isMMD || isFinance ? (
+          {(isMMD || isFinance) &&
+          !getPR.data?.pr?.status.includes("Pending") ? (
             <>
               <div>
                 <div className="text-2xl font-bold text-blue-900 dark:text-white mt-10">
