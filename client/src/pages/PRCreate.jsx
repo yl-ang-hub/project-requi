@@ -76,41 +76,24 @@ const PRCreate = () => {
     files: z.array(fileSchema).optional(),
   });
 
-  // TODO: Default some fields to requester
-
   // form is an object of all the form fields
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "Test Title",
-      description: "Test Description",
-      prContactName: "Shrek", // default to requester
-      prContactNumber: "81234567", // default to requester
-      prContactEmail: "shrek@example.com", // default to requester
-      costCentre: "", // default to requester cost centre
+      title: "Demo - Buy Apple",
+      description: "Latest model",
+      prContactName: "Shrek",
+      prContactNumber: "81234567",
+      prContactEmail: "shrek@mycompany.com",
+      costCentre: "",
       accountCode: "",
       glCode: "",
       currency: "",
-      comments: "Test comments",
+      comments: "No discount for new models",
       goodsRequiredBy: new Date(
         new Date().getTime() + 30 * 1000 * 60 * 60 * 24
       ),
-      items: [
-        {
-          name: "Item A",
-          description: "Item A Description",
-          quantity: 100,
-          unit_of_measure: "pcs",
-          unit_cost: 1500,
-        },
-        {
-          name: "Item B",
-          description: "Item B Description",
-          quantity: 150,
-          unit_of_measure: "pcs",
-          unit_cost: 800,
-        },
-      ],
+      items: [],
       files: [],
     },
   });
@@ -154,7 +137,6 @@ const PRCreate = () => {
 
   const approvalFlow = useMutation({
     mutationFn: async () => {
-      console.log(costCentre);
       return await fetchData(
         "/requisitions/getApprovalFlow",
         "POST",
@@ -170,18 +152,15 @@ const PRCreate = () => {
 
   const uploadFilesMutation = useMutation({
     mutationFn: async (data) => {
-      console.log("inside uploadFilesMutation");
-      console.log(data);
       const formData = new FormData();
       formData.append("id", data.id);
       data.data.files.forEach((f) => {
-        console.log(f);
         formData.append("names", f.name);
         formData.append("files", f.file);
         formData.append("types", f.type);
         formData.append("contentTypes", f.contentType);
       });
-      console.log([...formData.entries()]);
+
       return await fetchData(
         "/files/upload/pr",
         "PUT",
@@ -197,11 +176,10 @@ const PRCreate = () => {
 
   const createPRMutation = useMutation({
     mutationFn: async (data) => {
-      console.log(JSON.stringify(data.items));
       const total = data.items.reduce((acc, curr) => {
         return (acc += curr.quantity * curr.unit_cost);
       }, 0);
-      console.log(`total amount is ${total}`);
+
       const body = {
         userId: authCtx.userId,
         title: data.title,
@@ -233,9 +211,6 @@ const PRCreate = () => {
   });
 
   const onSubmit = (data) => {
-    console.log("running onSubmit");
-    console.log(data);
-    console.log(data.files);
     createPRMutation.mutate(data);
   };
 
@@ -492,16 +467,20 @@ const PRCreate = () => {
                   Add new line item
                 </Button>
               </div>
+
               {/* Column headers for line items */}
-              <div className="my-1 grid grid-cols-5 gap-1">
-                <FormLabel className="font-bold">Item Name</FormLabel>
-                <FormLabel className="font-bold">Item Description</FormLabel>
-                <FormLabel className="font-bold">Quantity</FormLabel>
-                <FormLabel className="font-bold">Unit of Measure</FormLabel>
-                <FormLabel className="font-bold">
-                  Unit Cost (Trade Currency)
-                </FormLabel>
-              </div>
+              {itemsFormArray.fields.length > 0 && (
+                <div className="my-1 grid grid-cols-6 gap-1">
+                  <FormLabel className="font-bold">Item Name</FormLabel>
+                  <FormLabel className="font-bold">Item Description</FormLabel>
+                  <FormLabel className="font-bold">Quantity</FormLabel>
+                  <FormLabel className="font-bold">Unit of Measure</FormLabel>
+                  <FormLabel className="font-bold">
+                    Unit Cost (Trade Currency)
+                  </FormLabel>
+                </div>
+              )}
+
               {/* Fields for each line item */}
               {itemsFormArray.fields.map((item, idx) => {
                 return (

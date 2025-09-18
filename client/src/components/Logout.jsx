@@ -13,7 +13,7 @@ const Logout = () => {
     authCtx.setUserId("");
     authCtx.setRole("");
     navigate("/login");
-    // to empty all states and contexts for next user
+
     window.location.reload(true);
   }, []);
 

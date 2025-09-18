@@ -163,8 +163,7 @@ const POView = () => {
       (val) => (val ? new Date(val) : undefined),
       z.date()
     ),
-    // updated_at: z.date(),
-    // updated_by: z.string(),
+
     items: z.array(itemSchema).min(1),
     approverComments: z.string(),
     supplier: supplierSchema,
@@ -202,8 +201,6 @@ const POView = () => {
       createdAt: getPR.data?.pr?.created_at
         ? new Date(getPR.data.pr.created_at)
         : undefined,
-      // updated_at: "",
-      // updated_by: "",
       items: getPR.data?.po?.items || [],
       approverComments: "",
       supplier: {
@@ -276,18 +273,15 @@ const POView = () => {
 
   const uploadFilesMutation = useMutation({
     mutationFn: async (data) => {
-      console.log("inside uploadFilesMutation");
       const formData = new FormData();
       formData.append("pr_id", data.prId);
       formData.append("po_id", data.poId);
       if (isMMD) {
         data.mmdFiles.forEach((f) => {
-          console.log(f);
           formData.append("names", f.name);
           formData.append("files", f.file);
           formData.append("types", f.type);
           formData.append("contentTypes", f.contentType);
-          console.log([...formData.entries()]);
         });
         return await fetchData(
           "/files/upload/mmd",
@@ -298,13 +292,12 @@ const POView = () => {
         );
       } else if (isFinance) {
         data.finFiles.forEach((f) => {
-          console.log(f);
           formData.append("names", f.name);
           formData.append("files", f.file);
           formData.append("types", f.type);
           formData.append("contentTypes", f.contentType);
         });
-        console.log([...formData.entries()]);
+
         return await fetchData(
           "/files/upload/finance",
           "PUT",
@@ -324,8 +317,6 @@ const POView = () => {
   });
 
   const onSubmit = (data) => {
-    console.log("running onSubmit");
-    console.log(data);
     uploadFilesMutation.mutate(data);
   };
 
@@ -384,8 +375,7 @@ const POView = () => {
         poStatus: getPR.data.po.status,
         paymentStatus: getPR.data.pr.payment_status,
         createdAt: new Date(getPR.data.pr.created_at),
-        // updated_at: new Date(getPR.data.pr.updated_at),
-        // updated_by: getPR.data.pr.updated_by,
+
         items: getPR.data.po.items || [],
         approverComments: "",
         supplier: {
@@ -416,11 +406,7 @@ const POView = () => {
       </div>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit, (err) => {
-            console.log("validation errors", err);
-          })}
-          className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-2 gap-2">
             <FormField
               control={form.control}
@@ -877,7 +863,7 @@ const POView = () => {
                 PO Line Items
               </div>
               {/* Column headers for line items */}
-              <div className="my-1 grid grid-cols-5 gap-1">
+              <div className="my-1 grid grid-cols-6 gap-1">
                 <FormLabel className="font-bold">Item Name</FormLabel>
                 <FormLabel className="font-bold">Item Description</FormLabel>
                 <FormLabel className="font-bold">Quantity</FormLabel>

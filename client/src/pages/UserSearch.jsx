@@ -22,20 +22,16 @@ const UserSearch = () => {
 
   const mutation = useMutation({
     mutationFn: async (searchQuery) => {
-      console.log("running mutation");
       const body = {
         query: searchQuery,
       };
-      console.log(JSON.stringify(body));
+
       return await fetchData(
         "/admin/users/search",
         "POST",
         body,
         authCtx.accessToken
       );
-    },
-    onSuccess: (data) => {
-      console.log(data);
     },
   });
 
@@ -63,7 +59,6 @@ const UserSearch = () => {
                   <p>Role: {user.role}</p>
                 </CardContent>
                 <CardFooter>
-                  {/* TODO: Reset password by sys admin */}
                   <Button
                     onClick={() =>
                       navigate(

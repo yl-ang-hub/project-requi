@@ -12,8 +12,6 @@ import { useTheme } from "@/components/theme-provider";
 export function ModeToggle() {
   const { setTheme } = useTheme();
 
-  // TODO: Set all fonts with dark view
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

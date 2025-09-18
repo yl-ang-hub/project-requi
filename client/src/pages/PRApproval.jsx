@@ -162,8 +162,6 @@ const PRApproval = () => {
       (val) => (val ? new Date(val) : undefined),
       z.date()
     ),
-    // updated_at: z.date(),
-    // updated_by: z.string(),
     items: z.array(itemSchema).min(1),
     files: z.array(fileSchema).optional(),
     approverComments: z.string(),
@@ -197,8 +195,6 @@ const PRApproval = () => {
       createdAt: getPR.data?.pr?.created_at
         ? new Date(getPR.data.pr.created_at)
         : undefined,
-      // updated_at: "",
-      // updated_by: "",
       items: getPR.data?.po?.items || [],
       files: getPR.data?.pr?.pr_attachments || [],
       approverComments: "",
@@ -261,7 +257,6 @@ const PRApproval = () => {
 
   const approvePRMutation = useMutation({
     mutationFn: async (data) => {
-      console.log("running approvePR mutation");
       const body = {
         userId: authCtx.userId,
         role: authCtx.role,
@@ -287,19 +282,16 @@ const PRApproval = () => {
 
   const uploadFilesMutation = useMutation({
     mutationFn: async (data) => {
-      console.log("inside uploadFilesMutation");
-      console.log(data);
       const formData = new FormData();
       formData.append("id", data.id);
       data.data.files.forEach((f) => {
-        console.log(f);
         formData.append("names", f.name || "");
         formData.append("files", f.file || "");
         formData.append("types", f.type || "");
         formData.append("links", f.link || "");
         formData.append("contentTypes", f.contentType || "");
       });
-      console.log([...formData.entries()]);
+
       return await fetchData(
         "/files/upload/po",
         "PUT",
@@ -315,11 +307,9 @@ const PRApproval = () => {
 
   const approveAndPOMutation = useMutation({
     mutationFn: async (data) => {
-      console.log("running approveAndCreatePOMutation");
       data.requisitionId = params.id;
       data.totalAmount = totalAmount;
       data.amountInSGD = 0;
-      console.log(data);
 
       if (authCtx.role === "MMD Head" || authCtx.role === "MMD Director") {
         // Already has PO draft - to update changes to PO draft
@@ -349,8 +339,6 @@ const PRApproval = () => {
   });
 
   const onSubmit = (data) => {
-    console.log("running onSubmit");
-    console.log(data);
     if (isMMD) {
       approveAndPOMutation.mutate(data);
     } else {
@@ -360,15 +348,12 @@ const PRApproval = () => {
 
   const rejectMutation = useMutation({
     mutationFn: async (data) => {
-      console.log("running rejectPR mutation");
-      console.log(data);
       const body = {
         userId: authCtx.userId,
         form: data,
       };
 
       if (!isMMD || authCtx.role === "MMD") {
-        console.log("running reject for non-MMD and MMD officers");
         return await fetchData(
           `/requisitions/${params.id}/reject`,
           "PATCH",
@@ -376,7 +361,6 @@ const PRApproval = () => {
           authCtx.accessToken
         );
       } else if (isMMD && authCtx.role !== "MMD") {
-        console.log("running reject for MMD Head and Director");
         return await fetchData(
           `/orders/${params.id}/reject`,
           "PATCH",
@@ -445,8 +429,6 @@ const PRApproval = () => {
         prStatus: getPR.data.pr.status,
         paymentStatus: getPR.data.pr.payment_status,
         createdAt: new Date(getPR.data.pr.created_at),
-        // updated_at: new Date(getPR.data.pr.updated_at),
-        // updated_by: getPR.data.pr.updated_by,
         items: getPR.data?.po?.items || getPR.data.pr.items || [],
         files: getPR.data?.po?.po_attachments || [],
         approverComments: "",
@@ -480,11 +462,7 @@ const PRApproval = () => {
       </div>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit, (err) => {
-            console.log("validation errors", err);
-          })}
-          className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-2 gap-2">
             <div>
               <FormField

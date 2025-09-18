@@ -32,13 +32,12 @@ const MMDCentralPool = () => {
 
   const pullPRMutation = useMutation({
     mutationFn: async (id) => {
-      console.log("running pull PR mutation");
       const body = {
         userId: authCtx.userId,
         role: authCtx.role,
         requisitionId: id,
       };
-      console.log(body);
+
       return await fetchData(
         "/requisitions/approvals/mmd_central_pool",
         "PATCH",

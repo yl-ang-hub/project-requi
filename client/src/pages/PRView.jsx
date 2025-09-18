@@ -31,8 +31,6 @@ const PRView = () => {
   const mmdFields = true,
     finFields = true;
 
-  // TODO: display files
-
   const prOptions = useQuery({
     queryKey: ["prOptions"],
     queryFn: async () => {
@@ -104,8 +102,6 @@ const PRView = () => {
       (val) => (val ? new Date(val) : undefined),
       z.date()
     ),
-    // updated_at: z.date(),
-    // updated_by: z.string(),
     items: z.array(itemSchema).min(1),
     files: z.array(fileSchema).optional(),
   });
@@ -137,8 +133,6 @@ const PRView = () => {
       createdAt: getPR.data?.pr?.created_at
         ? new Date(getPR.data.pr.created_at)
         : undefined,
-      // updated_at: "",
-      // updated_by: "",
       items: getPR.data?.pr?.items || [],
       files: getPR.data?.pr?.pr_attachments || [],
     },
@@ -165,12 +159,11 @@ const PRView = () => {
       );
     },
     onSuccess: () => {
-      navigate(`/pr/${params.id}`);
+      navigate(`/pr`);
     },
   });
 
   const onSubmit = (data) => {
-    console.log("running onSubmit");
     dropPRMutation.mutate(data);
   };
 
@@ -205,8 +198,6 @@ const PRView = () => {
         prStatus: getPR.data.pr.status,
         paymentStatus: getPR.data.pr.payment_status,
         createdAt: new Date(getPR.data.pr.created_at),
-        // updated_at: new Date(getPR.data.pr.updated_at),
-        // updated_by: getPR.data.pr.updated_by,
         items: getPR.data.pr.items || [],
         files: getPR.data.pr.pr_attachments || [],
       });
@@ -214,8 +205,7 @@ const PRView = () => {
 
     const check =
       getPR.data?.pr?.requester_id == authCtx.userId &&
-      (getPR.data?.pr?.status === "Pending Finance" ||
-        getPR.data?.pr?.status === "Pending MMD");
+      getPR.data?.pr?.status.includes("Pending");
     setAllowDropping(check);
   }, [getPR.data, form, authCtx.role]);
 
@@ -229,11 +219,7 @@ const PRView = () => {
       </div>
 
       <Form {...form} className="overflow-scroll">
-        <form
-          onSubmit={form.handleSubmit(onSubmit, (err) => {
-            console.log("validation errors", err);
-          })}
-          className="space-y-8">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="grid grid-cols-2 gap-2">
             <div>
               <FormField

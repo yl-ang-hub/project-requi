@@ -718,11 +718,12 @@ def drop_pr(id):
 
         cursor.execute('SELECT * FROM requisitions WHERE id=%s', (id,))
         pr = cursor.fetchone()
+        print(pr)
 
         if pr['requester_id'] != int(identity[0]):
             return jsonify(status="error", msg="Unauthorised"), 401
 
-        if pr['status'] != "Pending Finance" and pr['status'] != "Pending MMD":
+        if "Pending" not in pr['status']:
             return jsonify(status="error", msg="PR cannot be dropped at this stage"), 403
 
         # Update the dropping in requisition_approval_flow

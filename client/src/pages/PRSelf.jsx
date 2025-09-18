@@ -30,10 +30,6 @@ const PRSelf = () => {
     },
   });
 
-  // const handleViewButton = () => {
-  //   navigate(`/pr/${pr.id}`);
-  // };
-
   const handleViewButton = (pr) => {
     if (pr.next_approver === authCtx.userId) {
       navigate(`/approvals/${pr.id}`);

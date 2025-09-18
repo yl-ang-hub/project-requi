@@ -26,14 +26,13 @@ const UserCreate = () => {
   const getRegistrationOptions = useQuery({
     queryKey: ["regOpts"],
     queryFn: async () => {
-      console.log("running query");
       const data = await fetchData(
         "/auth/users",
         "GET",
         undefined,
         authCtx.accessToken
       );
-      console.log(data);
+
       return data;
     },
     enabled: !!authCtx.accessToken,
@@ -55,7 +54,6 @@ const UserCreate = () => {
       return await fetchData("/auth/users", "PUT", body, authCtx.accessToken);
     },
     onSuccess: (data) => {
-      console.log(JSON.stringify(data));
       navigate("/admin/users/search");
     },
   });
@@ -90,7 +88,6 @@ const UserCreate = () => {
   });
 
   const onSubmit = (data) => {
-    console.log(data);
     createUserMutation.mutate(data);
   };
 
