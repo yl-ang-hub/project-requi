@@ -20,7 +20,6 @@ import { Label } from "@/components/ui/label";
 const ResetPassword = () => {
   const authCtx = use(AuthCtx);
   const fetchData = useFetch();
-  const [loginId, setLoginId] = useState("fin");
   const [currentPassword, setCurrentPassword] = useState("password123");
   const [newPassword, setNewPassword] = useState("12345678");
   const [newPassword2, setNewPassword2] = useState("12345678");
@@ -48,24 +47,11 @@ const ResetPassword = () => {
     <div className="w-full max-w-4xl mx-auto mt-40">
       <Card className="w-full max-w-md m-auto">
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account.
-          </CardDescription>
+          <CardTitle>Reset your password</CardTitle>
         </CardHeader>
         <CardContent>
           <form>
             <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="loginId">Login ID</Label>
-                <Input
-                  id="loginId"
-                  placeholder="company id"
-                  value={loginId}
-                  onChange={(event) => setLoginId(event.target.value)}
-                  required
-                />
-              </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="oldpassword">Current Password</Label>

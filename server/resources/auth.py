@@ -42,6 +42,7 @@ def add_user():
         conn, cursor = get_cursor()
         inputs = request.get_json()
         print(inputs)
+
         cursor.execute("SELECT * FROM users WHERE login_id=%s", (inputs['loginId'],))
         duplicate = cursor.fetchone()
 
