@@ -42,7 +42,7 @@ const FormComboBox = (props) => {
             {value !== ""
               ? props.data?.find((item) => item.includes(value))
               : "Select"}
-            <ChevronsUpDown className="opacity-50" />
+            {readOnly ? <></> : <ChevronsUpDown className="opacity-50" />}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0">

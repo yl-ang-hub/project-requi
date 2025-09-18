@@ -60,7 +60,6 @@ def get_approval_flow():
         # Get Finance in charge
         cursor.execute('SELECT * FROM cost_centres WHERE cost_centre=%s', (cost_centre,))
         cc_data = cursor.fetchone()
-        print(cc_data)
         if not cc_data:
             return jsonify(status="error", msg=f"No cost_centre found for {cost_centre}"), 400
 
@@ -68,7 +67,6 @@ def get_approval_flow():
         cursor.execute('SELECT conversion_rate FROM currencies WHERE code=%s', (inputs['currency'],))
         curr_rate = cursor.fetchone()
         amount_in_sgd = inputs["totalAmount"] / curr_rate['conversion_rate']
-        print("calculated amount in sgd")
 
         # CREATE APPROVAL FLOW FOR THIS REQUISITION
         approval_flow = [{
@@ -125,8 +123,6 @@ def get_approval_flow():
                 "approver_role": role,
                 "approver_id": None
             })
-
-        print(approval_flow)
 
         return jsonify(approval_flow), 200
 
@@ -296,12 +292,10 @@ def add_new_requisition():
         approver_info = cursor.fetchone()
         subj = f"For your approval - PR {requisition['id']}"
         msg = f"Hello {approver_info['name']}, \n\nPR {requisition['id']} - {inputs['title']} has just been submitted by {user['name']}.\n\nPlease log into Requi to view and approve in your role as Finance Officer."
-        print("gg 2 send msg")
-        gmail_response = gmail_send_message(approver_info['email'], subj, msg)
-        print(gmail_response)
+        gmail_send_message(approver_info['email'], subj, msg)
 
         conn.commit()
-        return jsonify(status="ok", msg="PR successfully created"), 200
+        return jsonify(status="ok", msg="PR successfully created", id=f"{requisition['id']}"), 200
 
     except Exception as e:
         conn.rollback()

@@ -172,7 +172,6 @@ const PRCreate = () => {
     mutationFn: async (data) => {
       console.log("inside uploadFilesMutation");
       console.log(data);
-      // TODO: useFormData
       const formData = new FormData();
       formData.append("id", data.id);
       data.data.files.forEach((f) => {
@@ -184,15 +183,12 @@ const PRCreate = () => {
       });
       console.log([...formData.entries()]);
       return await fetchData(
-        "/files/upload",
+        "/files/upload/pr",
         "PUT",
         formData,
         authCtx.accessToken,
         true
       );
-    },
-    onError: (error) => {
-      console.log(error);
     },
     onSuccess: () => {
       navigate("/pr");
@@ -222,17 +218,17 @@ const PRCreate = () => {
         goodsRequiredBy: data.goodsRequiredBy,
         items: data.items,
       };
-      const response = await fetchData(
+      const pr = await fetchData(
         "/requisitions/create",
         "PUT",
         body,
         authCtx.accessToken
       );
-      return { data, id: response.id };
+      return { data, id: pr.id };
     },
     onSuccess: (data) => {
-      // TODO: check that there are files inside data.files (not empty)
       if (data.data.files.length != 0) uploadFilesMutation.mutate(data);
+      else navigate("/pr");
     },
   });
 

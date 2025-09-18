@@ -3,6 +3,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from db.db_pool import get_cursor, release_connection
 from services.google_apis import gmail_send_message
+import sys
+
 
 orders = Blueprint("orders", __name__)
 
@@ -122,7 +124,7 @@ def draft_new_po():
         gmail_send_message(approver_info['email'], subj, msg)
 
         conn.commit()
-        return jsonify(status="ok", msg="created new order"), 200
+        return jsonify({"id": po['id']}), 200
 
     except Exception as e:
         conn.rollback()
@@ -258,11 +260,13 @@ def edit_pr_and_draft_po():
             gmail_send_message(requester_info['email'], subj, msg)
 
         conn.commit()
-        return jsonify(status="ok", msg="approved or edited PO"), 200
+        return jsonify({"id": po['id']}), 200
 
     except Exception as e:
         conn.rollback()
-        print(f"unknown error: {e}")
+        exc_type, exc_obj, tb = sys.exc_info()
+        line_number = tb.tb_lineno
+        print(f"unknown error: {e} on line {line_number}")
         return jsonify(status="error", msg="unable to approve or edit PO"), 400
 
     finally:

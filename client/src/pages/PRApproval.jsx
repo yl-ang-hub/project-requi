@@ -68,6 +68,24 @@ const PRApproval = () => {
     unit_cost: z.coerce.number().positive({ message: "required field" }),
   });
 
+  const fileSchema = z
+    .object({
+      name: z.string().optional(),
+      type: z.string().nonempty({ message: "required field" }),
+      file: z
+        .instanceof(File, { message: "select a file" })
+        .refine((file) => file.size <= 1024 * 1024 * 2, {
+          message: "file size must be less than 2MB",
+        })
+        .optional(),
+      link: z.url("must be a valid url").optional(),
+      contentType: z.string().optional(),
+    })
+    .refine((data) => data.file instanceof File || data.name, {
+      message: "Please select a file",
+      path: ["file"], // error show up under file field if both file and link missing
+    });
+
   const supplierSchema = z
     .object({
       nameAndRegNo: z.string().optional(),
@@ -147,6 +165,7 @@ const PRApproval = () => {
     // updated_at: z.date(),
     // updated_by: z.string(),
     items: z.array(itemSchema).min(1),
+    files: z.array(fileSchema).optional(),
     approverComments: z.string(),
     supplier: supplierSchema,
   });
@@ -181,6 +200,7 @@ const PRApproval = () => {
       // updated_at: "",
       // updated_by: "",
       items: getPR.data?.po?.items || [],
+      files: getPR.data?.pr?.pr_attachments || [],
       approverComments: "",
       supplier: {
         nameAndRegNo: "",
@@ -201,6 +221,16 @@ const PRApproval = () => {
     control: form.control,
   });
 
+  const filesFormArray = useFieldArray({
+    name: "files",
+    control: form.control,
+  });
+
+  const openInNewTab = (url) => {
+    const win = window.open(url, "_blank");
+    win.focus();
+  };
+
   const handleAddLineItems = () => {
     itemsFormArray.append({
       name: "",
@@ -208,6 +238,13 @@ const PRApproval = () => {
       quantity: 0,
       unit_of_measure: "pcs",
       unit_cost: 0,
+    });
+  };
+
+  const handleAddFiles = () => {
+    filesFormArray.append({
+      type: "",
+      file: undefined,
     });
   };
 
@@ -248,6 +285,34 @@ const PRApproval = () => {
     return (acc += curr.quantity * curr.unit_cost);
   }, 0);
 
+  const uploadFilesMutation = useMutation({
+    mutationFn: async (data) => {
+      console.log("inside uploadFilesMutation");
+      console.log(data);
+      const formData = new FormData();
+      formData.append("id", data.id);
+      data.data.files.forEach((f) => {
+        console.log(f);
+        formData.append("names", f.name || "");
+        formData.append("files", f.file || "");
+        formData.append("types", f.type || "");
+        formData.append("links", f.link || "");
+        formData.append("contentTypes", f.contentType || "");
+      });
+      console.log([...formData.entries()]);
+      return await fetchData(
+        "/files/upload/po",
+        "PUT",
+        formData,
+        authCtx.accessToken,
+        true
+      );
+    },
+    onSuccess: () => {
+      navigate("/approvals/history");
+    },
+  });
+
   const approveAndPOMutation = useMutation({
     mutationFn: async (data) => {
       console.log("running approveAndCreatePOMutation");
@@ -257,28 +322,41 @@ const PRApproval = () => {
       console.log(data);
 
       if (authCtx.role === "MMD Head" || authCtx.role === "MMD Director") {
-        // Already has PO draft - to update
-        return await fetchData("/orders/", "PATCH", data, authCtx.accessToken);
+        // Already has PO draft - to update changes to PO draft
+        const po = await fetchData(
+          "/orders/",
+          "PATCH",
+          data,
+          authCtx.accessToken
+        );
+        return { data, id: po.id };
       } else if (isMMD) {
         // Create new PO draft
-        return await fetchData("/orders/", "PUT", data, authCtx.accessToken);
+        const po = await fetchData(
+          "/orders/",
+          "PUT",
+          data,
+          authCtx.accessToken
+        );
+        return { data, id: po.id };
       }
     },
-    onSuccess: () => {
-      navigate("/approvals/history");
+    onSuccess: (data) => {
+      // Run mutation as long as "MMD" in role
+      // Let backend handle file checks for any deletion or addition of files
+      uploadFilesMutation.mutate(data);
     },
   });
 
   const onSubmit = (data) => {
     console.log("running onSubmit");
+    console.log(data);
     if (isMMD) {
       approveAndPOMutation.mutate(data);
     } else {
       approvePRMutation.mutate(data);
     }
   };
-
-  // TODO: Code mutation for rejectAndPOMutation (for MMD Head and MMD Director)
 
   const rejectMutation = useMutation({
     mutationFn: async (data) => {
@@ -370,6 +448,7 @@ const PRApproval = () => {
         // updated_at: new Date(getPR.data.pr.updated_at),
         // updated_by: getPR.data.pr.updated_by,
         items: getPR.data?.po?.items || getPR.data.pr.items || [],
+        files: getPR.data?.po?.po_attachments || [],
         approverComments: "",
         supplier: {
           nameAndRegNo: getPR.data.po?.supplier_business_reg_no || "",
@@ -774,81 +853,130 @@ const PRApproval = () => {
             />
           </div>
 
-          <div>
-            <div className="my-6">
-              <div className="text-xl font-bold dark:text-white">
-                Line Items
-              </div>
-              {/* Column headers for line items */}
-              <div className="my-1 grid grid-cols-6 gap-1">
-                <FormLabel className="font-bold">Item Name</FormLabel>
-                <FormLabel className="font-bold">Item Description</FormLabel>
-                <FormLabel className="font-bold">Quantity</FormLabel>
-                <FormLabel className="font-bold">Unit of Measure</FormLabel>
-                <FormLabel className="font-bold">
-                  Unit Cost (Trade Currency)
-                </FormLabel>
-              </div>
-              {/* Fields for each line item */}
-              {getPR.data?.pr?.items?.map((item, idx) => {
-                return (
-                  <div className="my-1 grid grid-cols-6 gap-1" key={item.id}>
-                    <FormItem className="mt-4">
-                      <FormControl>
-                        <Input
-                          value={item.name}
-                          readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
-                        />
-                      </FormControl>
-                    </FormItem>
-                    <FormItem className="mt-4">
-                      <FormControl>
-                        <Input
-                          value={item.description}
-                          readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
-                        />
-                      </FormControl>
-                    </FormItem>
-                    <FormItem className="mt-4">
-                      <FormControl>
-                        <Input
-                          value={item.quantity}
-                          readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
-                        />
-                      </FormControl>
-                    </FormItem>
-                    <FormItem className="mt-4">
-                      <FormControl>
-                        <Input
-                          value={item.unit_of_measure}
-                          readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
-                        />
-                      </FormControl>
-                    </FormItem>
-                    <FormItem className="mt-4">
-                      <FormControl>
-                        <Input
-                          value={item.unit_cost}
-                          readOnly={true}
-                          className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  </div>
-                );
-              })}
+          <div className="my-6">
+            <div className="text-xl font-bold dark:text-white">Line Items</div>
+            {/* Column headers for line items */}
+            <div className="my-1 grid grid-cols-6 gap-1">
+              <FormLabel className="font-bold">Item Name</FormLabel>
+              <FormLabel className="font-bold">Item Description</FormLabel>
+              <FormLabel className="font-bold">Quantity</FormLabel>
+              <FormLabel className="font-bold">Unit of Measure</FormLabel>
+              <FormLabel className="font-bold">
+                Unit Cost (Trade Currency)
+              </FormLabel>
             </div>
+            {/* Fields for each line item */}
+            {getPR.data?.pr?.items?.map((item, idx) => {
+              return (
+                <div className="my-1 grid grid-cols-6 gap-1" key={item.id}>
+                  <FormItem className="mt-4">
+                    <FormControl>
+                      <Input
+                        value={item.name}
+                        readOnly={true}
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      />
+                    </FormControl>
+                  </FormItem>
+                  <FormItem className="mt-4">
+                    <FormControl>
+                      <Input
+                        value={item.description}
+                        readOnly={true}
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      />
+                    </FormControl>
+                  </FormItem>
+                  <FormItem className="mt-4">
+                    <FormControl>
+                      <Input
+                        value={item.quantity}
+                        readOnly={true}
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      />
+                    </FormControl>
+                  </FormItem>
+                  <FormItem className="mt-4">
+                    <FormControl>
+                      <Input
+                        value={item.unit_of_measure}
+                        readOnly={true}
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      />
+                    </FormControl>
+                  </FormItem>
+                  <FormItem className="mt-4">
+                    <FormControl>
+                      <Input
+                        value={item.unit_cost}
+                        readOnly={true}
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100 read-only:text-gray-700 read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      />
+                    </FormControl>
+                  </FormItem>
+                </div>
+              );
+            })}
+          </div>
 
-            <div>
-              <div className="text-xl font-bold dark:text-white">
-                Approval Flow
-              </div>
-              <ApprovalFlow data={getPR?.data?.approval_flow} />
+          <div className="my-6 mt-10">
+            <div className="text-xl font-bold dark:text-white mb-3">
+              <span className="mr-4">PR Attachments</span>
             </div>
+            {getPR.data?.pr?.pr_attachments?.length > 0 ? (
+              <>
+                {/* Column headers for line items */}
+                <div className="my-1 grid grid-cols-10 gap-1">
+                  <FormLabel className="font-bold">No</FormLabel>
+                  <FormLabel className="col-span-7 font-bold">File</FormLabel>
+                  <FormLabel className="col-span-2 font-bold">Type</FormLabel>
+                </div>
+                {/* Fields for each line item */}
+                {getPR.data?.pr?.pr_attachments?.map((file, idx) => {
+                  return (
+                    <div className="my-1 grid grid-cols-10 gap-1" key={idx}>
+                      <Input
+                        value={idx + 1}
+                        readOnly={true}
+                        className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                      />
+
+                      <FormItem className="col-span-7">
+                        <FormControl>
+                          <Input
+                            value={file.name}
+                            onClick={() => openInNewTab(file.link)}
+                            readOnly={true}
+                            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                          />
+                        </FormControl>
+                      </FormItem>
+
+                      <FormItem className="col-span-2">
+                        <FormControl>
+                          <Input
+                            value={file.type}
+                            readOnly={true}
+                            className="border-gray-300 bg-white text-black px-2 py-1 dark:text-white read-only:border-gray-100  read-only:bg-gray-100 read-only:cursor-grab read-only:select-text"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              <>
+                <div>No files submitted</div>
+              </>
+            )}
+          </div>
+
+          <div>
+            <div className="text-xl font-bold dark:text-white">
+              Approval Flow
+            </div>
+            <ApprovalFlow data={getPR?.data?.approval_flow} />
           </div>
 
           {/* MMD Section - Line Items & Supplier Info */}
@@ -890,93 +1018,206 @@ const PRApproval = () => {
                 })}
               </div>
 
-              <div className="text-xl font-bold dark:text-white">
-                Supplier Information
+              <div className="my-6 mt-10">
+                <div className="text-xl font-bold dark:text-white mb-3">
+                  <span className="mr-4">Upload PO Attachments</span>
+                  <Button type="button" onClick={handleAddFiles}>
+                    {filesFormArray.fields.length !== 0
+                      ? "Add more files"
+                      : "Add file"}
+                  </Button>
+                </div>
+
+                {filesFormArray.fields.length != 0 ? (
+                  <>
+                    {/* Column headers for line items */}
+                    <div className="my-1 grid grid-cols-5 gap-1">
+                      <FormLabel className="font-bold">Type</FormLabel>
+                      <FormLabel className="cols-span-2 font-bold">
+                        File
+                      </FormLabel>
+                    </div>
+                    {/* Fields for each line item */}
+
+                    {/* Allow display of files from DB & allow addition/deletion of files */}
+                    {filesFormArray.fields.map((file, idx) => {
+                      return (
+                        <div
+                          className="my-1 grid grid-cols-5 gap-1"
+                          key={file.id}>
+                          <FormField
+                            control={form.control}
+                            name={`files.${idx}.type`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <FormComboBox
+                                    field={field}
+                                    setFormValue={form.setValue}
+                                    data={[
+                                      "Quotation",
+                                      "Specs",
+                                      "Others",
+                                      "PO",
+                                    ]}
+                                    readOnly={
+                                      form.getValues(`files.${idx}.link`) ||
+                                      mmdFields
+                                    }
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`files.${idx}.file`}
+                            render={({ field }) => (
+                              <FormItem className="col-span-2">
+                                <FormControl>
+                                  {form.getValues(`files.${idx}.link`) ? (
+                                    <Input
+                                      value={form.getValues(
+                                        `files.${idx}.name`
+                                      )}
+                                      onClick={() =>
+                                        openInNewTab(
+                                          form.getValues(`files.${idx}.link`)
+                                        )
+                                      }
+                                      readOnly={true}
+                                      className="border-transparent shadow-none bg-white text-black px-2 py-1 dark:text-white cursor-grab"
+                                    />
+                                  ) : (
+                                    <Input
+                                      type="file"
+                                      onChange={(e) => {
+                                        field.onChange(e.target.files?.[0]);
+                                        form.setValue(
+                                          `files.${idx}.name`,
+                                          e.target.files?.[0].name
+                                        );
+                                        form.setValue(
+                                          `files.${idx}.contentType`,
+                                          e.target.files?.[0].type
+                                        );
+                                      }}
+                                      readOnly={mmdFields}
+                                      className=" border-gray-300 bg-white text-black px-2 py-1 dark:text-white cursor-grab"
+                                    />
+                                  )}
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          {form.getValues(`files.${idx}.link`) ? (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              onClick={() => filesFormArray.remove(idx)}>
+                              Delete file
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              onClick={() => filesFormArray.remove(idx)}>
+                              Remove line
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </>
+                ) : (
+                  <></>
+                )}
               </div>
 
               <div>
-                <FormField
-                  control={form.control}
-                  name="supplier.nameAndRegNo"
-                  render={({ field }) => (
-                    <FormItem className="mt-4">
-                      <FormLabel className="font-bold">Company</FormLabel>
-                      <FormControl>
-                        <FormComboBox
-                          field={field}
-                          setFormValue={form.setValue}
-                          data={
-                            getSuppliersMutation?.data?.["supplier_listing"]
-                          }
-                          readOnly={mmdFields}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="text-xl font-bold dark:text-white">
+                  Supplier Information
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name="supplier.supplierContactName"
-                  render={({ field }) => (
-                    <FormItem className="mt-4">
-                      <FormLabel className="font-bold">Contact Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div>
+                  <FormField
+                    control={form.control}
+                    name="supplier.nameAndRegNo"
+                    render={({ field }) => (
+                      <FormItem className="mt-4">
+                        <FormLabel className="font-bold">Company</FormLabel>
+                        <FormControl>
+                          <FormComboBox
+                            field={field}
+                            setFormValue={form.setValue}
+                            data={
+                              getSuppliersMutation?.data?.["supplier_listing"]
+                            }
+                            readOnly={mmdFields}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="supplier.supplierContactNumber"
-                  render={({ field }) => (
-                    <FormItem className="mt-4">
-                      <FormLabel className="font-bold">
-                        Contact Number
-                      </FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="supplier.supplierContactName"
+                    render={({ field }) => (
+                      <FormItem className="mt-4">
+                        <FormLabel className="font-bold">
+                          Contact Name
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="supplier.supplierEmail"
-                  render={({ field }) => (
-                    <FormItem className="mt-4">
-                      <FormLabel className="font-bold">Contact Email</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {/* Supplier information 
-              business_reg_no VARCHAR(100) PRIMARY KEY,
-              company_name VARCHAR(200), 
-              billing_address VARCHAR(200),
-              default_bank_account VARCHAR(20),
-              supplier_contact_name VARCHAR(200), 
-              supplier_contact_number
-              VARCHAR(20), 
-              supplier_contact_email VARCHAR(100)
-              Quotation (Final): 
-              Specs & Others (Final):
-              Quotations (Other suppliers): */}
+                  <FormField
+                    control={form.control}
+                    name="supplier.supplierContactNumber"
+                    render={({ field }) => (
+                      <FormItem className="mt-4">
+                        <FormLabel className="font-bold">
+                          Contact Number
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="supplier.supplierEmail"
+                    render={({ field }) => (
+                      <FormItem className="mt-4">
+                        <FormLabel className="font-bold">
+                          Contact Email
+                        </FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </div>
           ) : (
             <></>
           )}
 
+          {/* Approver Comments, Approve and Reject */}
           <div>
             <span className="text-xl font-bold dark:text-white">
               Approver Comments
