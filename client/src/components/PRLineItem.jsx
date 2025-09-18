@@ -15,7 +15,7 @@ const PRLineItem = (props) => {
   const readOnly = props.readOnly || false;
 
   return (
-    <div className="my-1 grid grid-cols-5 gap-1" key={props.item.id}>
+    <div className="my-1 grid grid-cols-6 gap-1" key={props.item.id}>
       <FormField
         control={form.control}
         name={`items.${props.idx}.name`}

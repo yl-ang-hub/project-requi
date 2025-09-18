@@ -56,7 +56,7 @@ const ApprovalsHistory = () => {
         </CardHeader>
         <CardContent>
           {/* PRs APPROVED BY USER */}
-          <Card>
+          <Card className="overflow-scroll">
             <CardHeader>
               <CardTitle>PRs Approved</CardTitle>
             </CardHeader>
@@ -102,7 +102,7 @@ const ApprovalsHistory = () => {
           </Card>
 
           {/* PRs REJECTED BY USER */}
-          <Card>
+          <Card className="my-6">
             <CardHeader>
               <CardTitle>PRs Rejected</CardTitle>
             </CardHeader>

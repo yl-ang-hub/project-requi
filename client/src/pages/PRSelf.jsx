@@ -108,7 +108,7 @@ const PRSelf = () => {
           </Card>
 
           {/* APPROVED or COMPLETED */}
-          <Card>
+          <Card className="my-6">
             <CardHeader>
               <CardTitle>PRs Approved / Completed</CardTitle>
             </CardHeader>
@@ -157,7 +157,7 @@ const PRSelf = () => {
           </Card>
 
           {/* DROPPED ETC. */}
-          <Card>
+          <Card className="my-6">
             <CardHeader>
               <CardTitle>PRs Dropped / Rejected</CardTitle>
             </CardHeader>
