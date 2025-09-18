@@ -171,29 +171,6 @@ function AppSidebar() {
           ""
         )}
 
-        {/* SUPPLIERS NAV */}
-        {authCtx.role.includes("MMD") || authCtx.role === "System Admin" ? (
-          <SidebarGroup>
-            <SidebarGroupLabel>Suppliers</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to="/">Add New Supplier</Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to="/">Manage Suppliers</Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ) : (
-          ""
-        )}
-
         {/* ADMIN NAV */}
         {authCtx.role === "IT Officer" || authCtx.role === "System Admin" ? (
           <SidebarGroup>
@@ -208,16 +185,6 @@ function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <Link to="/admin/users/search">Search/Edit User</Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to="/">Add New Role</Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link to="/">Edit Existing Role</Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -237,7 +204,11 @@ function GuestSidebar() {
       <SidebarHeader className="my-2 mx-3">
         <div>
           <ModeToggle />
-          <span className="ml-3 font-extrabold">REQUI</span>
+          <span className="text-gray-900 text-4xl font-extrabold md:text-xl lg:text-3xl">
+            <span className="ml-3 text-transparent bg-clip-text bg-gradient-to-r to-indigo-600 from-violet-400">
+              REQUI APP
+            </span>
+          </span>
         </div>
       </SidebarHeader>
 
