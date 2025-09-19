@@ -72,6 +72,7 @@ const Login = () => {
           authCtx.setName(decoded.name);
         }
         if (decoded.role.includes("MMD")) navigate("/approvals/pending");
+        else navigate("/pr");
       } catch (e) {
         console.error(e.message);
       }

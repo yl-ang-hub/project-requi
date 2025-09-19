@@ -27,7 +27,7 @@ const UserSearch = () => {
       };
 
       return await fetchData(
-        "/admin/users/search",
+        "/users/search",
         "POST",
         body,
         authCtx.accessToken
