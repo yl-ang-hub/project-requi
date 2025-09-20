@@ -1,33 +1,40 @@
 # Requi
 
-**Requi** is a full-stack requisition and procurement management system designed to streamline the purchasing workflow in organisations.  
+**Requi** is a full-stack requisition and procurement management system designed to automate and streamline the purchasing workflow in organisations.
+
 It supports requisition creation, multi-level approvals, document management, delivery and payment tracking — all with secure access controls.
 
 ## Key Features
 
-- **Authentication & Authorization**
+- **Secure Access Control**
 
-  - Secure login with JWT
-  - Role-based access (staff, approvers, finance, procurements, system administrator)
+  - JWT authentication with role-based permissions (staff, approvers, finance, admin)
 
-- **Requisition Workflow**
+- **Requisition Management**
 
-  - Create and track requisitions
-  - Automated approval flow based on the company's financial and procurement policies
+  - Submit requisitions with supplier, cost centre, budget codes, and attachments
+  - Track requisition status from submission to approval
+
+- **Approval Workflow**
+
+  - Automated routing based on department, cost centre, and amount
+  - Supports multi-level approvals (e.g., finance → line manager → director)
+  - Automated email notifications to speed up approval process
+
+- **Purchase Orders Management**
+
+  - Immutable (frozen) for compliance and stored with requisitions
+  - Supports tracking of PO status and uploading of delivery orders, goods received notes, invoices and payments associated with the PO
 
 - **Document Management**
 
-  - Upload and manage supporting files
+  - Upload and manage supporting files for every stage of procurement
   - Integration with **Amazon S3** for scalable storage
   - Automatic unique file naming to prevent overwrites
 
 - **Database Integration**
 
   - PostgreSQL with normalised schema for requisitions, suppliers, users, and purchase orders
-
-- **Frontend Experience**
-  - React-based UI with real-time form validation and file uploads
-  - Role-specific dashboards and views
 
 ## Technical Stack
 
