@@ -3,8 +3,6 @@
 **Requi** is a full-stack requisition and procurement management system designed to streamline the purchasing workflow in organisations.  
 It supports requisition creation, multi-level approvals, document management, delivery and payment tracking — all with secure access controls.
 
----
-
 ## Key Features
 
 - **Authentication & Authorization**
@@ -31,8 +29,6 @@ It supports requisition creation, multi-level approvals, document management, de
   - React-based UI with real-time form validation and file uploads
   - Role-specific dashboards and views
 
----
-
 ## Technical Stack
 
 **Core Framework**: React, Flask (Python), PostgreSQL
@@ -43,8 +39,6 @@ It supports requisition creation, multi-level approvals, document management, de
 - **Backend:** Boto3, Google API Python Client / Google OAuth2, Flask-JWT-Extended, Bcrypt
 - **Database:** PostgreSQL
 - **File Storage:** Amazon S3 (Boto3)
-
----
 
 ## Project Setup
 
@@ -65,14 +59,6 @@ It supports requisition creation, multi-level approvals, document management, de
 - Create the `.env` file
 
   ```
-  DATABASE_URL=your_database_url
-  SECRET_KEY=your_secret_key
-  JWT_SECRET_KEY=your_jwt_secret
-  AWS_ACCESS_KEY_ID=your_key
-  AWS_SECRET_ACCESS_KEY=your_secret
-  S3_BUCKET_NAME=your_bucket_name
-
-
   DB_HOST=your_database_host
   DB_PORT=your_database_port
   DB=your_database_name
@@ -99,8 +85,6 @@ It supports requisition creation, multi-level approvals, document management, de
   VITE-SERVER=your_server_url
   ```
 - Install the dependencies
-
----
 
 ## Example Workflow
 
@@ -134,8 +118,6 @@ It supports requisition creation, multi-level approvals, document management, de
 
 - With confirmation of goods received from MMD, Finance can initiated payment and upload the proof of payment to the system to close the requisition.
 
----
-
 ## Future Roadmap (if there's an opportunity)
 
 - Automated generation of Purchase Order upon requisition approval
@@ -144,8 +126,6 @@ It supports requisition creation, multi-level approvals, document management, de
 - Delivery and order management (e.g. to tally deliveries with requisitions)
 - Invoices and payment management: opportunity to expand into a simple payment management or to link up with the Finance system
 - Reports & Analytics e.g. Spend Analysis, Supplier Performance, Budget Compliance
-
----
 
 ## App Development
 
@@ -180,7 +160,7 @@ While designing the database, I aimed to achieve a good degree of normalization 
 
 Based on the features and business, I planned out the different pages of the app and the respective functions for different user roles. This is the component tree for Requi -
 
-![component](./readme/component_tree_lr.png)
+![component](./readme/component_tree.png)
 
 The front-end is quite challenging to build due to the different views based on (1) user roles and (2) requisition status. For instance,
 
