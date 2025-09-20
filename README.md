@@ -180,7 +180,7 @@ While designing the database, I aimed to achieve a good degree of normalization 
 
 Based on the features and business, I planned out the different pages of the app and the respective functions for different user roles. This is the component tree for Requi -
 
-![component](./readme/component_tree.png)
+![component](./readme/component_tree_lr.png)
 
 The front-end is quite challenging to build due to the different views based on (1) user roles and (2) requisition status. For instance,
 
