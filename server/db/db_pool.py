@@ -9,7 +9,7 @@ pool = psycopg2.pool.SimpleConnectionPool(
     host=os.getenv("DB_HOST"),
     database=os.getenv("DB"),
     user=os.getenv("DB_USER"),
-    password=os.getenv("PASSWORD"),
+    password=os.getenv("DB_PASSWORD"),
     port=os.getenv("DB_PORT")
 )
 
