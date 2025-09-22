@@ -22,6 +22,7 @@ import PRLineItem from "../components/PRLineItem";
 import { jwtDecode } from "jwt-decode";
 import ApprovalFlow from "@/components/ApprovalFlow";
 import { useNavigate, useParams } from "react-router-dom";
+import { Loader } from "lucide-react";
 
 const PRApproval = () => {
   const params = useParams();
@@ -1219,14 +1220,26 @@ const PRApproval = () => {
               )}
             />
             <div className="my-6">
-              <Button type="submit">Approve</Button>
+              <Button
+                type="submit"
+                disabled={
+                  approvePRMutation.isPending || approveAndPOMutation.isPending
+                }>
+                {approvePRMutation.isPending ||
+                approveAndPOMutation.isPending ? (
+                  <Loader />
+                ) : (
+                  "Approve"
+                )}
+              </Button>
               <Button
                 type="button"
                 variant="destructive"
+                disabled={rejectMutation.isPending}
                 onClick={() => {
                   rejectMutation.mutate(form.getValues());
                 }}>
-                Reject
+                {rejectMutation.isPending ? <Loader /> : "Reject"}
               </Button>
             </div>
           </div>

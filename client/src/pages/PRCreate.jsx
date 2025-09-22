@@ -21,6 +21,7 @@ import PRLineItem from "../components/PRLineItem";
 import { jwtDecode } from "jwt-decode";
 import ApprovalFlow from "@/components/ApprovalFlow";
 import { useNavigate } from "react-router-dom";
+import { Loader } from "lucide-react";
 
 const PRCreate = () => {
   const authCtx = use(AuthCtx);
@@ -90,9 +91,9 @@ const PRCreate = () => {
       glCode: "",
       currency: "",
       comments: "No discount for new models",
-      goodsRequiredBy: new Date(
-        new Date().getTime() + 30 * 1000 * 60 * 60 * 24
-      ),
+      goodsRequiredBy: new Date(new Date().getTime() + 30 * 1000 * 60 * 60 * 24)
+        .toISOString()
+        .split("T")[0],
       items: [],
       files: [],
     },
@@ -591,7 +592,9 @@ const PRCreate = () => {
               Reset
             </Button>
 
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={createPRMutation.isPending}>
+              {createPRMutation.isPending ? <Loader /> : "Submit"}
+            </Button>
           </div>
         </form>
       </Form>

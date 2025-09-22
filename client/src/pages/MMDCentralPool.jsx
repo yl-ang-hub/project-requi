@@ -13,6 +13,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import useFetch from "@/hooks/useFetch";
 import AuthCtx from "@/components/context/authContext";
 import { useNavigate } from "react-router-dom";
+import { Loader } from "lucide-react";
 
 const MMDCentralPool = () => {
   const fetchData = useFetch();
@@ -91,10 +92,15 @@ const MMDCentralPool = () => {
                     <TableCell className="text-right">
                       <Button
                         id={pr.id}
+                        disabled={pullPRMutation.isPending}
                         onClick={(event) =>
                           pullPRMutation.mutate(event.target.id)
                         }>
-                        Pull to my worklist
+                        {pullPRMutation.isPending ? (
+                          <Loader />
+                        ) : (
+                          "Pull to my worklist"
+                        )}
                       </Button>
                     </TableCell>
                   </TableRow>

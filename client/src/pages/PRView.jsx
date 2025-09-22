@@ -20,6 +20,7 @@ import AuthCtx from "@/components/context/authContext";
 import PRLineItem from "../components/PRLineItem";
 import ApprovalFlow from "@/components/ApprovalFlow";
 import { useNavigate, useParams } from "react-router-dom";
+import { Loader } from "lucide-react";
 
 const PRView = () => {
   const params = useParams();
@@ -695,7 +696,13 @@ const PRView = () => {
             <ApprovalFlow data={getPR?.data?.approval_flow} />
           </div>
 
-          {allowDropping ? <Button type="submit">Drop PR</Button> : <></>}
+          {allowDropping ? (
+            <Button type="submit" disabled={dropPRMutation.isPending}>
+              {dropPRMutation.isPending ? <Loader /> : "Drop PR"}
+            </Button>
+          ) : (
+            <></>
+          )}
         </form>
       </Form>
     </div>

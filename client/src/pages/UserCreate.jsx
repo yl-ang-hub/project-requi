@@ -17,6 +17,7 @@ import useFetch from "@/hooks/useFetch";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import AuthCtx from "@/components/context/authContext";
+import { Loader } from "lucide-react";
 
 const UserCreate = () => {
   const fetchData = useFetch();
@@ -236,7 +237,9 @@ const UserCreate = () => {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          <Button type="submit" disabled={createUserMutation.isPending}>
+            {createUserMutation.isPending ? <Loader /> : "Submit"}
+          </Button>
         </form>
       </Form>
     </div>

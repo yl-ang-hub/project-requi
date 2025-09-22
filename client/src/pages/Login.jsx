@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Disclaimer from "@/components/Disclaimer";
+import { Loader } from "lucide-react";
 
 const Login = () => {
   const authCtx = use(AuthCtx);
@@ -86,7 +88,7 @@ const Login = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-40">
+    <div className="w-full max-w-4xl mx-auto mt-10">
       <Card className="w-full max-w-md m-auto">
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -119,14 +121,20 @@ const Login = () => {
           </form>
         </CardContent>
         <CardFooter className="flex-col gap-2">
-          <Button type="submit" className="w-full" onClick={auth.refetch}>
-            Login
+          <Button
+            type="submit"
+            className="w-full"
+            onClick={auth.refetch}
+            disabled={auth.isFetching}>
+            {auth.isFetching ? <Loader /> : "Login"}
           </Button>
           <div className="text-sm text-red-500">
             {auth.isError && auth.error}
           </div>
         </CardFooter>
       </Card>
+
+      <Disclaimer />
     </div>
   );
 };

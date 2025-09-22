@@ -22,6 +22,7 @@ import PRLineItem from "../components/PRLineItem";
 import { jwtDecode } from "jwt-decode";
 import ApprovalFlow from "@/components/ApprovalFlow";
 import { useNavigate, useParams } from "react-router-dom";
+import { Loader } from "lucide-react";
 
 const POView = () => {
   const params = useParams();
@@ -1368,14 +1369,28 @@ const POView = () => {
               {isMMD &&
                 mmdFilesFormArray.fields.length > 0 &&
                 getPR.data?.pr?.status === "Approved" && (
-                  <Button type="submit">
-                    Upload & Verify All Goods Received for PO
+                  <Button
+                    type="submit"
+                    disabled={uploadFilesMutation.isPending}>
+                    {uploadFilesMutation.isPending ? (
+                      <Loader />
+                    ) : (
+                      "Upload & Verify All Goods Received for PO"
+                    )}
                   </Button>
                 )}
               {isFinance &&
                 finFilesFormArray.fields.length > 0 &&
                 getPR.data?.pr?.status === "Delivered" && (
-                  <Button type="submit">Verify Payment Made to Supplier</Button>
+                  <Button
+                    type="submit"
+                    disabled={uploadFilesMutation.isPending}>
+                    {uploadFilesMutation.isPending ? (
+                      <Loader />
+                    ) : (
+                      "Verify Payment Made to Supplier"
+                    )}
+                  </Button>
                 )}
             </>
           ) : (
