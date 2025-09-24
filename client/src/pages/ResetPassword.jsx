@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { use } from "react";
 import { useNavigate } from "react-router-dom";
 import useFetch from "../hooks/useFetch";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { jwtDecode } from "jwt-decode";
+import { useMutation } from "@tanstack/react-query";
 import AuthCtx from "@/components/context/authContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
