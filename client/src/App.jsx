@@ -1,6 +1,6 @@
 import React, { use, useState } from "react";
 import NavBar from "./components/NavBar";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/Theme-Provider";
 import { Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import AuthContext from "./components/context/authContext";
