@@ -7,7 +7,7 @@ load_dotenv()
 pool = psycopg2.pool.SimpleConnectionPool(
     3, 5,
     host=os.getenv("DB_HOST"),
-    database=os.getenv("DB"),
+    database=os.getenv("DB_NAME"),
     user=os.getenv("DB_USER"),
     password=os.getenv("DB_PASSWORD"),
     port=os.getenv("DB_PORT")
