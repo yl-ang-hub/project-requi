@@ -4,6 +4,8 @@
 
 It supports requisition creation, multi-level approvals, document management, delivery and payment tracking — all with secure access controls.
 
+View a demo of the app at https://project-requi.onrender.com/ now!
+
 ## Key Features
 
 - **Secure Access Control**
@@ -101,9 +103,15 @@ It supports requisition creation, multi-level approvals, document management, de
 - Submit a requisition with required details and attachments (e.g. specs / quotations).
 - Approval flow will be triggered automatically, and email notification (via Gmail API) will be sent to the next level approver.
 
+![View of the Create New PR page](./readme/create_pr.png)
+
 2. Finance
 
 - Receives an email notification to check the finance details (e.g. cost centre, account code, GL code) and approve the requisition.
+
+- Once approved, users can see a customised view of the requisitions they had approved in the past and the current status.
+
+![View of past approvals by the user](./readme/approval_history.png)
 
 3. Department Head / Directors / Senior Management
 
@@ -120,6 +128,8 @@ It supports requisition creation, multi-level approvals, document management, de
 5. MMD - Delivery of Goods
 
 - Upload invoices, delivery notes and goods received notes for verification of goods received.
+
+![View of the PO and the capability to upload attachments to track quotations, specs, purchase orders, invoices, delivery notes, goods received notes etc.](./readme/po_view.png)
 
 5. Finance
 
