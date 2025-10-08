@@ -6,50 +6,51 @@ It supports requisition creation, multi-level approvals, document management, de
 
 View a demo of the app at https://project-requi.onrender.com/ now!
 
-## Key Features
+## 🛠️ Key Features
 
-- **Secure Access Control**
+- 🔐 **Secure Access Control**
 
   - JWT authentication with role-based permissions (staff, approvers, finance, admin)
 
-- **Requisition Management**
+- 🛒 **Requisition Management**
 
   - Submit requisitions with supplier, cost centre, budget codes, and attachments
   - Track requisition status from submission to approval
 
-- **Approval Workflow**
+- ✅ **Approval Workflow**
 
   - Automated routing based on department, cost centre, and amount
   - Supports multi-level approvals (e.g., finance → line manager → director)
   - Automated email notifications to speed up approval process
 
-- **Purchase Orders Management**
+- 🧾 **Purchase Orders Management**
 
   - Immutable (frozen) for compliance and stored with requisitions
   - Supports tracking of PO status and uploading of delivery orders, goods received notes, invoices and payments associated with the PO
 
-- **Document Management**
+- 📑 **Document Management**
 
   - Upload and manage supporting files for every stage of procurement
   - Integration with **Amazon S3** for scalable storage
   - Automatic unique file naming to prevent overwrites
 
-- **Database Integration**
+- 💽 **Database Integration**
 
   - PostgreSQL with normalised schema for requisitions, suppliers, users, and purchase orders
 
-## Technical Stack
+## 💻 Tech Stack
 
 **Core Framework**: React, Flask (Python), PostgreSQL
 
 **Others**:
 
 - **Frontend:** React Hook Form, Zod, TailwindCSS, Tanstack Query, ShadCN UI
-- **Backend:** Boto3, Google API Python Client / Google OAuth2, Flask-JWT-Extended, Bcrypt
+- **Backend:** Flask-JWT-Extended, Bcrypt
 - **Database:** PostgreSQL
+- **API Integration:** Google API Python Client / Google OAuth2
 - **File Storage:** Amazon S3 (Boto3)
 
-## Project Setup
+## 🗃️ Project Setup
 
 ### Prerequisites
 
@@ -57,6 +58,7 @@ View a demo of the app at https://project-requi.onrender.com/ now!
 - Node.js & npm
 - PostgreSQL
 - AWS credentials (for S3 integration)
+- Gmail API credentials (for email notifications)
 
 ### Installation
 
@@ -95,9 +97,9 @@ View a demo of the app at https://project-requi.onrender.com/ now!
   ```
 - Install the dependencies
 
-## Example Workflow
+## 📋 Example Workflow
 
-1. Staff
+**1. Staff**
 
 - Log in with a registered user account.
 - Submit a requisition with required details and attachments (e.g. specs / quotations).
@@ -105,7 +107,7 @@ View a demo of the app at https://project-requi.onrender.com/ now!
 
 ![View of the Create New PR page](./readme/create_pr.png)
 
-2. Finance
+**2. Finance**
 
 - Receives an email notification to check the finance details (e.g. cost centre, account code, GL code) and approve the requisition.
 
@@ -113,11 +115,11 @@ View a demo of the app at https://project-requi.onrender.com/ now!
 
 ![View of past approvals by the user](./readme/approval_history.png)
 
-3. Department Head / Directors / Senior Management
+**3. Department Head / Directors / Senior Management**
 
 - Receives an email notification when the requisition reached their level for approval.
 
-4. MMD and MMD Management - Approval of Requisition
+**4. MMD and MMD Management - Approval of Requisition**
 
 - Executes the sourcing of supplier and PO generation.
 - Edit the final list of line items for procurement
@@ -125,17 +127,17 @@ View a demo of the app at https://project-requi.onrender.com/ now!
 - Requisition will flow to MMD Management for approval of the supplier and final PO.
 - Once the PO is approved, MMD can inform the supplier for goods delivery.
 
-5. MMD - Delivery of Goods
+**5. MMD - Delivery of Goods**
 
 - Upload invoices, delivery notes and goods received notes for verification of goods received.
 
 ![View of the PO and the capability to upload attachments to track quotations, specs, purchase orders, invoices, delivery notes, goods received notes etc.](./readme/po_view.png)
 
-5. Finance
+**6. Finance**
 
 - With confirmation of goods received from MMD, Finance can initiated payment and upload the proof of payment to the system to close the requisition.
 
-## Future Roadmap (if there's an opportunity)
+## 🗺️ Future Roadmap (if there's an opportunity)
 
 - Automated generation of Purchase Order upon requisition approval
 - Robust Audit Trails for compliance with finance/procurement policies
@@ -144,7 +146,7 @@ View a demo of the app at https://project-requi.onrender.com/ now!
 - Invoices and payment management: opportunity to expand into a simple payment management or to link up with the Finance system
 - Reports & Analytics e.g. Spend Analysis, Supplier Performance, Budget Compliance
 
-## App Development
+## ✏️ Planning / Development
 
 ### App Features and Business Logic
 
@@ -183,4 +185,14 @@ The front-end is quite challenging to build due to the different views based on 
 
 - During the requisition approval stage, Finance can only edit the finance form fields and MMD can only edit the MMD form fields. These fields should not appear until the requisition reached their level. Other approvers (such as Director) are not allowed to edit the requisition. Non-MMD personnel are not allowed to see the MMD fields until the PO is approved.
 - After the requisition is approved, only MMD should see the fields to upload delivery notes, invoices and goods received notes for the PO. The PO needs to be routed to Finance after this is done and Finance should see a section where they can upload proof of payment.
-- For separation of scope, requester and the other staff can only see the requisition/PO and the status: they will not be able to see the MMD and Finance sections.
+
+### Role-based Access
+
+Users with different roles are served data and views specific to their roles. E.g.:
+
+- Finance will see requisitions pending their approvals
+- Once requisitions reached MMD, it will enter a central pool where MMD staff can pull requisitions under their scope to their own worklist (which they can then access through their Pending Approvals page)
+- End users will not be able to see information entered by MMD until the purchase order is fully approved
+- End users can only see the status of the purchase order (e.g. delivered / completed) and cannot access the goods received note, delivery orders or invoices uploaded by MMD or Finance
+
+Implementation of customised data and views are achieved in the front-end, backend and database design. This is to ensure true separation of scope in a realistic business setting.
